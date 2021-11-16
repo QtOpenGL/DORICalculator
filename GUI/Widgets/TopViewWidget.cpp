@@ -2,10 +2,9 @@
 
 #include <QPainter>
 
-TopViewWidget::TopViewWidget(QWidget *parent) : QWidget(parent)
-{
-
-}
+TopViewWidget::TopViewWidget(QWidget *parent)
+    : QWidget(parent)
+{}
 
 void TopViewWidget::paintEvent(QPaintEvent *event)
 {
@@ -13,7 +12,7 @@ void TopViewWidget::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing, true);
     QBrush brush;
     brush.setStyle(Qt::BrushStyle::CrossPattern);
-    brush.setColor(QColor(200,200,200));
+    brush.setColor(QColor(200, 200, 200));
 
-    painter.fillRect(0,0,width(), height(), brush);
+    painter.fillRect(0, 0, width(), height(), brush);
 }

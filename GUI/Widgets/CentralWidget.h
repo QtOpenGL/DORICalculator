@@ -1,12 +1,13 @@
 #ifndef CENTRALWIDGET_H
 #define CENTRALWIDGET_H
 
+#include "SideViewWidget.h"
+#include "TopViewWidget.h"
+
 #include <QGroupBox>
 #include <QLabel>
 #include <QStatusBar>
 #include <QWidget>
-#include "SideViewWidget.h"
-#include "TopViewWidget.h"
 
 class CentralWidget : public QWidget
 {

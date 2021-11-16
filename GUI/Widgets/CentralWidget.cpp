@@ -1,9 +1,9 @@
 #include "CentralWidget.h"
 #include <QVBoxLayout>
 
-CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
+CentralWidget::CentralWidget(QWidget *parent)
+    : QWidget(parent)
 {
-
     mSideViewTitle = new QLabel("SideViewWidget");
     mSideViewWidget = new SideViewWidget;
     mSideViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -17,7 +17,6 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
     mGroupBox = new QGroupBox;
     mGroupBox->setTitle("Controls");
     mGroupBox->setMinimumWidth(150);
-
 
     mBottomBarWidget = new QGroupBox;
     mBottomBarWidget->setTitle("BottomBar");
@@ -48,5 +47,4 @@ CentralWidget::CentralWidget(QWidget *parent) : QWidget(parent)
     mainLayout->addWidget(mBottomBarWidget);
 
     setLayout(mainLayout);
-
 }

@@ -10,18 +10,20 @@ CONFIG += c++11
 include(Dependencies/Dependencies.pri)
 
 SOURCES += \
+    GUI/Base/AxisDrawer.cpp \
+    GUI/Widgets/CentralWidget.cpp \
+    GUI/Widgets/SideViewWidget.cpp \
+    GUI/Widgets/TopViewWidget.cpp \
     MainWindow.cpp \
-    Main.cpp \
-    Widgets/CentralWidget.cpp \
-    Widgets/SideViewWidget.cpp \
-    Widgets/TopViewWidget.cpp
+    Main.cpp
 
 HEADERS += \
+    GUI/Base/AxisDrawer.h \
+    GUI/Widgets/CentralWidget.h \
+    GUI/Widgets/SideViewWidget.h \
+    GUI/Widgets/TopViewWidget.h \
     MainWindow.h \
-    Parameters.h \
-    Widgets/CentralWidget.h \
-    Widgets/SideViewWidget.h \
-    Widgets/TopViewWidget.h
+    Parameters.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
