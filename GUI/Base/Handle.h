@@ -3,15 +3,17 @@
 
 #include <QPen>
 
+#include <GUI/Widgets/ViewWidget.h>
+
 class Handle
 {
 public:
-    Handle();
+    Handle(ViewWidget *widget);
 
     bool contains(int x, int y);
-    bool contains(QPointF point);
+    bool contains(QPoint point);
 
-    void draw(QPaintDevice *device);
+    void draw();
 
     bool pressed() const;
     void setPressed(bool newPressed);
@@ -22,18 +24,28 @@ public:
     const QBrush &brush() const;
     void setBrush(const QBrush &newBrush);
 
-    const QRectF &rectangle() const;
-    void setRectangle(const QRectF &newRectangle);
-
-    const QBrush &pressedBursh() const;
-    void setPressedBursh(const QBrush &newPressedBursh);
+    const QRect &rectangle() const;
+    void setRectangle(const QRect &newRectangle);
+    void setCenter(int x, int y);
+    void setSize(int w, int h);
+    void setCenterX(int x);
+    void setCenterY(int y);
+    void translate(int dx, int dy);
 
     const QBrush &hoveredBrush() const;
     void setHoveredBrush(const QBrush &newHoveredBrush);
 
+    bool hovered() const;
+    void setHovered(bool newHovered);
+
+    const QBrush &pressedBrush() const;
+    void setPressedBrush(const QBrush &newPressedBrush);
+
 private:
-    QRectF mRectangle;
-    QBrush mBrush, mPressedBursh, mHoveredBrush;
+    ViewWidget *mWidget;
+
+    QRect mRectangle;
+    QBrush mBrush, mPressedBrush, mHoveredBrush;
     QPen mPen;
 
     bool mPressed;

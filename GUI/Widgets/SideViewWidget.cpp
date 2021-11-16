@@ -1,30 +1,97 @@
 #include "SideViewWidget.h"
 
+#include <QMouseEvent>
 #include <QPainter>
 
 SideViewWidget::SideViewWidget(QWidget *parent)
     : ViewWidget(parent)
+    , mTargetHeightHandle(this)
+    , mTargetDistanceHandle(this)
+    , mCameraHeightHandle(this)
 {
     initAxisDrawerParameters();
-    width();
-    mCameraHeight = 400;
-    mTargetDistance = 300;
-    mTargetHeight = 200;
+    mCameraHeight = 100;
+    mTargetDistance = 50;
+    mTargetHeight = 50;
+
+    mOrigin.setX(width() / 2.0);
+    mOrigin.setY(height() / 2.0);
+
+    // Target height handle
+    {
+        QPen pen = QColor(0, 0, 0);
+        pen.setWidth(1);
+        pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
+        mTargetHeightHandle.setPen(pen);
+
+        mTargetHeightHandle.setBrush(QColor(255, 0, 0));
+        mTargetHeightHandle.setHoveredBrush(QColor(255, 255, 0));
+        mTargetHeightHandle.setPressedBrush(QColor(0, 255, 0));
+
+        mTargetHeightHandle.setSize(40, 40);
+        mTargetHeightHandle.setCenter(origin().x() + mTargetDistance, origin().y() - mTargetHeight);
+    }
+
+    // Target distance handle
+    {
+        QPen pen = QColor(0, 0, 0);
+        pen.setWidth(1);
+        pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
+        mTargetDistanceHandle.setPen(pen);
+
+        mTargetDistanceHandle.setBrush(QColor(0, 0, 255));
+        mTargetDistanceHandle.setHoveredBrush(QColor(0, 255, 255));
+        mTargetDistanceHandle.setPressedBrush(QColor(255, 0, 255));
+
+        mTargetDistanceHandle.setSize(40, 40);
+        mTargetDistanceHandle.setCenter(origin().x() + mTargetDistance, origin().y());
+    }
+
+    setMouseTracking(true);
 }
 
 void SideViewWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::Antialiasing, false);
     //    QBrush brush;
     //    brush.setStyle(Qt::BrushStyle::SolidPattern);
     //    brush.setColor(QColor(180, 180, 180));
     //    painter.fillRect(0, 0, width(), height(), brush);
 
-    mOrigin.setX(width() / 2.0);
-    mOrigin.setY(height() / 2.0);
-
     mAxisDrawer.draw();
+    mTargetDistanceHandle.draw();
+    mTargetHeightHandle.draw();
+}
+
+void SideViewWidget::mousePressEvent(QMouseEvent *event)
+{
+    if (mTargetHeightHandle.contains(event->pos())) {
+        mTargetHeightHandle.setPressed(true);
+    }
+
+    mOldMousePosition = event->pos();
+
+    update();
+}
+
+void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    mTargetHeightHandle.setHovered(mTargetHeightHandle.contains(event->pos()));
+
+    if (mTargetHeightHandle.pressed()) {
+        mTargetHeightHandle.translate(0, (event->pos() - mOldMousePosition).y());
+    }
+
+    mOldMousePosition = event->pos();
+    update();
+}
+
+void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    mTargetHeightHandle.setPressed(false);
+    mOldMousePosition = event->pos();
+    update();
 }
 
 void SideViewWidget::initAxisDrawerParameters()

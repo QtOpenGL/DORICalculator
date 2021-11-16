@@ -15,9 +15,9 @@ private:
     void initAxisDrawerParameters();
 
     void paintEvent(QPaintEvent *) override;
-    //    void mousePressEvent(QMouseEvent *) override;
-    //    void mouseMoveEvent(QMouseEvent *) override;
-    //    void mouseReleaseEvent(QMouseEvent *) override;
+    void mousePressEvent(QMouseEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
 
     Handle mTargetHeightHandle, mTargetDistanceHandle;
     Handle mCameraHeightHandle;
@@ -26,6 +26,8 @@ private:
 
     float mCameraHeight;
     float mTargetDistance, mTargetHeight;
+
+    QPoint mOldMousePosition;
 };
 
 #endif // SIDEVIEWWIDGET_H

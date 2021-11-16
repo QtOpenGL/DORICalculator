@@ -1,34 +1,39 @@
 #include "Handle.h"
 
+#include <QMouseEvent>
 #include <QPainter>
 
-Handle::Handle() {}
+Handle::Handle(ViewWidget *widget)
+    : mWidget(widget)
+    , mPressed(false)
+    , mHovered(false)
+{}
 
 bool Handle::contains(int x, int y)
 {
     return mRectangle.contains(x, y);
 }
 
-bool Handle::contains(QPointF point)
+bool Handle::contains(QPoint point)
 {
     return mRectangle.contains(point);
 }
 
-void Handle::draw(QPaintDevice *device)
+void Handle::draw()
 {
-    QPainter painter(device);
+    QPainter painter(mWidget);
     painter.save();
 
     painter.setPen(mPen);
-    painter.drawRect(mRectangle);
 
     if (mPressed) {
-        painter.fillRect(mRectangle, mPressedBursh);
+        painter.setBrush(mPressedBrush);
     } else if (mHovered) {
-        painter.fillRect(mRectangle, mHoveredBrush);
+        painter.setBrush(mHoveredBrush);
     } else {
-        painter.fillRect(mRectangle, mBrush);
+        painter.setBrush(mBrush);
     }
+    painter.drawRect(mRectangle);
 
     painter.restore();
 }
@@ -63,24 +68,39 @@ void Handle::setBrush(const QBrush &newBrush)
     mBrush = newBrush;
 }
 
-const QRectF &Handle::rectangle() const
+const QRect &Handle::rectangle() const
 {
     return mRectangle;
 }
 
-void Handle::setRectangle(const QRectF &newRectangle)
+void Handle::setRectangle(const QRect &newRectangle)
 {
     mRectangle = newRectangle;
 }
 
-const QBrush &Handle::pressedBursh() const
+void Handle::setCenter(int x, int y)
 {
-    return mPressedBursh;
+    mRectangle = QRect(x - 0.5 * mRectangle.width(), y - 0.5 * mRectangle.height(), mRectangle.width(), mRectangle.height());
 }
 
-void Handle::setPressedBursh(const QBrush &newPressedBursh)
+void Handle::setSize(int w, int h)
 {
-    mPressedBursh = newPressedBursh;
+    mRectangle = QRect(mRectangle.x(), mRectangle.y(), w, h);
+}
+
+void Handle::setCenterX(int x)
+{
+    mRectangle = QRect(x - 0.5 * mRectangle.width(), mRectangle.y(), mRectangle.width(), mRectangle.height());
+}
+
+void Handle::setCenterY(int y)
+{
+    mRectangle = QRect(mRectangle.x(), y - 0.5 * mRectangle.height(), mRectangle.width(), mRectangle.height());
+}
+
+void Handle::translate(int dx, int dy)
+{
+    mRectangle = QRect(mRectangle.x() + dx, mRectangle.y() + dy, mRectangle.width(), mRectangle.height());
 }
 
 const QBrush &Handle::hoveredBrush() const
@@ -91,4 +111,24 @@ const QBrush &Handle::hoveredBrush() const
 void Handle::setHoveredBrush(const QBrush &newHoveredBrush)
 {
     mHoveredBrush = newHoveredBrush;
+}
+
+bool Handle::hovered() const
+{
+    return mHovered;
+}
+
+void Handle::setHovered(bool newHovered)
+{
+    mHovered = newHovered;
+}
+
+const QBrush &Handle::pressedBrush() const
+{
+    return mPressedBrush;
+}
+
+void Handle::setPressedBrush(const QBrush &newPressedBrush)
+{
+    mPressedBrush = newPressedBrush;
 }
