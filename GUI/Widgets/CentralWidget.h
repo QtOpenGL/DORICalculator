@@ -15,8 +15,6 @@ class CentralWidget : public QWidget
 public:
     explicit CentralWidget(QWidget *parent = nullptr);
 
-signals:
-
 private:
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;

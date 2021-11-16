@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <Widgets/CentralWidget.h>
+#include "GUI/Widgets/CentralWidget.h"
 #include <QMainWindow>
 
 class MainWindow : public QMainWindow

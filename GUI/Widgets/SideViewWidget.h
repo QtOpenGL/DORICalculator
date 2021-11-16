@@ -1,22 +1,31 @@
 #ifndef SIDEVIEWWIDGET_H
 #define SIDEVIEWWIDGET_H
 
-#include <GUI/Base/AxisDrawer.h>
+#include "ViewWidget.h"
+
+#include <GUI/Base/Handle.h>
 #include <QWidget>
 
-class SideViewWidget : public QWidget
+class SideViewWidget : public ViewWidget
 {
-    Q_OBJECT
 public:
     explicit SideViewWidget(QWidget *parent = nullptr);
 
 private:
     void initAxisDrawerParameters();
 
-    void paintEvent(QPaintEvent *event) override;
+    void paintEvent(QPaintEvent *) override;
+    //    void mousePressEvent(QMouseEvent *) override;
+    //    void mouseMoveEvent(QMouseEvent *) override;
+    //    void mouseReleaseEvent(QMouseEvent *) override;
 
-    AxisDrawer::Parameters mAxisDrawerParameters;
-    AxisDrawer mAxisDrawer;
+    Handle mTargetHeightHandle, mTargetDistanceHandle;
+    Handle mCameraHeightHandle;
+
+    QPen mDashedPen, mSolidPen;
+
+    float mCameraHeight;
+    float mTargetDistance, mTargetHeight;
 };
 
 #endif // SIDEVIEWWIDGET_H

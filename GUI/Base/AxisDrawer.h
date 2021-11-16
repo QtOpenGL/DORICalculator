@@ -3,10 +3,12 @@
 
 #include <QPainter>
 
+class ViewWidget;
+
 class AxisDrawer
 {
 public:
-    AxisDrawer(QPaintDevice *device);
+    AxisDrawer(ViewWidget *widget);
 
     struct TickmarkStyle
     {
@@ -30,17 +32,9 @@ public:
         float tickmarkValueStep;
     };
 
-    struct Parameters
-    {
-        AxisParameters vertical;
-        AxisParameters horizontal;
-        QPoint origin;
-        float valueToPixelRatio;
-    };
+    void draw();
 
-    void draw(const Parameters &parameters);
-
-    QPaintDevice *mPaintDevice;
+    ViewWidget *mWidget;
 };
 
 #endif // AXISDRAWER_H

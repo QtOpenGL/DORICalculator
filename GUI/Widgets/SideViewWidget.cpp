@@ -3,10 +3,13 @@
 #include <QPainter>
 
 SideViewWidget::SideViewWidget(QWidget *parent)
-    : QWidget(parent)
-    , mAxisDrawer(this)
+    : ViewWidget(parent)
 {
     initAxisDrawerParameters();
+    width();
+    mCameraHeight = 400;
+    mTargetDistance = 300;
+    mTargetHeight = 200;
 }
 
 void SideViewWidget::paintEvent(QPaintEvent *event)
@@ -18,51 +21,47 @@ void SideViewWidget::paintEvent(QPaintEvent *event)
     //    brush.setColor(QColor(180, 180, 180));
     //    painter.fillRect(0, 0, width(), height(), brush);
 
-    mAxisDrawerParameters.origin.setX(width() / 2.0);
-    mAxisDrawerParameters.origin.setY(height() / 2.0);
+    mOrigin.setX(width() / 2.0);
+    mOrigin.setY(height() / 2.0);
 
-    mAxisDrawer.draw(mAxisDrawerParameters);
+    mAxisDrawer.draw();
 }
 
 void SideViewWidget::initAxisDrawerParameters()
 {
+    // Horizontal axis parameters
     {
-        mAxisDrawerParameters.horizontal.minorTickmarkCount = 1;
-        mAxisDrawerParameters.horizontal.tickmarkValueStep = 6;
+        mHorizontalAxisParameters.minorTickmarkCount = 1;
+        mHorizontalAxisParameters.tickmarkValueStep = 6;
 
-        mAxisDrawerParameters.horizontal.labelStyle.pen = QColor(0, 0, 0);
-        mAxisDrawerParameters.horizontal.labelStyle.font = QFont("Arial");
-        mAxisDrawerParameters.horizontal.labelStyle.font.setPixelSize(9);
+        mHorizontalAxisParameters.labelStyle.pen = QColor(0, 0, 0);
+        mHorizontalAxisParameters.labelStyle.font = QFont("Arial");
+        mHorizontalAxisParameters.labelStyle.font.setPixelSize(9);
 
-        mAxisDrawerParameters.horizontal.tickmarkStyle.brush = QColor(100, 100, 100);
-        mAxisDrawerParameters.horizontal.tickmarkStyle.size = QSizeF(1.5, 6);
+        mHorizontalAxisParameters.tickmarkStyle.brush = QColor(100, 100, 100);
+        mHorizontalAxisParameters.tickmarkStyle.size = QSizeF(1.5, 6);
 
-        mAxisDrawerParameters.horizontal.minorTickmarkStyle.brush = QColor(0, 0, 0);
-        mAxisDrawerParameters.horizontal.minorTickmarkStyle.size = QSizeF(1, 4);
+        mHorizontalAxisParameters.minorTickmarkStyle.brush = QColor(0, 0, 0);
+        mHorizontalAxisParameters.minorTickmarkStyle.size = QSizeF(1, 4);
 
-        mAxisDrawerParameters.horizontal.pen = QPen(QColor(0, 0, 0));
-        mAxisDrawerParameters.horizontal.pen.setWidthF(1);
+        mHorizontalAxisParameters.pen = QPen(QColor(0, 0, 0));
+        mHorizontalAxisParameters.pen.setWidthF(1);
     }
 
+    // Vertical axis parameters
     {
-        mAxisDrawerParameters.vertical.minorTickmarkCount = 1;
-        mAxisDrawerParameters.vertical.tickmarkValueStep = 6;
-
-        mAxisDrawerParameters.vertical.labelStyle.pen = QColor(0, 0, 0);
-        mAxisDrawerParameters.vertical.labelStyle.font = QFont("Arial");
-        mAxisDrawerParameters.vertical.labelStyle.font.setPixelSize(9);
-
-        mAxisDrawerParameters.vertical.tickmarkStyle.brush = QColor(100, 100, 100);
-        mAxisDrawerParameters.vertical.tickmarkStyle.size = QSizeF(6, 1.5);
-
-        mAxisDrawerParameters.vertical.minorTickmarkStyle.brush = QColor(0, 0, 0);
-        mAxisDrawerParameters.vertical.minorTickmarkStyle.size = QSizeF(4, 1);
-
-        mAxisDrawerParameters.vertical.pen = QPen(QColor(0, 0, 0));
-        mAxisDrawerParameters.vertical.pen.setWidthF(1);
+        mVerticalAxisParameters.minorTickmarkCount = 1;
+        mVerticalAxisParameters.tickmarkValueStep = 6;
+        mVerticalAxisParameters.labelStyle.pen = QColor(0, 0, 0);
+        mVerticalAxisParameters.labelStyle.font = QFont("Arial");
+        mVerticalAxisParameters.labelStyle.font.setPixelSize(9);
+        mVerticalAxisParameters.tickmarkStyle.brush = QColor(100, 100, 100);
+        mVerticalAxisParameters.tickmarkStyle.size = QSizeF(6, 1.5);
+        mVerticalAxisParameters.minorTickmarkStyle.brush = QColor(0, 0, 0);
+        mVerticalAxisParameters.minorTickmarkStyle.size = QSizeF(4, 1);
+        mVerticalAxisParameters.pen = QPen(QColor(0, 0, 0));
+        mVerticalAxisParameters.pen.setWidthF(1);
     }
 
-    mAxisDrawerParameters.valueToPixelRatio = 10;
-    mAxisDrawerParameters.origin.setX(240);
-    mAxisDrawerParameters.origin.setY(100);
+    mValueToPixelRatio = 10;
 }

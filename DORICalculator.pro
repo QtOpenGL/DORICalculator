@@ -11,19 +11,22 @@ include(Dependencies/Dependencies.pri)
 
 SOURCES += \
     GUI/Base/AxisDrawer.cpp \
+    GUI/Base/Handle.cpp \
     GUI/Widgets/CentralWidget.cpp \
     GUI/Widgets/SideViewWidget.cpp \
     GUI/Widgets/TopViewWidget.cpp \
+    GUI/Widgets/ViewWidget.cpp \
     MainWindow.cpp \
     Main.cpp
 
 HEADERS += \
     GUI/Base/AxisDrawer.h \
+    GUI/Base/Handle.h \
     GUI/Widgets/CentralWidget.h \
     GUI/Widgets/SideViewWidget.h \
     GUI/Widgets/TopViewWidget.h \
-    MainWindow.h \
-    Parameters.h
+    GUI/Widgets/ViewWidget.h \
+    MainWindow.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
