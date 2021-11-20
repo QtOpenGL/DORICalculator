@@ -60,7 +60,7 @@ void Controller::init()
     mLogicParameters->frustum.horizontalFov = 60;
     mLogicParameters->frustum.aspectRatio = 16.0f / 9.0f;
     mLogicParameters->frustum.zNear = 0;
-    mLogicParameters->frustum.zFar = 5000;
+    mLogicParameters->frustum.zFar = 1000;
 
     mCentralWidget = new CentralWidget;
     mCentralWidget->init();
@@ -81,13 +81,13 @@ void Controller::init()
     connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
 }
 
-void Controller::setMeterToPixelRatio(float newValueToPixelRatio)
+void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
 {
-    if (newValueToPixelRatio < 1.0 || newValueToPixelRatio > 64.0f) {
+    if (newMeterToPixelRatio < 4.0 || newMeterToPixelRatio > 128.0f) {
         return;
     }
 
-    mMeterToPixelRatio = newValueToPixelRatio;
+    mMeterToPixelRatio = newMeterToPixelRatio;
 
     mSideViewWidgetParameters->meterToPixelRatio = mMeterToPixelRatio;
     calculate();
