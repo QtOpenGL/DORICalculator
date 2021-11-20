@@ -1,11 +1,17 @@
 #include "Controller.h"
-#include "Settings.h"
+
+#include <GUI/Widgets/CentralWidget.h>
 #include <GUI/Widgets/SideViewWidget.h>
 
 Dori::Core::Controller::Controller(QObject *parent)
     : QObject(parent)
     , mLogic(Dori::Core::Logic::getInstance())
 {}
+
+CentralWidget *Dori::Core::Controller::centralWidget()
+{
+    return mCentralWidget;
+}
 
 void Dori::Core::Controller::calculate()
 {
@@ -32,15 +38,29 @@ void Dori::Core::Controller::onDirty()
 void Dori::Core::Controller::init()
 {
     mLogicParameters = new Logic::Parameters;
-    *mLogicParameters = Settings::getInstance().defaultParameters();
+    mLogicParameters->cameraHeight = 100;
+    mLogicParameters->targetHeight = 100;
+    mLogicParameters->targetDistance = 200;
+    mLogicParameters->lowerBoundaryHeight = 0;
+    mLogicParameters->horizontalFov = 60;
+    mLogicParameters->aspectRatio = 16.0f / 9.0f;
+    mLogicParameters->frustum.zNear = 0;
+    mLogicParameters->frustum.zFar = 1000;
+
     mSideViewWidgetParameters = new SideViewWidgetParameters;
+
     calculate();
 
-    mSideViewWidget->setParameters(mSideViewWidgetParameters);
-    mSideViewWidget->init();
-}
+    mCentralWidget = new CentralWidget;
+    mCentralWidget->init();
 
-void Dori::Core::Controller::setSideViewWidget(SideViewWidget *newSideViewWidget)
-{
-    mSideViewWidget = newSideViewWidget;
+    mSideViewWidget = mCentralWidget->sideViewWidget();
+
+    mSideViewWidget->setParameters(mSideViewWidgetParameters);
+    mSideViewWidget->setOrigin(QPointF(400, 200));
+    mSideViewWidget->setValueToPixelRatio(1);
+    mSideViewWidget->init();
+
+    // Connections
+    connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
 }

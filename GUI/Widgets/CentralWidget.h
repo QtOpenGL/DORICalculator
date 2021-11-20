@@ -16,14 +16,17 @@ class CentralWidget : public QWidget
     Q_OBJECT
 public:
     explicit CentralWidget(QWidget *parent = nullptr);
+    void init();
+
+    SideViewWidget *sideViewWidget() const;
+    TopViewWidget *topViewWidget() const;
 
 private:
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;
-    QLabel *mSideViewTitle, *mTopViewTitle;
-    QGroupBox *mGroupBox;
-    QGroupBox *mBottomBarWidget;
-    Dori::Core::Controller *mController;
+
+    QLabel *mSideViewTitle;
+    QLabel *mTopViewTitle;
 };
 
 #endif // CENTRALWIDGET_H

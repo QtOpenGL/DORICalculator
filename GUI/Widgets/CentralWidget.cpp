@@ -3,36 +3,27 @@
 
 CentralWidget::CentralWidget(QWidget *parent)
     : QWidget(parent)
+{}
+
+void CentralWidget::init()
 {
-    mSideViewTitle = new QLabel("SideViewWidget");
-    mSideViewWidget = new SideViewWidget;
-    mSideViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    mSideViewTitle->setAlignment(Qt::AlignLeft);
-
-    mTopViewTitle = new QLabel("TopViewWidget");
-    mTopViewTitle->setAlignment(Qt::AlignLeft);
-    mTopViewWidget = new TopViewWidget;
-    mTopViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    mGroupBox = new QGroupBox;
-    mGroupBox->setTitle("Controls");
-    mGroupBox->setMinimumWidth(150);
-
-    mBottomBarWidget = new QGroupBox;
-    mBottomBarWidget->setTitle("BottomBar");
-    mBottomBarWidget->setMinimumHeight(60);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    QHBoxLayout *topLayout = new QHBoxLayout;
-
-    // Left Group Box
+    // SideViewWidget
     {
-        QVBoxLayout *layout = new QVBoxLayout;
-        layout->addWidget(mGroupBox);
-        topLayout->addLayout(layout);
+        mSideViewTitle = new QLabel("SideViewWidget");
+        mSideViewWidget = new SideViewWidget;
+        mSideViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        mSideViewTitle->setAlignment(Qt::AlignLeft);
     }
 
-    // Views
+    // TopViewWidget
+    {
+        mTopViewTitle = new QLabel("TopViewWidget");
+        mTopViewTitle->setAlignment(Qt::AlignLeft);
+        mTopViewWidget = new TopViewWidget;
+        mTopViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    }
+
+    // Layouts
     {
         QVBoxLayout *layout = new QVBoxLayout;
         layout->addWidget(mSideViewTitle);
@@ -40,18 +31,17 @@ CentralWidget::CentralWidget(QWidget *parent)
 
         layout->addWidget(mTopViewTitle);
         layout->addWidget(mTopViewWidget);
-        topLayout->addLayout(layout);
+
+        setLayout(layout);
     }
+}
 
-    mController = new Dori::Core::Controller;
+SideViewWidget *CentralWidget::sideViewWidget() const
+{
+    return mSideViewWidget;
+}
 
-    connect(mSideViewWidget, &SideViewWidget::dirty, mController, &Dori::Core::Controller::onDirty);
-
-    mController->setSideViewWidget(mSideViewWidget);
-    mController->init();
-
-    mainLayout->addLayout(topLayout);
-    mainLayout->addWidget(mBottomBarWidget);
-
-    setLayout(mainLayout);
+TopViewWidget *CentralWidget::topViewWidget() const
+{
+    return mTopViewWidget;
 }

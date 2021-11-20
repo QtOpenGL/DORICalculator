@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "GUI/Widgets/CentralWidget.h"
+#include <Core/Controller.h>
 #include <QMainWindow>
 
 class MainWindow : public QMainWindow
@@ -13,6 +14,7 @@ public:
     ~MainWindow();
 
 private:
+    Dori::Core::Controller *mController;
     CentralWidget *mCentralWidget;
 };
 #endif // MAINWINDOW_H

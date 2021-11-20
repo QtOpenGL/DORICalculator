@@ -2,13 +2,12 @@
 #define HANDLE_H
 
 #include <QPen>
-
-#include <GUI/Widgets/ViewWidget.h>
+#include <QWidget>
 
 class Handle
 {
 public:
-    Handle(ViewWidget *widget);
+    Handle(QWidget *widget);
 
     bool contains(int x, int y);
     bool contains(QPoint point);
@@ -42,7 +41,7 @@ public:
     void setPressedBrush(const QBrush &newPressedBrush);
 
 private:
-    ViewWidget *mWidget;
+    QWidget *mWidget;
 
     QRect mRectangle;
     QBrush mBrush, mPressedBrush, mHoveredBrush;

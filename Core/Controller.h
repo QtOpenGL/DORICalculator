@@ -5,6 +5,7 @@
 #include <QObject>
 
 class SideViewWidget;
+class CentralWidget;
 
 namespace Dori {
 namespace Core {
@@ -32,8 +33,7 @@ public:
         float lowerBoundaryDistance;
         float lowerBoundaryHeight;
     };
-
-    void setSideViewWidget(SideViewWidget *newSideViewWidget);
+    CentralWidget *centralWidget();
 
 public slots:
     void onDirty();
@@ -43,10 +43,12 @@ private:
     void calculate();
 
     Dori::Core::Logic &mLogic;
+
     Dori::Core::Logic::Parameters *mLogicParameters;
+    SideViewWidgetParameters *mSideViewWidgetParameters;
 
     SideViewWidget *mSideViewWidget;
-    SideViewWidgetParameters *mSideViewWidgetParameters;
+    CentralWidget *mCentralWidget;
 };
 
 };     // namespace Core

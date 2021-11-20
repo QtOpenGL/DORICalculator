@@ -3,7 +3,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-Handle::Handle(ViewWidget *widget)
+Handle::Handle(QWidget *widget)
     : mWidget(widget)
     , mPressed(false)
     , mHovered(false)
