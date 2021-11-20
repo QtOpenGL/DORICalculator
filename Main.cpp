@@ -6,9 +6,10 @@ int main(int argc, char *argv[])
 {
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
+
     MainWindow w;
     w.setMinimumSize(640, 480);
-    w.show();
+    w.showMaximized();
     return a.exec();
 }
 

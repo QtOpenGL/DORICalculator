@@ -10,25 +10,33 @@ CONFIG += c++11
 include(Dependencies/Dependencies.pri)
 
 SOURCES += \
+    Core/Controller.cpp \
+    Core/Settings.cpp \
     GUI/Base/AxisDrawer.cpp \
     GUI/Base/Handle.cpp \
     GUI/Widgets/CentralWidget.cpp \
     GUI/Widgets/SideViewWidget.cpp \
     GUI/Widgets/TopViewWidget.cpp \
     GUI/Widgets/ViewWidget.cpp \
+    Core/Logic.cpp \
     MainWindow.cpp \
     Main.cpp
 
 HEADERS += \
+    Core/Controller.h \
+    Core/Settings.h \
     GUI/Base/AxisDrawer.h \
     GUI/Base/Handle.h \
     GUI/Widgets/CentralWidget.h \
     GUI/Widgets/SideViewWidget.h \
     GUI/Widgets/TopViewWidget.h \
     GUI/Widgets/ViewWidget.h \
+    Core/Logic.h \
     MainWindow.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES +=

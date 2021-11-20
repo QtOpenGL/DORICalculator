@@ -8,6 +8,8 @@
 
 class ViewWidget : public QWidget
 {
+    Q_OBJECT
+
 public:
     explicit ViewWidget(QWidget *parent);
 

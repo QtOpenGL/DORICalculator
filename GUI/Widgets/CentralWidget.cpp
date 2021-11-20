@@ -43,6 +43,13 @@ CentralWidget::CentralWidget(QWidget *parent)
         topLayout->addLayout(layout);
     }
 
+    mController = new Dori::Core::Controller;
+
+    connect(mSideViewWidget, &SideViewWidget::dirty, mController, &Dori::Core::Controller::onDirty);
+
+    mController->setSideViewWidget(mSideViewWidget);
+    mController->init();
+
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(mBottomBarWidget);
 

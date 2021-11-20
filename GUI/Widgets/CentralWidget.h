@@ -9,6 +9,8 @@
 #include <QStatusBar>
 #include <QWidget>
 
+#include <Core/Controller.h>
+
 class CentralWidget : public QWidget
 {
     Q_OBJECT
@@ -21,6 +23,7 @@ private:
     QLabel *mSideViewTitle, *mTopViewTitle;
     QGroupBox *mGroupBox;
     QGroupBox *mBottomBarWidget;
+    Dori::Core::Controller *mController;
 };
 
 #endif // CENTRALWIDGET_H
