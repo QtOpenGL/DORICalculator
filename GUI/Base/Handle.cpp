@@ -103,6 +103,11 @@ void Handle::translate(int dx, int dy)
     mRectangle = QRect(mRectangle.x() + dx, mRectangle.y() + dy, mRectangle.width(), mRectangle.height());
 }
 
+QPointF Handle::getCenter()
+{
+    return mRectangle.center();
+}
+
 const QBrush &Handle::hoveredBrush() const
 {
     return mHoveredBrush;

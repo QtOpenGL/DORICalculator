@@ -1,5 +1,6 @@
 #include "SideViewWidget.h"
 
+#include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
 
@@ -14,10 +15,16 @@ SideViewWidget::SideViewWidget(QWidget *parent)
 
 void SideViewWidget::init()
 {
+    // General GUI
+    {
+        QVector<qreal> dashes;
+        dashes << 2 << 2;
+        mDashedPen.setDashPattern(dashes);
+        mDashedPen.setStyle(Qt::DashLine);
+    }
+
     // Axis parameters
     {
-        mTickmarkPixelStep = 40;
-        mMinorTickmarkCount = 4;
         mLabelFont = QFont("Arial");
         mLabelFont.setPixelSize(9);
         mLabelColor = QColor(0, 0, 0);
@@ -74,12 +81,48 @@ void SideViewWidget::refresh()
     update();
 }
 
+QPointF SideViewWidget::mapFromCartesian(Eigen::Vector3f vector)
+{
+    return QPointF(mParameters->origin.x() + vector.x() * mParameters->meterToPixelRatio, mParameters->origin.y() - vector.z() * mParameters->meterToPixelRatio);
+}
+
+Eigen::Vector3f SideViewWidget::mapFromGui(QPointF point)
+{
+    Eigen::Vector3f vector;
+
+    vector[0] = (point.x() - mParameters->origin.x()) / mParameters->meterToPixelRatio;
+    vector[1] = 0;
+    vector[2] = (mParameters->origin.y() - point.y()) / mParameters->meterToPixelRatio;
+    return vector;
+}
+
 void SideViewWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing, false);
-    drawHorizontalAxis();
-    drawVerticalAxis();
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    drawAxis(Horizontal);
+    drawAxis(Vertical);
+
+    painter.save();
+
+    // Bisector
+    mDashedPen.setColor(QColor(0, 102, 213));
+    painter.setPen(mDashedPen);
+    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->intersections[0]);
+
+    // V1
+    painter.setPen(QColor(0, 102, 213));
+    painter.drawLine(mCameraHeightHandle.getCenter(), mTargetHeightHandle.getCenter());
+
+    mDashedPen.setColor(QColor(128, 128, 128));
+    painter.setPen(mDashedPen);
+    painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->intersections[1]);
+
+    // V2
+    painter.setPen(QColor(0, 102, 213));
+    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->intersections[2]);
+
+    painter.restore();
 
     mTargetDistanceHandle.draw();
     mTargetHeightHandle.draw();
@@ -109,17 +152,17 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
     bool isDirty = false;
     if (mTargetHeightHandle.pressed()) {
         isDirty = true;
-        mParameters->targetHeight -= (event->pos() - mOldMousePosition).y();
+        mParameters->target.setY(mParameters->target.y() + (event->pos() - mOldMousePosition).y());
     }
 
     if (mTargetDistanceHandle.pressed()) {
         isDirty = true;
-        mParameters->targetDistance += (event->pos() - mOldMousePosition).x();
+        mParameters->target.setX(mParameters->target.x() + (event->pos() - mOldMousePosition).x());
     }
 
     if (mCameraHeightHandle.pressed()) {
         isDirty = true;
-        mParameters->cameraHeight -= (event->pos() - mOldMousePosition).y();
+        mParameters->camera.setY(mParameters->camera.y() + (event->pos() - mOldMousePosition).y());
     }
 
     mOldMousePosition = event->pos();
@@ -140,44 +183,9 @@ void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)
     update();
 }
 
-void SideViewWidget::setMinorTickmarkCount(int newMinorTickmarkCount)
+void SideViewWidget::wheelEvent(QWheelEvent *event)
 {
-    mMinorTickmarkCount = newMinorTickmarkCount;
-}
-
-int SideViewWidget::tickmarkPixelStep() const
-{
-    return mTickmarkPixelStep;
-}
-
-void SideViewWidget::setTickmarkPixelStep(int newTickmarkPixelStep)
-{
-    mTickmarkPixelStep = newTickmarkPixelStep;
-}
-
-int SideViewWidget::minorTickmarkCount() const
-{
-    return mMinorTickmarkCount;
-}
-
-float SideViewWidget::valueToPixelRatio() const
-{
-    return mValueToPixelRatio;
-}
-
-void SideViewWidget::setValueToPixelRatio(float newValueToPixelRatio)
-{
-    mValueToPixelRatio = newValueToPixelRatio;
-}
-
-QPointF SideViewWidget::origin() const
-{
-    return mOrigin;
-}
-
-void SideViewWidget::setOrigin(QPointF newOrigin)
-{
-    mOrigin = newOrigin;
+    emit zoom(event->angleDelta().y());
 }
 
 void SideViewWidget::setParameters(Dori::Core::Controller::SideViewWidgetParameters *newParameters)
@@ -187,107 +195,94 @@ void SideViewWidget::setParameters(Dori::Core::Controller::SideViewWidgetParamet
 
 void SideViewWidget::updateHandles()
 {
-    mTargetHeightHandle.setCenter(mOrigin.x() + mParameters->targetDistance, mOrigin.y() - mParameters->targetHeight);
-    mTargetDistanceHandle.setCenter(mOrigin.x() + mParameters->targetDistance, mOrigin.y());
-    mCameraHeightHandle.setCenter(mOrigin.x(), mOrigin.y() - mParameters->cameraHeight);
+    mTargetHeightHandle.setCenter(mParameters->target.x(), mParameters->target.y());
+    mTargetDistanceHandle.setCenter(mParameters->target.x(), mParameters->origin.y());
+    mCameraHeightHandle.setCenter(mParameters->camera.x(), mParameters->camera.y());
 }
 
-void SideViewWidget::drawHorizontalAxis()
+void SideViewWidget::drawAxis(Axis axis)
 {
     QPainter painter(this);
     painter.save();
 
-    QLine line = QLine(0, mOrigin.y(), width(), mOrigin.y());
+    QLine line = axis == Horizontal ? QLine(0, mParameters->origin.y(), width(), mParameters->origin.y()) : QLine(mParameters->origin.x(), 0, mParameters->origin.x(), height());
+
     painter.setPen(mAxisPen);
     painter.drawLine(line);
 
-    QRectF tickmark(0, 0, mTickmarkSize.width(), mTickmarkSize.height());
-    QRectF minorTickmark(0, 0, mMinorTickmarkSize.width(), mMinorTickmarkSize.height());
+    QRectF tickmark = axis == Horizontal ? QRectF(0, 0, mTickmarkSize.width(), mTickmarkSize.height()) : QRectF(0, 0, mTickmarkSize.height(), mTickmarkSize.width());
+
+    QRectF minorTickmark = axis == Horizontal ? QRectF(0, 0, mMinorTickmarkSize.width(), mMinorTickmarkSize.height())
+                                              : QRectF(0, 0, mMinorTickmarkSize.height(), mMinorTickmarkSize.width());
 
     painter.setFont(mLabelFont);
     painter.setPen(mLabelColor);
 
-    const QRectF originBoundingBox(mOrigin.x() - 5, mOrigin.y() - 5, 10, 10);
-    const QRectF originBigBoundingBox(mOrigin.x() - 10, mOrigin.y() - 10, 20, 20);
+    const QRectF originBoundingBox(mParameters->origin.x() - 8, mParameters->origin.y() - 8, 16, 16);
 
-    // Main loop for tickmarks, labels, and minor tickmarks
-    for (int x = 0; x < width(); x += mTickmarkPixelStep) {
-        // Minor tickmarks
-        for (int i = 1; i <= mMinorTickmarkCount; i++) {
-            float step = (float) (mTickmarkPixelStep / (mMinorTickmarkCount + 1));
+    int start = 0;
+    int end = 0;
 
-            minorTickmark.moveCenter(QPointF(x + i * step, mOrigin.y()));
-
-            if (originBoundingBox.intersects(minorTickmark))
-                continue;
-
-            painter.fillRect(minorTickmark, mMinorTickmarkColor);
-        }
-
-        tickmark.moveCenter(QPointF(x, origin().y()));
-
-        if (originBoundingBox.intersects(tickmark))
-            continue;
-
-        painter.fillRect(tickmark, mTickmarkColor);
-
-        if (originBigBoundingBox.intersects(tickmark))
-            continue;
-
-        float value = (x - mOrigin.x()) / mValueToPixelRatio;
-        QString label = QString::number(value, 'f', 0);
-        QRectF boundingBox(x - 50, tickmark.y() + 10, 100, mLabelFont.pixelSize());
-        painter.drawText(boundingBox, Qt::AlignCenter, label);
+    if (axis == Horizontal) {
+        start = mParameters->origin.x() - mParameters->tickmarkPixelStep * floor(mParameters->origin.x() / mParameters->tickmarkPixelStep);
+        end = width();
+    } else {
+        start = mParameters->origin.y() - mParameters->tickmarkPixelStep * floor(mParameters->origin.y() / mParameters->tickmarkPixelStep);
+        end = height();
     }
 
-    painter.restore();
-}
-
-void SideViewWidget::drawVerticalAxis()
-{
-    QPainter painter(this);
-    painter.save();
-
-    QLine line = QLine(mOrigin.x(), 0, mOrigin.x(), height());
-    painter.setPen(mAxisPen);
-    painter.drawLine(line);
-
-    QRectF tickmark(0, 0, mTickmarkSize.height(), mTickmarkSize.width());
-    QRectF minorTickmark(0, 0, mMinorTickmarkSize.height(), mMinorTickmarkSize.width());
-
-    painter.setFont(mLabelFont);
-    painter.setPen(mLabelColor);
-
-    const QRectF originBoundingBox(mOrigin.x() - 5, mOrigin.y() - 5, 10, 10);
-    const QRectF originBigBoundingBox(mOrigin.x() - 10, mOrigin.y() - 10, 20, 20);
-
     // Main loop for tickmarks, labels, and minor tickmarks
-    for (int y = 0; y < width(); y += mTickmarkPixelStep) {
+    for (int var = start; var < end; var += mParameters->tickmarkPixelStep) {
         // Minor tickmarks
-        for (int i = 1; i <= mMinorTickmarkCount; i++) {
-            float step = (float) (mTickmarkPixelStep / (mMinorTickmarkCount + 1));
-            minorTickmark.moveCenter(QPointF(mOrigin.x(), y + i * step));
+        for (int i = 1; i <= mParameters->minorTickmarkCount; i++) {
+            float step = (float) (mParameters->tickmarkPixelStep / (mParameters->minorTickmarkCount + 1));
+            if (axis == Horizontal)
+                minorTickmark.moveCenter(QPointF(var + i * step, mParameters->origin.y()));
+            else
+                minorTickmark.moveCenter(QPointF(mParameters->origin.x(), var + i * step));
 
             if (originBoundingBox.intersects(minorTickmark))
                 continue;
 
             painter.fillRect(minorTickmark, mMinorTickmarkColor);
         }
-
-        tickmark.moveCenter(QPointF(mOrigin.x(), y));
+        if (axis == Horizontal)
+            tickmark.moveCenter(QPointF(var, mParameters->origin.y()));
+        else
+            tickmark.moveCenter(QPointF(mParameters->origin.x(), var));
 
         if (originBoundingBox.intersects(tickmark))
             continue;
 
         painter.fillRect(tickmark, mTickmarkColor);
 
-        if (originBigBoundingBox.intersects(tickmark))
-            continue;
+        if (axis == Horizontal) {
+            tickmark.moveCenter(QPointF(var, mParameters->origin.y()));
+            float value = (var - mParameters->origin.x()) / mParameters->meterToPixelRatio;
 
-        float value = (mOrigin.y() - y) / mValueToPixelRatio;
-        QString label = QString::number(value, 'f', 0);
-        QRectF boundingBox(tickmark.x() - 100, y - 0.5 * mLabelFont.pixelSize(), 95, mLabelFont.pixelSize());
-        painter.drawText(boundingBox, Qt::AlignRight, label);
+            QString label;
+            if (mParameters->meterToPixelRatio > 16)
+                label = QString::number(value, 'f', 2);
+            else
+                label = QString::number(value, 'f', 0);
+
+            QRectF boundingBox(var - 50, tickmark.y() + 10, 100, mLabelFont.pixelSize());
+            painter.drawText(boundingBox, Qt::AlignCenter, label);
+        }
+
+        else {
+            tickmark.moveCenter(QPointF(mParameters->origin.x(), var));
+            float value = (mParameters->origin.y() - var) / mParameters->meterToPixelRatio;
+
+            QString label;
+            if (mParameters->meterToPixelRatio > 16)
+                label = QString::number(value, 'f', 2);
+            else
+                label = QString::number(value, 'f', 0);
+
+            QRectF boundingBox(tickmark.x() - 100, var - 0.5 * mLabelFont.pixelSize(), 95, mLabelFont.pixelSize());
+            painter.drawText(boundingBox, Qt::AlignRight, label);
+        }
     }
 
     painter.restore();

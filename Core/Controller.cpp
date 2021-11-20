@@ -3,64 +3,97 @@
 #include <GUI/Widgets/CentralWidget.h>
 #include <GUI/Widgets/SideViewWidget.h>
 
-Dori::Core::Controller::Controller(QObject *parent)
+#include <QDebug>
+
+namespace Dori {
+namespace Core {
+Controller::Controller(QObject *parent)
     : QObject(parent)
     , mLogic(Dori::Core::Logic::getInstance())
+    , mZoomStepSize(2.0f)
+    , mOrigin(256, 256)
 {}
 
-CentralWidget *Dori::Core::Controller::centralWidget()
+CentralWidget *Controller::centralWidget()
 {
     return mCentralWidget;
 }
 
-void Dori::Core::Controller::calculate()
+void Controller::calculate()
 {
     *mLogicParameters = mLogic.calculate(*mLogicParameters);
 
-    // Meter to pixel conversion
-    mSideViewWidgetParameters->cameraHeight = mLogicParameters->cameraHeight;
-    mSideViewWidgetParameters->targetDistance = mLogicParameters->targetDistance;
-    mSideViewWidgetParameters->targetHeight = mLogicParameters->targetHeight;
+    mSideViewWidgetParameters->camera = mSideViewWidget->mapFromCartesian(mLogicParameters->camera);
+    mSideViewWidgetParameters->target = mSideViewWidget->mapFromCartesian(mLogicParameters->target);
     mSideViewWidgetParameters->tiltAngle = mLogicParameters->tiltAngle;
+
+    for (Logic::EdgeNames name : {Logic::BISECTOR, Logic::V1, Logic::V2}) {
+        mSideViewWidgetParameters->intersections[name] = mSideViewWidget->mapFromCartesian(mLogicParameters->frustum.bottomVertices[name]);
+    }
 }
 
-void Dori::Core::Controller::onDirty()
+void Controller::onDirty()
 {
-    // Pixel to meter conversion
-    mLogicParameters->cameraHeight = mSideViewWidgetParameters->cameraHeight;
-    mLogicParameters->targetHeight = mSideViewWidgetParameters->targetHeight;
-    mLogicParameters->targetDistance = mSideViewWidgetParameters->targetDistance;
+    mLogicParameters->camera = mSideViewWidget->mapFromGui(mSideViewWidgetParameters->camera);
+    mLogicParameters->target = mSideViewWidget->mapFromGui(mSideViewWidgetParameters->target);
+    mLogicParameters->lowerBoundary = mSideViewWidget->mapFromGui(mSideViewWidgetParameters->lowerBoundary);
 
     calculate();
     mSideViewWidget->refresh();
 }
 
-void Dori::Core::Controller::init()
+void Controller::onZoom(int i)
+{
+    if (i < 0) {
+        setMeterToPixelRatio(mZoomStepSize * mMeterToPixelRatio);
+    } else if (i > 0) {
+        setMeterToPixelRatio(mMeterToPixelRatio / mZoomStepSize);
+    }
+}
+
+void Controller::init()
 {
     mLogicParameters = new Logic::Parameters;
-    mLogicParameters->cameraHeight = 100;
-    mLogicParameters->targetHeight = 100;
-    mLogicParameters->targetDistance = 200;
-    mLogicParameters->lowerBoundaryHeight = 0;
-    mLogicParameters->horizontalFov = 60;
-    mLogicParameters->aspectRatio = 16.0f / 9.0f;
+    mLogicParameters->camera = Eigen::Vector3f(0, 0, 15);
+    mLogicParameters->target = Eigen::Vector3f(20, 0, 5);
+    mLogicParameters->lowerBoundary = Eigen::Vector3f(0, 0, 0);
+    mLogicParameters->frustum.horizontalFov = 60;
+    mLogicParameters->frustum.aspectRatio = 16.0f / 9.0f;
     mLogicParameters->frustum.zNear = 0;
-    mLogicParameters->frustum.zFar = 1000;
-
-    mSideViewWidgetParameters = new SideViewWidgetParameters;
-
-    calculate();
+    mLogicParameters->frustum.zFar = 5000;
 
     mCentralWidget = new CentralWidget;
     mCentralWidget->init();
 
+    mSideViewWidgetParameters = new SideViewWidgetParameters;
     mSideViewWidget = mCentralWidget->sideViewWidget();
-
     mSideViewWidget->setParameters(mSideViewWidgetParameters);
-    mSideViewWidget->setOrigin(QPointF(400, 200));
-    mSideViewWidget->setValueToPixelRatio(1);
+    mSideViewWidgetParameters->origin = mOrigin;
+    mSideViewWidgetParameters->minorTickmarkCount = 1;
+    mSideViewWidgetParameters->tickmarkPixelStep = 50;
+    setMeterToPixelRatio(10);
+    calculate();
+
     mSideViewWidget->init();
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
+    connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
 }
+
+void Controller::setMeterToPixelRatio(float newValueToPixelRatio)
+{
+    if (newValueToPixelRatio < 1.0 || newValueToPixelRatio > 64.0f) {
+        return;
+    }
+
+    mMeterToPixelRatio = newValueToPixelRatio;
+
+    mSideViewWidgetParameters->meterToPixelRatio = mMeterToPixelRatio;
+    calculate();
+
+    mSideViewWidget->refresh();
+}
+
+} // namespace Core
+} // namespace Dori

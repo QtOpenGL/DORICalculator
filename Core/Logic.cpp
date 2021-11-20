@@ -1,5 +1,4 @@
 #include "Logic.h"
-#include "Settings.h"
 #include <Dependencies/Eigen/src/Geometry/AngleAxis.h>
 #include <QtDebug>
 #include <QtMath>
@@ -13,11 +12,13 @@ Logic::Logic()
 
 Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
 {
-    const float aspectRatio = inputParameters.aspectRatio;
-    const float horizontalFov = inputParameters.horizontalFov;
-    const float cameraHeight = inputParameters.cameraHeight;
-    const float targetDistance = inputParameters.targetDistance;
-    const float targetHeight = inputParameters.targetHeight;
+    const float &aspectRatio = inputParameters.frustum.aspectRatio;
+    const float &horizontalFov = inputParameters.frustum.horizontalFov;
+    const float &cameraHeight = inputParameters.camera.z();
+    const float &targetDistance = inputParameters.target.x();
+    const float &targetHeight = inputParameters.target.z();
+    const float &zNear = inputParameters.frustum.zNear;
+    const float &zFar = inputParameters.frustum.zFar;
 
     // VERTICAL FOV
     float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(horizontalFov);
@@ -33,49 +34,45 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
     float y = x * tan(halfHorizontalFovRadians);
     float z = x * tan(halfVerticalFovRadians);
 
-    Edge edges[4];
+    Eigen::Vector3f edgeVectors[5];
 
-    for (int i = 0; i < 4; ++i)
-        edges[i].origin = Eigen::Vector3f(0, 0, cameraHeight);
+    edgeVectors[BISECTOR] = Eigen::Vector3f(1, 0, 0);
+    edgeVectors[V1] = Eigen::Vector3f(x, y, z);
+    edgeVectors[V2] = Eigen::Vector3f(x, y, -z);
+    edgeVectors[V3] = Eigen::Vector3f(x, -y, -z);
+    edgeVectors[V4] = Eigen::Vector3f(x, -y, z);
 
-    edges[0].direction = Eigen::Vector3f(x, y, z);
-    edges[1].direction = Eigen::Vector3f(x, y, -z);
-    edges[2].direction = Eigen::Vector3f(x, -y, -z);
-    edges[3].direction = Eigen::Vector3f(x, -y, z);
+    Frustum frustum;
 
     Eigen::AngleAxis<float> rotation(-tiltAngleRadians, Eigen::Vector3f(0, -1, 0));
 
-    for (int i = 0; i < 4; ++i)
-        edges[i].direction = rotation * edges[i].direction;
+    for (EdgeNames name : {BISECTOR, V1, V2, V3, V4}) {
+        edgeVectors[name].normalize();
+        Eigen::Vector3f direction = rotation * edgeVectors[name];
+        frustum.topVertices[name] = inputParameters.camera + zNear * direction;
 
-    for (int i = 0; i < 4; ++i)
-        edges[i].direction.normalize();
-
-    for (int i = 0; i < 4; ++i)
-        edges[i].line = Eigen::ParametrizedLine<float, 3>(edges[i].origin, edges[i].direction);
-
-    // Find intersections with ground
-    for (int i = 0; i < 4; ++i) {
-        float t = edges[i].line.intersectionParameter(mGround);
+        Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(inputParameters.camera, direction);
+        float t = line.intersectionParameter(mGround);
 
         if (t >= 0) {
-            edges[i].intersectionType = IntersectionType::NON_EMPTY;
-            edges[i].intersectionPoint = edges[i].line.pointAt(t);
+            frustum.bottomVertices[name] = line.pointAt(t);
         } else {
-            edges[i].intersectionType = IntersectionType::EMPTY;
+            frustum.bottomVertices[name] = inputParameters.camera + zFar * direction;
         }
-
-        QMessageLogger(__FILE__, __LINE__, __FUNCTION__).debug() << QString("t = %1").arg(t, 5, 'f', 2, ' ');
     }
+    //// End of contruct frustum
 
     // Assign output parameters
     Parameters outputParameters = inputParameters;
 
-    for (int i = 0; i < 4; ++i)
-        outputParameters.frustum.edges[i] = edges[i];
+    frustum.verticalFov = verticalFov;
+    frustum.horizontalFov = horizontalFov;
+    frustum.aspectRatio = aspectRatio;
+    frustum.zNear = zNear;
+    frustum.zFar = zFar;
 
+    outputParameters.frustum = frustum;
     outputParameters.tiltAngle = tiltAngle;
-    outputParameters.verticalFov = verticalFov;
 
     return outputParameters;
 }

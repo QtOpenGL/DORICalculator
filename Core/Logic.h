@@ -8,37 +8,24 @@ namespace Core {
 class Logic
 {
 public:
-    enum IntersectionType { EMPTY = 0, NON_EMPTY = 1 };
-
-    struct Edge
-    {
-        Eigen::Vector3f direction;
-        Eigen::Vector3f origin;
-        Eigen::ParametrizedLine<float, 3> line;
-        IntersectionType intersectionType;
-        Eigen::Vector3f intersectionPoint;
-    };
+    enum EdgeNames { BISECTOR = 0, V1 = 1, V2 = 2, V3 = 3, V4 = 4 };
 
     struct Frustum
     {
-        Eigen::Vector3f topVertices[4];
-        Eigen::Vector3f bottomVertices[4];
-        Edge edges[4];
-        Edge bisector;
+        Eigen::Vector3f topVertices[5]; // BISECTOR, V1, V2, V3, V4
+        Eigen::Vector3f bottomVertices[5];
         float zNear;
         float zFar;
+        float verticalFov;
+        float horizontalFov;
+        float aspectRatio;
     };
 
     struct Parameters
     {
-        float cameraHeight;
-        float targetHeight;
-        float targetDistance;
-        float lowerBoundaryHeight;
-        float mLowerBoundaryDistance;
-        float verticalFov;
-        float horizontalFov;
-        float aspectRatio;
+        Eigen::Vector3f camera;
+        Eigen::Vector3f target;
+        Eigen::Vector3f lowerBoundary;
         float tiltAngle;
         Frustum frustum;
     };

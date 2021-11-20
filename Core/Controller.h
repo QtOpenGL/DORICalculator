@@ -3,6 +3,7 @@
 
 #include "Logic.h"
 #include <QObject>
+#include <QVector2D>
 
 class SideViewWidget;
 class CentralWidget;
@@ -15,32 +16,35 @@ class Controller : public QObject
 public:
     explicit Controller(QObject *parent = nullptr);
 
-    enum VectorType { LOWER, BISECTOR, UPPER };
-    enum IntersectionType { EMPTY, NON_EMPTY };
-
-    struct IntersectionPoint
-    {
-        QPointF point;
-        IntersectionType type;
-    };
-
     struct SideViewWidgetParameters
     {
-        float cameraHeight;
-        float targetHeight;
-        float targetDistance;
+        // GUI
+        QPointF origin;
+        float meterToPixelRatio;
+        int minorTickmarkCount;
+        int tickmarkPixelStep;
+
+        // Logic
+        QPointF camera;
+        QPointF target;
+        QPointF lowerBoundary;
         float tiltAngle;
-        float lowerBoundaryDistance;
-        float lowerBoundaryHeight;
+
+        // Intersections
+        QPointF intersections[3]; // BISECTOR, V1, V2
     };
     CentralWidget *centralWidget();
 
+    float meterToPixelRatio() const;
+
 public slots:
     void onDirty();
+    void onZoom(int);
     void init();
 
 private:
     void calculate();
+    void setMeterToPixelRatio(float newMeterToPixelRatio);
 
     Dori::Core::Logic &mLogic;
 
@@ -49,6 +53,10 @@ private:
 
     SideViewWidget *mSideViewWidget;
     CentralWidget *mCentralWidget;
+
+    float mMeterToPixelRatio;
+    const float mZoomStepSize;
+    const QPointF mOrigin;
 };
 
 };     // namespace Core

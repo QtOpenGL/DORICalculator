@@ -31,6 +31,8 @@ public:
     void setCenterY(int y);
     void translate(int dx, int dy);
 
+    QPointF getCenter();
+
     const QBrush &hoveredBrush() const;
     void setHoveredBrush(const QBrush &newHoveredBrush);
 
