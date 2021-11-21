@@ -73,7 +73,7 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
     Target target;
     for (EdgeNames name : {V1, V2, V3, V4}) {
         Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
-        float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), targetHeight));
+        float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -targetHeight)); // above z axis means negative offset
 
         if (t >= 0) {
             target.intersections[name - V1] = line.pointAt(t);

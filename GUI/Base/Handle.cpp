@@ -37,6 +37,12 @@ QPointF Handle::getCenter()
     return mRectangle.center();
 }
 
+QPointF Handle::getCenter(float leftOffset, float topOffset)
+{
+    QPointF center = mRectangle.center();
+    return QPointF(center.x() + leftOffset, center.y() + topOffset);
+}
+
 void Handle::draw(QPaintDevice *device)
 {
     QPainter painter(device);

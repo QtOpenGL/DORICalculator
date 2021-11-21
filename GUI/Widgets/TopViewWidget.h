@@ -18,6 +18,7 @@ public:
 
 signals:
     void dirty();
+    void pan(int x, int y);
     void zoom(int);
 
 public slots:
@@ -32,7 +33,7 @@ private:
     void mousePressEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
-    void wheelEvent(QWheelEvent *) override;
+    void wheelEvent(QWheelEvent *event) override;
 
     Dori::Core::Controller::TopViewWidgetParamaters *mParameters;
     QPointF mOrigin;
@@ -41,6 +42,7 @@ private:
     Handle mFovWidthHandleTop;
     Handle mFovWidthHandleBottom;
     Handle mTargetHandle;
+    Handle mCameraHandle;
 
     QBrush mCrossedPatternBursh;
     QPen mDashedPen;
@@ -50,6 +52,8 @@ private:
 
     QFont mLabelFont;
     QColor mLabelColor;
+
+    bool mMousePressedOnCanvas;
 };
 
 #endif // TOPVIEWWIDGET_H

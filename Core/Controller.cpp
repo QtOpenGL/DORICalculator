@@ -67,6 +67,7 @@ void Controller::onDirty()
         mLogicParameters->target.distance = mSideViewWidgetParameters->target.distance;
         mLogicParameters->lowerBoundary.height = mSideViewWidgetParameters->lowerBoundary.height;
     } else if (sender == mTopViewWidget) {
+        mLogicParameters->target.distance = mTopViewWidgetParameters->targetDistance;
     }
 
     update();
@@ -81,7 +82,7 @@ void Controller::onZoom(int i)
     }
 }
 
-void Controller::onPan(float x, float y)
+void Controller::onPan(int x, int y)
 {
     setOrigin(QPointF(mOrigin.x() + x, mOrigin.y() + y));
 }
@@ -89,9 +90,9 @@ void Controller::onPan(float x, float y)
 void Controller::init()
 {
     mLogicParameters = new Logic::Parameters;
-    mLogicParameters->camera.height = 15;
-    mLogicParameters->target.height = 5;
-    mLogicParameters->target.distance = 20;
+    mLogicParameters->camera.height = 5;
+    mLogicParameters->target.height = 2;
+    mLogicParameters->target.distance = 5;
     mLogicParameters->lowerBoundary.height = 0;
     mLogicParameters->lowerBoundary.distance = 0;
     mLogicParameters->frustum.horizontalFov = 60;
@@ -116,6 +117,10 @@ void Controller::init()
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
     connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
     connect(mSideViewWidget, &SideViewWidget::pan, this, &Controller::onPan);
+
+    connect(mTopViewWidget, &TopViewWidget::dirty, this, &Controller::onDirty);
+    connect(mTopViewWidget, &TopViewWidget::zoom, this, &Controller::onZoom);
+    connect(mTopViewWidget, &TopViewWidget::pan, this, &Controller::onPan);
 
     setMeterToPixelRatio(10);
     setOrigin(mOrigin);

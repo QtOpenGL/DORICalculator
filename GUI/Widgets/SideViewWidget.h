@@ -20,7 +20,7 @@ public:
 signals:
     void dirty();
     void zoom(int);
-    void pan(float x, float y);
+    void pan(int x, int y);
 
 public slots:
     void refresh();

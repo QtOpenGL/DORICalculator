@@ -61,7 +61,7 @@ public:
 public slots:
     void onDirty();
     void onZoom(int);
-    void onPan(float x, float y);
+    void onPan(int x, int y);
     void init();
 
 private:

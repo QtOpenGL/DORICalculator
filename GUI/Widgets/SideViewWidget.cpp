@@ -99,7 +99,7 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     pen.setWidth(3);
     pen.setCapStyle(Qt::FlatCap);
     painter.setPen(pen);
-    painter.drawLine(mTargetDistanceHandle.getCenter() + QPointF(1, 0), mTargetHeightHandle.getCenter() + QPointF(1, 0));
+    painter.drawLine(mTargetDistanceHandle.getCenter(1, 0), mTargetHeightHandle.getCenter(1, 0));
 
     painter.setRenderHint(QPainter::Antialiasing, true);
 

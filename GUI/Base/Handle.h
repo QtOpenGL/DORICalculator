@@ -31,6 +31,7 @@ public:
     void setSize(float w, float h);
 
     QPointF getCenter();
+    QPointF getCenter(float leftOffset, float topOffset);
 
 private:
     QRect mRectangle;
