@@ -15,12 +15,13 @@ public:
 signals:
     void dirty();
     void zoom(int);
+    void pan(float x, float y);
 
 public slots:
     void init();
     void refresh();
-    QPointF mapFromCartesian(Eigen::Vector3f vector);
-    Eigen::Vector3f mapFromGui(QPointF point);
+    QPointF mapFrom3d(Eigen::Vector3f vector);
+    Eigen::Vector3f mapFrom2d(QPointF point);
 
 private:
     enum Axis { Horizontal, Vertical };
@@ -44,6 +45,7 @@ private:
     QPoint mOldMousePosition;
 
     Dori::Core::Controller::SideViewWidgetParameters *mParameters;
+
     QPen mAxisPen;
     QFont mLabelFont;
     QSizeF mTickmarkSize;
@@ -51,6 +53,9 @@ private:
     QColor mTickmarkColor;
     QColor mMinorTickmarkColor;
     QColor mLabelColor;
+    QFont mBigLabelFont;
+
+    bool mMousePressedOnCanvas;
 };
 
 #endif // SIDEVIEWWIDGET_H

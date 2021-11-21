@@ -6,6 +6,7 @@
 #include <QVector2D>
 
 class SideViewWidget;
+class TopViewWidget;
 class CentralWidget;
 
 namespace Dori {
@@ -16,23 +17,49 @@ class Controller : public QObject
 public:
     explicit Controller(QObject *parent = nullptr);
 
+    struct Camera
+    {
+        float height;
+        float tiltAngle;
+        QPointF position;
+    };
+
+    struct Target
+    {
+        float height;
+        float distance;
+        QPointF position;
+    };
+
+    struct LowerBoundary : Target
+    {};
+
     struct SideViewWidgetParameters
     {
-        // GUI
         QPointF origin;
         float meterToPixelRatio;
         int minorTickmarkCount;
         int tickmarkPixelStep;
 
-        // Logic
-        QPointF camera;
-        QPointF target;
-        QPointF lowerBoundary;
-        float tiltAngle;
+        Camera camera;
+        Target target;
+        LowerBoundary lowerBoundary;
+
+        // Ground intersections
+        QPointF points[4]; // OPPOSITE_BISECTOR, BISECTOR, V1, V2
+    };
+
+    struct TopViewWidgetParamaters
+    {
+        float targetDistance;
+        QPointF origin;
 
         // Intersections
-        QPointF intersections[3]; // BISECTOR, V1, V2
+        QPointF ground[4];
+        QPointF target[2];
+        QPointF lowerBounddary[2];
     };
+
     CentralWidget *centralWidget();
 
     float meterToPixelRatio() const;
@@ -40,6 +67,7 @@ public:
 public slots:
     void onDirty();
     void onZoom(int);
+    void onPan(float x, float y);
     void init();
 
 private:
@@ -50,13 +78,15 @@ private:
 
     Dori::Core::Logic::Parameters *mLogicParameters;
     SideViewWidgetParameters *mSideViewWidgetParameters;
+    TopViewWidgetParamaters *mTopViewWidgetParameters;
 
     SideViewWidget *mSideViewWidget;
+    TopViewWidget *mTopViewWidget;
     CentralWidget *mCentralWidget;
 
     float mMeterToPixelRatio;
     const float mZoomStepSize;
-    const QPointF mOrigin;
+    QPointF mOrigin;
 };
 
 };     // namespace Core

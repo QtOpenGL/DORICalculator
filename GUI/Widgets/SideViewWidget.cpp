@@ -3,12 +3,15 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPainterPath>
+#include <QtMath>
 
 SideViewWidget::SideViewWidget(QWidget *parent)
     : QWidget(parent)
     , mTargetHeightHandle(this)
     , mTargetDistanceHandle(this)
     , mCameraHeightHandle(this)
+    , mMousePressedOnCanvas(false)
 {
     setMouseTracking(true);
 }
@@ -21,6 +24,11 @@ void SideViewWidget::init()
         dashes << 2 << 2;
         mDashedPen.setDashPattern(dashes);
         mDashedPen.setStyle(Qt::DashLine);
+
+        mSolidPen.setWidthF(1);
+
+        mBigLabelFont = QFont("Arial");
+        mBigLabelFont.setPixelSize(11);
     }
 
     // Axis parameters
@@ -81,12 +89,12 @@ void SideViewWidget::refresh()
     update();
 }
 
-QPointF SideViewWidget::mapFromCartesian(Eigen::Vector3f vector)
+QPointF SideViewWidget::mapFrom3d(Eigen::Vector3f vector)
 {
     return QPointF(mParameters->origin.x() + vector.x() * mParameters->meterToPixelRatio, mParameters->origin.y() - vector.z() * mParameters->meterToPixelRatio);
 }
 
-Eigen::Vector3f SideViewWidget::mapFromGui(QPointF point)
+Eigen::Vector3f SideViewWidget::mapFrom2d(QPointF point)
 {
     Eigen::Vector3f vector;
 
@@ -99,16 +107,31 @@ Eigen::Vector3f SideViewWidget::mapFromGui(QPointF point)
 void SideViewWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing, true);
+
     drawAxis(Horizontal);
     drawAxis(Vertical);
 
     painter.save();
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
-    // Bisector
+    // Draw Target Height Line
+    QPen pen(QColor(0, 128, 0));
+    pen.setWidth(3);
+    pen.setCapStyle(Qt::FlatCap);
+    painter.setPen(pen);
+    painter.drawLine(mTargetDistanceHandle.getCenter() + QPointF(0.5, 0), mTargetHeightHandle.getCenter() + QPointF(0.5, 0));
+
+    // Draw target height label
+    painter.setPen(QColor(0, 128, 0));
+    painter.setFont(mBigLabelFont);
+    QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
+    painter.drawText(point, QString::number(mParameters->target.height, 'f', 1) + " m");
+
+    // Opposite Bisector and Bisector
     mDashedPen.setColor(QColor(0, 102, 213));
     painter.setPen(mDashedPen);
-    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->intersections[0]);
+    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::Logic::OPPOSITE_BISECTOR]);
+    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::Logic::BISECTOR]);
 
     // V1
     painter.setPen(QColor(0, 102, 213));
@@ -116,14 +139,42 @@ void SideViewWidget::paintEvent(QPaintEvent *event)
 
     mDashedPen.setColor(QColor(128, 128, 128));
     painter.setPen(mDashedPen);
-    painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->intersections[1]);
+    painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->points[Dori::Core::Logic::V1]);
 
     // V2
     painter.setPen(QColor(0, 102, 213));
-    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->intersections[2]);
+    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::Logic::V2]);
 
+    // Draw tilt angle reference line
+    mDashedPen.setColor(QColor(128, 128, 128));
+    painter.setPen(mDashedPen);
+    painter.setRenderHint(QPainter::Antialiasing, false);
+    painter.drawLine(mCameraHeightHandle.getCenter(), QPoint(0, mCameraHeightHandle.getCenter().y()));
+    painter.setRenderHint(QPainter::Antialiasing, true);
     painter.restore();
 
+    // Tilt angle
+    QPainterPath path;
+    path.moveTo(mCameraHeightHandle.getCenter().x(), mCameraHeightHandle.getCenter().y());
+    path.arcTo(mCameraHeightHandle.getCenter().x() - 50, mCameraHeightHandle.getCenter().y() - 50, 100, 100, -180, -mParameters->camera.tiltAngle);
+    path.closeSubpath();
+    QBrush brush;
+    brush.setStyle(Qt::BrushStyle::Dense6Pattern);
+    brush.setColor(QColor(0, 102, 213));
+    painter.fillPath(path, brush);
+
+    // Tilt angle label
+    painter.setFont(mBigLabelFont);
+    painter.setPen(mLabelColor);
+    QString label = QString::number(mParameters->camera.tiltAngle, 'f', 2) + " º";
+    QRectF boundingBox;
+    if (mParameters->camera.tiltAngle > 0)
+        boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75, mCameraHeightHandle.getCenter().y(), 50, 2 * mLabelFont.pixelSize());
+    else
+        boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75, mCameraHeightHandle.getCenter().y() - 2 * mLabelFont.pixelSize(), 50, 2 * mLabelFont.pixelSize());
+    painter.drawText(boundingBox, Qt::AlignCenter, label);
+
+    // Draw handles
     mTargetDistanceHandle.draw();
     mTargetHeightHandle.draw();
     mCameraHeightHandle.draw();
@@ -137,6 +188,8 @@ void SideViewWidget::mousePressEvent(QMouseEvent *event)
         mTargetDistanceHandle.setPressed(true);
     } else if (mCameraHeightHandle.contains(event->pos())) {
         mCameraHeightHandle.setPressed(true);
+    } else {
+        mMousePressedOnCanvas = true;
     }
 
     mOldMousePosition = event->pos();
@@ -151,26 +204,38 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
 
     bool isDirty = false;
     if (mTargetHeightHandle.pressed()) {
-        isDirty = true;
-        mParameters->target.setY(mParameters->target.y() + (event->pos() - mOldMousePosition).y());
+        float newTargetHeight = mParameters->target.height - (event->pos() - mOldMousePosition).y() / mParameters->meterToPixelRatio;
+
+        if (newTargetHeight >= 0.1) {
+            isDirty = true;
+            mParameters->target.height = newTargetHeight;
+        }
     }
 
     if (mTargetDistanceHandle.pressed()) {
         isDirty = true;
-        mParameters->target.setX(mParameters->target.x() + (event->pos() - mOldMousePosition).x());
+        mParameters->target.distance += (event->pos() - mOldMousePosition).x() / mParameters->meterToPixelRatio;
     }
 
     if (mCameraHeightHandle.pressed()) {
-        isDirty = true;
-        mParameters->camera.setY(mParameters->camera.y() + (event->pos() - mOldMousePosition).y());
+        float newCameraHeight = mParameters->camera.height - (event->pos() - mOldMousePosition).y() / mParameters->meterToPixelRatio;
+
+        if (newCameraHeight >= 0.25) {
+            isDirty = true;
+            mParameters->camera.height = newCameraHeight;
+        }
     }
 
-    mOldMousePosition = event->pos();
-
+    // Calling update() for each mouse move event may be expensive
     update();
+
+    if (!isDirty && mMousePressedOnCanvas)
+        emit pan((event->pos() - mOldMousePosition).x(), (event->pos() - mOldMousePosition).y());
 
     if (isDirty)
         emit dirty();
+
+    mOldMousePosition = event->pos();
 }
 
 void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)
@@ -178,6 +243,7 @@ void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)
     mTargetHeightHandle.setPressed(false);
     mTargetDistanceHandle.setPressed(false);
     mCameraHeightHandle.setPressed(false);
+    mMousePressedOnCanvas = false;
 
     mOldMousePosition = event->pos();
     update();
@@ -195,9 +261,9 @@ void SideViewWidget::setParameters(Dori::Core::Controller::SideViewWidgetParamet
 
 void SideViewWidget::updateHandles()
 {
-    mTargetHeightHandle.setCenter(mParameters->target.x(), mParameters->target.y());
-    mTargetDistanceHandle.setCenter(mParameters->target.x(), mParameters->origin.y());
-    mCameraHeightHandle.setCenter(mParameters->camera.x(), mParameters->camera.y());
+    mTargetHeightHandle.setCenter(mParameters->target.position.x(), mParameters->target.position.y());
+    mTargetDistanceHandle.setCenter(mParameters->target.position.x(), mParameters->origin.y());
+    mCameraHeightHandle.setCenter(mParameters->camera.position.x(), mParameters->camera.position.y());
 }
 
 void SideViewWidget::drawAxis(Axis axis)

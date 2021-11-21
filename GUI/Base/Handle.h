@@ -9,7 +9,7 @@ class Handle
 public:
     Handle(QWidget *widget);
 
-    bool contains(int x, int y);
+    bool contains(float x, float y);
     bool contains(QPoint point);
 
     void draw();
@@ -23,16 +23,6 @@ public:
     const QBrush &brush() const;
     void setBrush(const QBrush &newBrush);
 
-    const QRect &rectangle() const;
-    void setRectangle(const QRect &newRectangle);
-    void setCenter(int x, int y);
-    void setSize(int w, int h);
-    void setCenterX(int x);
-    void setCenterY(int y);
-    void translate(int dx, int dy);
-
-    QPointF getCenter();
-
     const QBrush &hoveredBrush() const;
     void setHoveredBrush(const QBrush &newHoveredBrush);
 
@@ -41,6 +31,10 @@ public:
 
     const QBrush &pressedBrush() const;
     void setPressedBrush(const QBrush &newPressedBrush);
+
+    void setCenter(float x, float y);
+    void setSize(float w, float h);
+    QPointF getCenter();
 
 private:
     QWidget *mWidget;

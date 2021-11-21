@@ -2,6 +2,7 @@
 
 #include <GUI/Widgets/CentralWidget.h>
 #include <GUI/Widgets/SideViewWidget.h>
+#include <GUI/Widgets/TopViewWidget.h>
 
 #include <QDebug>
 
@@ -11,7 +12,7 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
     , mLogic(Dori::Core::Logic::getInstance())
     , mZoomStepSize(2.0f)
-    , mOrigin(256, 256)
+    , mOrigin(128, 368)
 {}
 
 CentralWidget *Controller::centralWidget()
@@ -23,20 +24,38 @@ void Controller::calculate()
 {
     *mLogicParameters = mLogic.calculate(*mLogicParameters);
 
-    mSideViewWidgetParameters->camera = mSideViewWidget->mapFromCartesian(mLogicParameters->camera);
-    mSideViewWidgetParameters->target = mSideViewWidget->mapFromCartesian(mLogicParameters->target);
-    mSideViewWidgetParameters->tiltAngle = mLogicParameters->tiltAngle;
+    mSideViewWidgetParameters->camera.tiltAngle = mLogicParameters->camera.tiltAngle;
+    mSideViewWidgetParameters->camera.height = mLogicParameters->camera.height;
+    mSideViewWidgetParameters->camera.position = mSideViewWidget->mapFrom3d(Eigen::Vector3f(0, 0, mLogicParameters->camera.height));
+    mSideViewWidgetParameters->target.height = mLogicParameters->target.height;
+    mSideViewWidgetParameters->target.distance = mLogicParameters->target.distance;
+    mSideViewWidgetParameters->target.position = mSideViewWidget->mapFrom3d(Eigen::Vector3f(mLogicParameters->target.distance, 0, mLogicParameters->target.height));
+    mSideViewWidgetParameters->lowerBoundary.height = mLogicParameters->lowerBoundary.height;
+    mSideViewWidgetParameters->lowerBoundary.distance = mLogicParameters->lowerBoundary.distance;
+    mSideViewWidgetParameters->lowerBoundary.position = mSideViewWidget->mapFrom3d(
+        Eigen::Vector3f(mLogicParameters->lowerBoundary.distance, 0, mLogicParameters->lowerBoundary.height));
 
-    for (Logic::EdgeNames name : {Logic::BISECTOR, Logic::V1, Logic::V2}) {
-        mSideViewWidgetParameters->intersections[name] = mSideViewWidget->mapFromCartesian(mLogicParameters->frustum.bottomVertices[name]);
+    for (Logic::EdgeNames name : {Logic::OPPOSITE_BISECTOR, Logic::BISECTOR, Logic::V1, Logic::V2}) {
+        mSideViewWidgetParameters->points[name] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[name]);
     }
+
+    //    QPointF ground[4];
+
+    //    for (Logic::EdgeNames name : {Logic::V1, Logic::V2, Logic::V3, Logic::V4}) {
+    //        mTopViewWidgetParameters->ground[name] = mTopViewWidget->mapFromCartesian(mLogicParameters->frustum.bottomVertices[name]);
+    //    }
 }
 
 void Controller::onDirty()
 {
-    mLogicParameters->camera = mSideViewWidget->mapFromGui(mSideViewWidgetParameters->camera);
-    mLogicParameters->target = mSideViewWidget->mapFromGui(mSideViewWidgetParameters->target);
-    mLogicParameters->lowerBoundary = mSideViewWidget->mapFromGui(mSideViewWidgetParameters->lowerBoundary);
+    QObject *sender = QObject::sender();
+    if (sender == mSideViewWidget) {
+        mLogicParameters->camera.height = mSideViewWidgetParameters->camera.height;
+        mLogicParameters->target.height = mSideViewWidgetParameters->target.height;
+        mLogicParameters->target.distance = mSideViewWidgetParameters->target.distance;
+        mLogicParameters->lowerBoundary.height = mSideViewWidgetParameters->lowerBoundary.height;
+    } else if (sender == mTopViewWidget) {
+    }
 
     calculate();
     mSideViewWidget->refresh();
@@ -51,12 +70,23 @@ void Controller::onZoom(int i)
     }
 }
 
+void Controller::onPan(float x, float y)
+{
+    mOrigin.setX(mOrigin.x() + x);
+    mOrigin.setY(mOrigin.y() + y);
+    mSideViewWidgetParameters->origin = mOrigin;
+    calculate();
+    mSideViewWidget->refresh();
+}
+
 void Controller::init()
 {
     mLogicParameters = new Logic::Parameters;
-    mLogicParameters->camera = Eigen::Vector3f(0, 0, 15);
-    mLogicParameters->target = Eigen::Vector3f(20, 0, 5);
-    mLogicParameters->lowerBoundary = Eigen::Vector3f(0, 0, 0);
+    mLogicParameters->camera.height = 15;
+    mLogicParameters->target.height = 5;
+    mLogicParameters->target.distance = 20;
+    mLogicParameters->lowerBoundary.height = 0;
+    mLogicParameters->lowerBoundary.distance = 0;
     mLogicParameters->frustum.horizontalFov = 60;
     mLogicParameters->frustum.aspectRatio = 16.0f / 9.0f;
     mLogicParameters->frustum.zNear = 0;
@@ -71,14 +101,22 @@ void Controller::init()
     mSideViewWidgetParameters->origin = mOrigin;
     mSideViewWidgetParameters->minorTickmarkCount = 1;
     mSideViewWidgetParameters->tickmarkPixelStep = 50;
+
+    mTopViewWidgetParameters = new TopViewWidgetParamaters;
+    mTopViewWidget = mCentralWidget->topViewWidget();
+    //mTopViewWidget->setParameters(mSideViewWidgetParameters);
+    mTopViewWidgetParameters->origin = mOrigin;
+
     setMeterToPixelRatio(10);
     calculate();
 
     mSideViewWidget->init();
+    //mTopViewWidget->init();
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
     connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
+    connect(mSideViewWidget, &SideViewWidget::pan, this, &Controller::onPan);
 }
 
 void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
@@ -90,6 +128,7 @@ void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
     mMeterToPixelRatio = newMeterToPixelRatio;
 
     mSideViewWidgetParameters->meterToPixelRatio = mMeterToPixelRatio;
+
     calculate();
 
     mSideViewWidget->refresh();

@@ -8,12 +8,12 @@ namespace Core {
 class Logic
 {
 public:
-    enum EdgeNames { BISECTOR = 0, V1 = 1, V2 = 2, V3 = 3, V4 = 4 };
+    enum EdgeNames { OPPOSITE_BISECTOR, BISECTOR, V1, V2, V3, V4 };
 
     struct Frustum
     {
-        Eigen::Vector3f topVertices[5]; // BISECTOR, V1, V2, V3, V4
-        Eigen::Vector3f bottomVertices[5];
+        Eigen::Vector3f topVertices[6]; // OPPOSITE_BISECTOR, BISECTOR, V1, V2, V3, V4
+        Eigen::Vector3f bottomVertices[6];
         float zNear;
         float zFar;
         float verticalFov;
@@ -21,13 +21,28 @@ public:
         float aspectRatio;
     };
 
+    struct Camera
+    {
+        float height;
+        float tiltAngle;
+    };
+
+    struct Target
+    {
+        float height;
+        float distance;
+        Eigen::Vector3f intersections[4];
+    };
+
+    struct LowerBoundary : Target
+    {};
+
     struct Parameters
     {
-        Eigen::Vector3f camera;
-        Eigen::Vector3f target;
-        Eigen::Vector3f lowerBoundary;
-        float tiltAngle;
         Frustum frustum;
+        Camera camera;
+        Target target;
+        LowerBoundary lowerBoundary;
     };
 
 private:

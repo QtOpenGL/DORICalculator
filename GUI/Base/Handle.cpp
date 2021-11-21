@@ -9,7 +9,7 @@ Handle::Handle(QWidget *widget)
     , mHovered(false)
 {}
 
-bool Handle::contains(int x, int y)
+bool Handle::contains(float x, float y)
 {
     return mRectangle.contains(x, y);
 }
@@ -23,16 +23,17 @@ void Handle::draw()
 {
     QPainter painter(mWidget);
     painter.save();
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
     painter.setPen(mPen);
 
-    if (mPressed) {
+    if (mPressed)
         painter.setBrush(mPressedBrush);
-    } else if (mHovered) {
+    else if (mHovered)
         painter.setBrush(mHoveredBrush);
-    } else {
+    else
         painter.setBrush(mBrush);
-    }
+
     painter.drawRect(mRectangle);
 
     painter.restore();
@@ -68,39 +69,14 @@ void Handle::setBrush(const QBrush &newBrush)
     mBrush = newBrush;
 }
 
-const QRect &Handle::rectangle() const
-{
-    return mRectangle;
-}
-
-void Handle::setRectangle(const QRect &newRectangle)
-{
-    mRectangle = newRectangle;
-}
-
-void Handle::setCenter(int x, int y)
+void Handle::setCenter(float x, float y)
 {
     mRectangle = QRect(x - 0.5 * mRectangle.width(), y - 0.5 * mRectangle.height(), mRectangle.width(), mRectangle.height());
 }
 
-void Handle::setSize(int w, int h)
+void Handle::setSize(float w, float h)
 {
     mRectangle = QRect(mRectangle.x(), mRectangle.y(), w, h);
-}
-
-void Handle::setCenterX(int x)
-{
-    mRectangle = QRect(x - 0.5 * mRectangle.width(), mRectangle.y(), mRectangle.width(), mRectangle.height());
-}
-
-void Handle::setCenterY(int y)
-{
-    mRectangle = QRect(mRectangle.x(), y - 0.5 * mRectangle.height(), mRectangle.width(), mRectangle.height());
-}
-
-void Handle::translate(int dx, int dy)
-{
-    mRectangle = QRect(mRectangle.x() + dx, mRectangle.y() + dy, mRectangle.width(), mRectangle.height());
 }
 
 QPointF Handle::getCenter()
