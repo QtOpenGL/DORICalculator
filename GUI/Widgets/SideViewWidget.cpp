@@ -79,8 +79,6 @@ void SideViewWidget::init()
         mCameraHeightHandle.setPressedBrush(QColor(0, 255, 0));
         mCameraHeightHandle.setSize(10, 10);
     }
-
-    refresh();
 }
 
 void SideViewWidget::refresh()
@@ -91,7 +89,9 @@ void SideViewWidget::refresh()
 
 QPointF SideViewWidget::mapFrom3d(Eigen::Vector3f vector)
 {
-    return QPointF(mParameters->origin.x() + vector.x() * mParameters->meterToPixelRatio, mParameters->origin.y() - vector.z() * mParameters->meterToPixelRatio);
+    float x = mParameters->origin.x() + vector.x() * mParameters->meterToPixelRatio;
+    float y = mParameters->origin.y() - vector.z() * mParameters->meterToPixelRatio;
+    return QPointF(x, y);
 }
 
 Eigen::Vector3f SideViewWidget::mapFrom2d(QPointF point)

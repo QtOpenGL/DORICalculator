@@ -24,6 +24,7 @@ void Controller::calculate()
 {
     *mLogicParameters = mLogic.calculate(*mLogicParameters);
 
+    // SideViewWidgetParameters
     mSideViewWidgetParameters->camera.tiltAngle = mLogicParameters->camera.tiltAngle;
     mSideViewWidgetParameters->camera.height = mLogicParameters->camera.height;
     mSideViewWidgetParameters->camera.position = mSideViewWidget->mapFrom3d(Eigen::Vector3f(0, 0, mLogicParameters->camera.height));
@@ -39,11 +40,22 @@ void Controller::calculate()
         mSideViewWidgetParameters->points[name] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[name]);
     }
 
-    //    QPointF ground[4];
+    // TopViewWidgetParameters
+    mTopViewWidgetParameters->targetDistance = mLogicParameters->target.distance;
+    mTopViewWidgetParameters->fovWidth = 0;
 
-    //    for (Logic::EdgeNames name : {Logic::V1, Logic::V2, Logic::V3, Logic::V4}) {
-    //        mTopViewWidgetParameters->ground[name] = mTopViewWidget->mapFromCartesian(mLogicParameters->frustum.bottomVertices[name]);
-    //    }
+    for (Logic::EdgeNames name : {Logic::V1, Logic::V2, Logic::V3, Logic::V4}) {
+        mTopViewWidgetParameters->ground[name - Logic::V1] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[name]);
+        mTopViewWidgetParameters->target[name - Logic::V1] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[name - Logic::V1]);
+        mTopViewWidgetParameters->lowerBoundary[name - Logic::V1] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[name - Logic::V1]);
+    }
+}
+
+void Controller::update()
+{
+    calculate();
+    mSideViewWidget->refresh();
+    mTopViewWidget->refresh();
 }
 
 void Controller::onDirty()
@@ -57,8 +69,7 @@ void Controller::onDirty()
     } else if (sender == mTopViewWidget) {
     }
 
-    calculate();
-    mSideViewWidget->refresh();
+    update();
 }
 
 void Controller::onZoom(int i)
@@ -72,11 +83,7 @@ void Controller::onZoom(int i)
 
 void Controller::onPan(float x, float y)
 {
-    mOrigin.setX(mOrigin.x() + x);
-    mOrigin.setY(mOrigin.y() + y);
-    mSideViewWidgetParameters->origin = mOrigin;
-    calculate();
-    mSideViewWidget->refresh();
+    setOrigin(QPointF(mOrigin.x() + x, mOrigin.y() + y));
 }
 
 void Controller::init()
@@ -95,28 +102,28 @@ void Controller::init()
     mCentralWidget = new CentralWidget;
     mCentralWidget->init();
 
-    mSideViewWidgetParameters = new SideViewWidgetParameters;
     mSideViewWidget = mCentralWidget->sideViewWidget();
+    mSideViewWidgetParameters = new SideViewWidgetParameters;
     mSideViewWidget->setParameters(mSideViewWidgetParameters);
-    mSideViewWidgetParameters->origin = mOrigin;
+
     mSideViewWidgetParameters->minorTickmarkCount = 1;
     mSideViewWidgetParameters->tickmarkPixelStep = 50;
 
-    mTopViewWidgetParameters = new TopViewWidgetParamaters;
     mTopViewWidget = mCentralWidget->topViewWidget();
-    //mTopViewWidget->setParameters(mSideViewWidgetParameters);
-    mTopViewWidgetParameters->origin = mOrigin;
-
-    setMeterToPixelRatio(10);
-    calculate();
-
-    mSideViewWidget->init();
-    //mTopViewWidget->init();
+    mTopViewWidgetParameters = new TopViewWidgetParamaters;
+    mTopViewWidget->setParameters(mTopViewWidgetParameters);
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
     connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
     connect(mSideViewWidget, &SideViewWidget::pan, this, &Controller::onPan);
+
+    setMeterToPixelRatio(10);
+    setOrigin(mOrigin);
+
+    mSideViewWidget->init();
+    mTopViewWidget->init();
+    update();
 }
 
 void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
@@ -128,10 +135,19 @@ void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
     mMeterToPixelRatio = newMeterToPixelRatio;
 
     mSideViewWidgetParameters->meterToPixelRatio = mMeterToPixelRatio;
+    mTopViewWidgetParameters->meterToPixelRatio = mMeterToPixelRatio;
 
-    calculate();
+    update();
+}
 
-    mSideViewWidget->refresh();
+void Controller::setOrigin(QPointF newOrigin)
+{
+    mOrigin = newOrigin;
+
+    mSideViewWidgetParameters->origin = newOrigin;
+    mTopViewWidgetParameters->origin = newOrigin;
+
+    update();
 }
 
 } // namespace Core

@@ -52,12 +52,14 @@ public:
     struct TopViewWidgetParamaters
     {
         float targetDistance;
+        float fovWidth;
         QPointF origin;
+        float meterToPixelRatio;
 
         // Intersections
         QPointF ground[4];
-        QPointF target[2];
-        QPointF lowerBounddary[2];
+        QPointF target[4];
+        QPointF lowerBoundary[4];
     };
 
     CentralWidget *centralWidget();
@@ -72,7 +74,10 @@ public slots:
 
 private:
     void calculate();
+    void update();
+
     void setMeterToPixelRatio(float newMeterToPixelRatio);
+    void setOrigin(QPointF newOrigin);
 
     Dori::Core::Logic &mLogic;
 

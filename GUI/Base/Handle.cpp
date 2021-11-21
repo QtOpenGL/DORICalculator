@@ -69,9 +69,9 @@ void Handle::setBrush(const QBrush &newBrush)
     mBrush = newBrush;
 }
 
-void Handle::setCenter(float x, float y)
+void Handle::setCenter(const QPointF &center)
 {
-    mRectangle = QRect(x - 0.5 * mRectangle.width(), y - 0.5 * mRectangle.height(), mRectangle.width(), mRectangle.height());
+    setCenter(center.x(), center.y());
 }
 
 void Handle::setSize(float w, float h)
@@ -112,4 +112,9 @@ const QBrush &Handle::pressedBrush() const
 void Handle::setPressedBrush(const QBrush &newPressedBrush)
 {
     mPressedBrush = newPressedBrush;
+}
+
+void Handle::setCenter(float x, float y)
+{
+    mRectangle = QRect(x - 0.5 * mRectangle.width(), y - 0.5 * mRectangle.height(), mRectangle.width(), mRectangle.height());
 }

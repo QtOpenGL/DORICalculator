@@ -33,6 +33,7 @@ public:
     void setPressedBrush(const QBrush &newPressedBrush);
 
     void setCenter(float x, float y);
+    void setCenter(const QPointF &center);
     void setSize(float w, float h);
     QPointF getCenter();
 
