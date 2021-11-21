@@ -1,6 +1,8 @@
 #ifndef SIDEVIEWWIDGET_H
 #define SIDEVIEWWIDGET_H
 
+#include "AxisWidget.h"
+
 #include <Core/Controller.h>
 #include <GUI/Base/Handle.h>
 #include <QWidget>
@@ -12,23 +14,21 @@ public:
     explicit SideViewWidget(QWidget *parent = nullptr);
     void setParameters(Dori::Core::Controller::SideViewWidgetParameters *newParameters);
 
+    void setOrigin(QPointF newOrigin);
+    void setMeterToPixelRatio(float newMeterToPixelRatio);
+
 signals:
     void dirty();
     void zoom(int);
     void pan(float x, float y);
 
 public slots:
-    void init();
     void refresh();
     QPointF mapFrom3d(Eigen::Vector3f vector);
     Eigen::Vector3f mapFrom2d(QPointF point);
 
 private:
-    enum Axis { Horizontal, Vertical };
-
-private:
     void updateHandles();
-    void drawAxis(Axis);
 
     void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
@@ -36,26 +36,22 @@ private:
     void mouseReleaseEvent(QMouseEvent *) override;
     void wheelEvent(QWheelEvent *) override;
 
+    Dori::Core::Controller::SideViewWidgetParameters *mParameters;
+
     Handle mTargetHeightHandle;
     Handle mTargetDistanceHandle;
     Handle mCameraHeightHandle;
 
+    QPoint mOldMousePosition;
+    bool mMousePressedOnCanvas;
+
     QPen mDashedPen;
     QPen mSolidPen;
-    QPoint mOldMousePosition;
-
-    Dori::Core::Controller::SideViewWidgetParameters *mParameters;
-
-    QPen mAxisPen;
     QFont mLabelFont;
-    QSizeF mTickmarkSize;
-    QSizeF mMinorTickmarkSize;
-    QColor mTickmarkColor;
-    QColor mMinorTickmarkColor;
     QColor mLabelColor;
-    QFont mBigLabelFont;
 
-    bool mMousePressedOnCanvas;
+    QPointF mOrigin;
+    float mMeterToPixelRatio;
 };
 
 #endif // SIDEVIEWWIDGET_H

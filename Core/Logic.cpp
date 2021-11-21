@@ -56,16 +56,16 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
 
     for (EdgeNames name : {OPPOSITE_BISECTOR, BISECTOR, V1, V2, V3, V4}) {
         edgeVectors[name].normalize();
-        Eigen::Vector3f direction = rotation * edgeVectors[name];
-        frustum.topVertices[name] = cameraPosition + zNear * direction;
+        edgeVectors[name] = rotation * edgeVectors[name];
+        frustum.topVertices[name] = cameraPosition + zNear * edgeVectors[name];
 
-        Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, direction);
+        Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
         float t = line.intersectionParameter(mGround);
 
         if (t >= 0) {
             frustum.bottomVertices[name] = line.pointAt(t);
         } else {
-            frustum.bottomVertices[name] = cameraPosition + zFar * direction;
+            frustum.bottomVertices[name] = cameraPosition + zFar * edgeVectors[name];
         }
     }
 

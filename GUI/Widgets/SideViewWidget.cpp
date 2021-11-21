@@ -4,19 +4,12 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QStackedLayout>
 #include <QtMath>
 
 SideViewWidget::SideViewWidget(QWidget *parent)
     : QWidget(parent)
-    , mTargetHeightHandle(this)
-    , mTargetDistanceHandle(this)
-    , mCameraHeightHandle(this)
     , mMousePressedOnCanvas(false)
-{
-    setMouseTracking(true);
-}
-
-void SideViewWidget::init()
 {
     // General GUI
     {
@@ -27,21 +20,10 @@ void SideViewWidget::init()
 
         mSolidPen.setWidthF(1);
 
-        mBigLabelFont = QFont("Arial");
-        mBigLabelFont.setPixelSize(11);
-    }
-
-    // Axis parameters
-    {
         mLabelFont = QFont("Arial");
-        mLabelFont.setPixelSize(9);
+        mLabelFont.setPixelSize(11);
+
         mLabelColor = QColor(0, 0, 0);
-        mTickmarkColor = QColor(100, 100, 100);
-        mTickmarkSize = QSizeF(1.5, 6);
-        mMinorTickmarkColor = QColor(0, 0, 0);
-        mMinorTickmarkSize = QSizeF(1, 4);
-        mAxisPen = QPen(QColor(0, 0, 0));
-        mAxisPen.setWidthF(1);
     }
 
     // Target Height Handle
@@ -79,6 +61,8 @@ void SideViewWidget::init()
         mCameraHeightHandle.setPressedBrush(QColor(0, 255, 0));
         mCameraHeightHandle.setSize(10, 10);
     }
+
+    setMouseTracking(true);
 }
 
 void SideViewWidget::refresh()
@@ -89,8 +73,8 @@ void SideViewWidget::refresh()
 
 QPointF SideViewWidget::mapFrom3d(Eigen::Vector3f vector)
 {
-    float x = mParameters->origin.x() + vector.x() * mParameters->meterToPixelRatio;
-    float y = mParameters->origin.y() - vector.z() * mParameters->meterToPixelRatio;
+    float x = mOrigin.x() + vector.x() * mMeterToPixelRatio;
+    float y = mOrigin.y() - vector.z() * mMeterToPixelRatio;
     return QPointF(x, y);
 }
 
@@ -98,32 +82,30 @@ Eigen::Vector3f SideViewWidget::mapFrom2d(QPointF point)
 {
     Eigen::Vector3f vector;
 
-    vector[0] = (point.x() - mParameters->origin.x()) / mParameters->meterToPixelRatio;
+    vector[0] = (point.x() - mOrigin.x()) / mMeterToPixelRatio;
     vector[1] = 0;
-    vector[2] = (mParameters->origin.y() - point.y()) / mParameters->meterToPixelRatio;
+    vector[2] = (mOrigin.y() - point.y()) / mMeterToPixelRatio;
     return vector;
 }
 
-void SideViewWidget::paintEvent(QPaintEvent *event)
+void SideViewWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    drawAxis(Horizontal);
-    drawAxis(Vertical);
-
-    painter.save();
-    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::Antialiasing, false);
 
     // Draw Target Height Line
     QPen pen(QColor(0, 128, 0));
     pen.setWidth(3);
     pen.setCapStyle(Qt::FlatCap);
     painter.setPen(pen);
-    painter.drawLine(mTargetDistanceHandle.getCenter() + QPointF(0.5, 0), mTargetHeightHandle.getCenter() + QPointF(0.5, 0));
+    painter.drawLine(mTargetDistanceHandle.getCenter() + QPointF(1, 0), mTargetHeightHandle.getCenter() + QPointF(1, 0));
+
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
     // Draw target height label
     painter.setPen(QColor(0, 128, 0));
-    painter.setFont(mBigLabelFont);
+    painter.setFont(mLabelFont);
     QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
     painter.drawText(point, QString::number(mParameters->target.height, 'f', 1) + " m");
 
@@ -151,7 +133,6 @@ void SideViewWidget::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::Antialiasing, false);
     painter.drawLine(mCameraHeightHandle.getCenter(), QPoint(0, mCameraHeightHandle.getCenter().y()));
     painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.restore();
 
     // Tilt angle
     QPainterPath path;
@@ -164,7 +145,7 @@ void SideViewWidget::paintEvent(QPaintEvent *event)
     painter.fillPath(path, brush);
 
     // Tilt angle label
-    painter.setFont(mBigLabelFont);
+    painter.setFont(mLabelFont);
     painter.setPen(mLabelColor);
     QString label = QString::number(mParameters->camera.tiltAngle, 'f', 2) + " º";
     QRectF boundingBox;
@@ -175,9 +156,9 @@ void SideViewWidget::paintEvent(QPaintEvent *event)
     painter.drawText(boundingBox, Qt::AlignCenter, label);
 
     // Draw handles
-    mTargetDistanceHandle.draw();
-    mTargetHeightHandle.draw();
-    mCameraHeightHandle.draw();
+    mTargetDistanceHandle.draw(this);
+    mTargetHeightHandle.draw(this);
+    mCameraHeightHandle.draw(this);
 }
 
 void SideViewWidget::mousePressEvent(QMouseEvent *event)
@@ -203,8 +184,9 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
     mCameraHeightHandle.setHovered(mCameraHeightHandle.contains(event->pos()));
 
     bool isDirty = false;
+
     if (mTargetHeightHandle.pressed()) {
-        float newTargetHeight = mParameters->target.height - (event->pos() - mOldMousePosition).y() / mParameters->meterToPixelRatio;
+        float newTargetHeight = mParameters->target.height - (event->pos() - mOldMousePosition).y() / mMeterToPixelRatio;
 
         if (newTargetHeight >= 0.1) {
             isDirty = true;
@@ -214,11 +196,11 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
 
     if (mTargetDistanceHandle.pressed()) {
         isDirty = true;
-        mParameters->target.distance += (event->pos() - mOldMousePosition).x() / mParameters->meterToPixelRatio;
+        mParameters->target.distance += (event->pos() - mOldMousePosition).x() / mMeterToPixelRatio;
     }
 
     if (mCameraHeightHandle.pressed()) {
-        float newCameraHeight = mParameters->camera.height - (event->pos() - mOldMousePosition).y() / mParameters->meterToPixelRatio;
+        float newCameraHeight = mParameters->camera.height - (event->pos() - mOldMousePosition).y() / mMeterToPixelRatio;
 
         if (newCameraHeight >= 0.25) {
             isDirty = true;
@@ -226,7 +208,6 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
         }
     }
 
-    // Calling update() for each mouse move event may be expensive
     update();
 
     if (!isDirty && mMousePressedOnCanvas)
@@ -254,6 +235,16 @@ void SideViewWidget::wheelEvent(QWheelEvent *event)
     emit zoom(event->angleDelta().y());
 }
 
+void SideViewWidget::setMeterToPixelRatio(float newMeterToPixelRatio)
+{
+    mMeterToPixelRatio = newMeterToPixelRatio;
+}
+
+void SideViewWidget::setOrigin(QPointF newOrigin)
+{
+    mOrigin = newOrigin;
+}
+
 void SideViewWidget::setParameters(Dori::Core::Controller::SideViewWidgetParameters *newParameters)
 {
     mParameters = newParameters;
@@ -262,94 +253,6 @@ void SideViewWidget::setParameters(Dori::Core::Controller::SideViewWidgetParamet
 void SideViewWidget::updateHandles()
 {
     mTargetHeightHandle.setCenter(mParameters->target.position.x(), mParameters->target.position.y());
-    mTargetDistanceHandle.setCenter(mParameters->target.position.x(), mParameters->origin.y());
+    mTargetDistanceHandle.setCenter(mParameters->target.position.x(), mOrigin.y());
     mCameraHeightHandle.setCenter(mParameters->camera.position.x(), mParameters->camera.position.y());
-}
-
-void SideViewWidget::drawAxis(Axis axis)
-{
-    QPainter painter(this);
-    painter.save();
-
-    QLine line = axis == Horizontal ? QLine(0, mParameters->origin.y(), width(), mParameters->origin.y()) : QLine(mParameters->origin.x(), 0, mParameters->origin.x(), height());
-
-    painter.setPen(mAxisPen);
-    painter.drawLine(line);
-
-    QRectF tickmark = axis == Horizontal ? QRectF(0, 0, mTickmarkSize.width(), mTickmarkSize.height()) : QRectF(0, 0, mTickmarkSize.height(), mTickmarkSize.width());
-
-    QRectF minorTickmark = axis == Horizontal ? QRectF(0, 0, mMinorTickmarkSize.width(), mMinorTickmarkSize.height())
-                                              : QRectF(0, 0, mMinorTickmarkSize.height(), mMinorTickmarkSize.width());
-
-    painter.setFont(mLabelFont);
-    painter.setPen(mLabelColor);
-
-    const QRectF originBoundingBox(mParameters->origin.x() - 8, mParameters->origin.y() - 8, 16, 16);
-
-    int start = 0;
-    int end = 0;
-
-    if (axis == Horizontal) {
-        start = mParameters->origin.x() - mParameters->tickmarkPixelStep * floor(mParameters->origin.x() / mParameters->tickmarkPixelStep);
-        end = width();
-    } else {
-        start = mParameters->origin.y() - mParameters->tickmarkPixelStep * floor(mParameters->origin.y() / mParameters->tickmarkPixelStep);
-        end = height();
-    }
-
-    // Main loop for tickmarks, labels, and minor tickmarks
-    for (int var = start; var < end; var += mParameters->tickmarkPixelStep) {
-        // Minor tickmarks
-        for (int i = 1; i <= mParameters->minorTickmarkCount; i++) {
-            float step = (float) (mParameters->tickmarkPixelStep / (mParameters->minorTickmarkCount + 1));
-            if (axis == Horizontal)
-                minorTickmark.moveCenter(QPointF(var + i * step, mParameters->origin.y()));
-            else
-                minorTickmark.moveCenter(QPointF(mParameters->origin.x(), var + i * step));
-
-            if (originBoundingBox.intersects(minorTickmark))
-                continue;
-
-            painter.fillRect(minorTickmark, mMinorTickmarkColor);
-        }
-        if (axis == Horizontal)
-            tickmark.moveCenter(QPointF(var, mParameters->origin.y()));
-        else
-            tickmark.moveCenter(QPointF(mParameters->origin.x(), var));
-
-        if (originBoundingBox.intersects(tickmark))
-            continue;
-
-        painter.fillRect(tickmark, mTickmarkColor);
-
-        if (axis == Horizontal) {
-            tickmark.moveCenter(QPointF(var, mParameters->origin.y()));
-            float value = (var - mParameters->origin.x()) / mParameters->meterToPixelRatio;
-
-            QString label;
-            if (mParameters->meterToPixelRatio > 16)
-                label = QString::number(value, 'f', 2);
-            else
-                label = QString::number(value, 'f', 0);
-
-            QRectF boundingBox(var - 50, tickmark.y() + 10, 100, mLabelFont.pixelSize());
-            painter.drawText(boundingBox, Qt::AlignCenter, label);
-        }
-
-        else {
-            tickmark.moveCenter(QPointF(mParameters->origin.x(), var));
-            float value = (mParameters->origin.y() - var) / mParameters->meterToPixelRatio;
-
-            QString label;
-            if (mParameters->meterToPixelRatio > 16)
-                label = QString::number(value, 'f', 2);
-            else
-                label = QString::number(value, 'f', 0);
-
-            QRectF boundingBox(tickmark.x() - 100, var - 0.5 * mLabelFont.pixelSize(), 95, mLabelFont.pixelSize());
-            painter.drawText(boundingBox, Qt::AlignRight, label);
-        }
-    }
-
-    painter.restore();
 }

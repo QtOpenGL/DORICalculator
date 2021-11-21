@@ -12,6 +12,7 @@ include(Dependencies/Dependencies.pri)
 SOURCES += \
     Core/Controller.cpp \
     GUI/Base/Handle.cpp \
+    GUI/Widgets/AxisWidget.cpp \
     GUI/Widgets/CentralWidget.cpp \
     GUI/Widgets/SideViewWidget.cpp \
     GUI/Widgets/TopViewWidget.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 HEADERS += \
     Core/Controller.h \
     GUI/Base/Handle.h \
+    GUI/Widgets/AxisWidget.h \
     GUI/Widgets/CentralWidget.h \
     GUI/Widgets/SideViewWidget.h \
     GUI/Widgets/TopViewWidget.h \

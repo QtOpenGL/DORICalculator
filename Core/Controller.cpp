@@ -106,12 +106,11 @@ void Controller::init()
     mSideViewWidgetParameters = new SideViewWidgetParameters;
     mSideViewWidget->setParameters(mSideViewWidgetParameters);
 
-    mSideViewWidgetParameters->minorTickmarkCount = 1;
-    mSideViewWidgetParameters->tickmarkPixelStep = 50;
-
     mTopViewWidget = mCentralWidget->topViewWidget();
     mTopViewWidgetParameters = new TopViewWidgetParamaters;
     mTopViewWidget->setParameters(mTopViewWidgetParameters);
+
+    mAxisWidget = mCentralWidget->axisWidget();
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
@@ -121,8 +120,6 @@ void Controller::init()
     setMeterToPixelRatio(10);
     setOrigin(mOrigin);
 
-    mSideViewWidget->init();
-    mTopViewWidget->init();
     update();
 }
 
@@ -134,8 +131,10 @@ void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
 
     mMeterToPixelRatio = newMeterToPixelRatio;
 
-    mSideViewWidgetParameters->meterToPixelRatio = mMeterToPixelRatio;
-    mTopViewWidgetParameters->meterToPixelRatio = mMeterToPixelRatio;
+    mSideViewWidget->setMeterToPixelRatio(newMeterToPixelRatio);
+    mTopViewWidget->setMeterToPixelRatio(newMeterToPixelRatio);
+    mAxisWidget->setMeterToPixelRatio(newMeterToPixelRatio);
+    mAxisWidget->refresh();
 
     update();
 }
@@ -144,9 +143,11 @@ void Controller::setOrigin(QPointF newOrigin)
 {
     mOrigin = newOrigin;
 
-    mSideViewWidgetParameters->origin = newOrigin;
-    mTopViewWidgetParameters->origin = newOrigin;
+    mSideViewWidget->setOrigin(newOrigin);
+    mAxisWidget->setOrigin(newOrigin);
+    mTopViewWidget->setOrigin(newOrigin);
 
+    mAxisWidget->refresh();
     update();
 }
 

@@ -11,14 +11,16 @@ class TopViewWidget : public QWidget
     Q_OBJECT
 public:
     explicit TopViewWidget(QWidget *parent = nullptr);
+
     void setParameters(Dori::Core::Controller::TopViewWidgetParamaters *newParameters);
+    void setOrigin(QPointF newOrigin);
+    void setMeterToPixelRatio(float newMeterToPixelRatio);
 
 signals:
     void dirty();
     void zoom(int);
 
 public slots:
-    void init();
     void refresh();
     QPointF mapFrom3d(Eigen::Vector3f vector);
     Eigen::Vector3f mapFrom2d(QPointF point);
@@ -32,15 +34,19 @@ private:
     void mouseReleaseEvent(QMouseEvent *) override;
     void wheelEvent(QWheelEvent *) override;
 
+    Dori::Core::Controller::TopViewWidgetParamaters *mParameters;
+    QPointF mOrigin;
+    float mMeterToPixelRatio;
+
     Handle mFovWidthHandleTop;
     Handle mFovWidthHandleBottom;
     Handle mTargetHandle;
 
+    QBrush mCrossedPatternBursh;
     QPen mDashedPen;
     QPen mSolidPen;
-    QPoint mOldMousePosition;
 
-    Dori::Core::Controller::TopViewWidgetParamaters *mParameters;
+    QPoint mOldMousePosition;
 
     QFont mLabelFont;
     QColor mLabelColor;

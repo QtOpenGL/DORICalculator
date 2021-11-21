@@ -20,10 +20,12 @@ public:
 
     SideViewWidget *sideViewWidget() const;
     TopViewWidget *topViewWidget() const;
+    AxisWidget *axisWidget() const;
 
 private:
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;
+    AxisWidget *mAxisWidget;
 
     QLabel *mSideViewTitle;
     QLabel *mTopViewTitle;

@@ -7,39 +7,32 @@
 class Handle
 {
 public:
-    Handle(QWidget *widget);
+    Handle();
 
     bool contains(float x, float y);
-    bool contains(QPoint point);
+    bool contains(const QPoint &point);
 
-    void draw();
+    void draw(QPaintDevice *device);
 
-    bool pressed() const;
     void setPressed(bool newPressed);
+    bool pressed() const;
 
-    const QPen &pen() const;
-    void setPen(const QPen &newPen);
-
-    const QBrush &brush() const;
-    void setBrush(const QBrush &newBrush);
-
-    const QBrush &hoveredBrush() const;
-    void setHoveredBrush(const QBrush &newHoveredBrush);
-
-    bool hovered() const;
     void setHovered(bool newHovered);
+    bool hovered() const;
 
-    const QBrush &pressedBrush() const;
+    void setPen(const QPen &newPen);
+    void setBrush(const QBrush &newBrush);
+    void setHoveredBrush(const QBrush &newHoveredBrush);
     void setPressedBrush(const QBrush &newPressedBrush);
 
     void setCenter(float x, float y);
     void setCenter(const QPointF &center);
+
     void setSize(float w, float h);
+
     QPointF getCenter();
 
 private:
-    QWidget *mWidget;
-
     QRect mRectangle;
     QBrush mBrush, mPressedBrush, mHoveredBrush;
     QPen mPen;

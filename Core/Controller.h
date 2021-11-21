@@ -8,6 +8,7 @@
 class SideViewWidget;
 class TopViewWidget;
 class CentralWidget;
+class AxisWidget;
 
 namespace Dori {
 namespace Core {
@@ -36,11 +37,6 @@ public:
 
     struct SideViewWidgetParameters
     {
-        QPointF origin;
-        float meterToPixelRatio;
-        int minorTickmarkCount;
-        int tickmarkPixelStep;
-
         Camera camera;
         Target target;
         LowerBoundary lowerBoundary;
@@ -53,8 +49,6 @@ public:
     {
         float targetDistance;
         float fovWidth;
-        QPointF origin;
-        float meterToPixelRatio;
 
         // Intersections
         QPointF ground[4];
@@ -63,8 +57,6 @@ public:
     };
 
     CentralWidget *centralWidget();
-
-    float meterToPixelRatio() const;
 
 public slots:
     void onDirty();
@@ -88,9 +80,11 @@ private:
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;
     CentralWidget *mCentralWidget;
+    AxisWidget *mAxisWidget;
+
+    const float mZoomStepSize;
 
     float mMeterToPixelRatio;
-    const float mZoomStepSize;
     QPointF mOrigin;
 };
 
