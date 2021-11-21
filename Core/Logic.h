@@ -8,8 +8,6 @@ namespace Core {
 class Logic
 {
 public:
-    enum EdgeNames { OPPOSITE_BISECTOR, BISECTOR, V1, V2, V3, V4 };
-
     struct Frustum
     {
         Eigen::Vector3f topVertices[6]; // OPPOSITE_BISECTOR, BISECTOR, V1, V2, V3, V4

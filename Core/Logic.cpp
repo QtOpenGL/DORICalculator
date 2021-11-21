@@ -1,5 +1,8 @@
 #include "Logic.h"
+
+#include <Core/Enums.h>
 #include <Dependencies/Eigen/src/Geometry/AngleAxis.h>
+
 #include <QtDebug>
 #include <QtMath>
 

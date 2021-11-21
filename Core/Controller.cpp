@@ -1,5 +1,6 @@
 #include "Controller.h"
 
+#include <Core/Enums.h>
 #include <GUI/Widgets/CentralWidget.h>
 #include <GUI/Widgets/SideViewWidget.h>
 #include <GUI/Widgets/TopViewWidget.h>
@@ -36,7 +37,7 @@ void Controller::calculate()
     mSideViewWidgetParameters->lowerBoundary.position = mSideViewWidget->mapFrom3d(
         Eigen::Vector3f(mLogicParameters->lowerBoundary.distance, 0, mLogicParameters->lowerBoundary.height));
 
-    for (Logic::EdgeNames name : {Logic::OPPOSITE_BISECTOR, Logic::BISECTOR, Logic::V1, Logic::V2}) {
+    for (EdgeNames name : {OPPOSITE_BISECTOR, BISECTOR, V1, V2}) {
         mSideViewWidgetParameters->points[name] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[name]);
     }
 
@@ -44,10 +45,10 @@ void Controller::calculate()
     mTopViewWidgetParameters->targetDistance = mLogicParameters->target.distance;
     mTopViewWidgetParameters->fovWidth = 0;
 
-    for (Logic::EdgeNames name : {Logic::V1, Logic::V2, Logic::V3, Logic::V4}) {
-        mTopViewWidgetParameters->ground[name - Logic::V1] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[name]);
-        mTopViewWidgetParameters->target[name - Logic::V1] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[name - Logic::V1]);
-        mTopViewWidgetParameters->lowerBoundary[name - Logic::V1] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[name - Logic::V1]);
+    for (EdgeNames name : {V1, V2, V3, V4}) {
+        mTopViewWidgetParameters->ground[name - V1] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[name]);
+        mTopViewWidgetParameters->target[name - V1] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[name - V1]);
+        mTopViewWidgetParameters->lowerBoundary[name - V1] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[name - V1]);
     }
 }
 

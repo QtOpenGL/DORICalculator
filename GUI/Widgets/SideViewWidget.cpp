@@ -1,5 +1,7 @@
 #include "SideViewWidget.h"
 
+#include <Core/Enums.h>
+
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
@@ -124,8 +126,8 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     // Opposite Bisector and Bisector
     mDashedPen.setColor(QColor(0, 102, 213));
     painter.setPen(mDashedPen);
-    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::Logic::OPPOSITE_BISECTOR]);
-    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::Logic::BISECTOR]);
+    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::OPPOSITE_BISECTOR]);
+    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::BISECTOR]);
 
     // V1
     painter.setPen(QColor(0, 102, 213));
@@ -133,11 +135,11 @@ void SideViewWidget::paintEvent(QPaintEvent *)
 
     mDashedPen.setColor(QColor(128, 128, 128));
     painter.setPen(mDashedPen);
-    painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->points[Dori::Core::Logic::V1]);
+    painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->points[Dori::Core::V1]);
 
     // V2
     painter.setPen(QColor(0, 102, 213));
-    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::Logic::V2]);
+    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::V2]);
 
     // Draw tilt angle reference line
     mDashedPen.setColor(QColor(128, 128, 128));

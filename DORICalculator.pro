@@ -22,6 +22,7 @@ SOURCES += \
 
 HEADERS += \
     Core/Controller.h \
+    Core/Enums.h \
     GUI/Base/Handle.h \
     GUI/Widgets/AxisWidget.h \
     GUI/Widgets/CentralWidget.h \
