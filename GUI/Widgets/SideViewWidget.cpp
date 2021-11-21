@@ -33,8 +33,8 @@ SideViewWidget::SideViewWidget(QWidget *parent)
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mTargetHeightHandle.setPen(pen);
         mTargetHeightHandle.setBrush(QColor(255, 0, 0));
-        mTargetHeightHandle.setHoveredBrush(QColor(255, 255, 0));
-        mTargetHeightHandle.setPressedBrush(QColor(0, 255, 0));
+        mTargetHeightHandle.setHoveredBrush(QColor(255, 255, 255));
+        mTargetHeightHandle.setPressedBrush(QColor(0, 225, 0));
         mTargetHeightHandle.setSize(10, 10);
     }
 
@@ -44,22 +44,34 @@ SideViewWidget::SideViewWidget(QWidget *parent)
         pen.setWidth(1);
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mTargetDistanceHandle.setPen(pen);
-        mTargetDistanceHandle.setBrush(QColor(0, 0, 255));
-        mTargetDistanceHandle.setHoveredBrush(QColor(255, 255, 0));
+        mTargetDistanceHandle.setBrush(QColor(255, 0, 0));
+        mTargetDistanceHandle.setHoveredBrush(QColor(255, 255, 255));
         mTargetDistanceHandle.setPressedBrush(QColor(0, 255, 0));
         mTargetDistanceHandle.setSize(10, 10);
     }
 
-    // Camera Height Handler
+    // Camera Height Handle
     {
         QPen pen = QColor(0, 0, 0);
         pen.setWidth(1);
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mCameraHeightHandle.setPen(pen);
-        mCameraHeightHandle.setBrush(QColor(255, 128, 0));
-        mCameraHeightHandle.setHoveredBrush(QColor(255, 255, 0));
+        mCameraHeightHandle.setBrush(QColor(63, 150, 157));
+        mCameraHeightHandle.setHoveredBrush(QColor(255, 255, 255));
         mCameraHeightHandle.setPressedBrush(QColor(0, 255, 0));
         mCameraHeightHandle.setSize(10, 10);
+    }
+
+    // Lower Boundary Handle
+    {
+        QPen pen = QColor(0, 0, 0);
+        pen.setWidth(1);
+        pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
+        mLowerBoundaryHandle.setPen(pen);
+        mLowerBoundaryHandle.setBrush(QColor(255, 0, 0));
+        mLowerBoundaryHandle.setHoveredBrush(QColor(255, 255, 255));
+        mLowerBoundaryHandle.setPressedBrush(QColor(0, 255, 0));
+        mLowerBoundaryHandle.setSize(10, 10);
     }
 
     setMouseTracking(true);
@@ -95,7 +107,7 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     painter.setRenderHint(QPainter::Antialiasing, false);
 
     // Draw Target Height Line
-    QPen pen(QColor(0, 128, 0));
+    QPen pen(QColor(145, 145, 145));
     pen.setWidth(3);
     pen.setCapStyle(Qt::FlatCap);
     painter.setPen(pen);
@@ -104,7 +116,7 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     // Draw target height label
-    painter.setPen(QColor(0, 128, 0));
+    painter.setPen(QColor(128, 128, 128));
     painter.setFont(mLabelFont);
     QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
     painter.drawText(point, QString::number(mParameters->target.height, 'f', 1) + " m");
@@ -156,9 +168,11 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     painter.drawText(boundingBox, Qt::AlignCenter, label);
 
     // Draw handles
-    mTargetDistanceHandle.draw(this);
-    mTargetHeightHandle.draw(this);
+
     mCameraHeightHandle.draw(this);
+    mLowerBoundaryHandle.draw(this);
+    mTargetHeightHandle.draw(this);
+    mTargetDistanceHandle.draw(this);
 }
 
 void SideViewWidget::mousePressEvent(QMouseEvent *event)
@@ -169,6 +183,8 @@ void SideViewWidget::mousePressEvent(QMouseEvent *event)
         mTargetDistanceHandle.setPressed(true);
     } else if (mCameraHeightHandle.contains(event->pos())) {
         mCameraHeightHandle.setPressed(true);
+    } else if (mLowerBoundaryHandle.contains(event->pos())) {
+        mLowerBoundaryHandle.setPressed(true);
     } else {
         mMousePressedOnCanvas = true;
     }
@@ -182,6 +198,7 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
     mTargetHeightHandle.setHovered(mTargetHeightHandle.contains(event->pos()));
     mTargetDistanceHandle.setHovered(mTargetDistanceHandle.contains(event->pos()));
     mCameraHeightHandle.setHovered(mCameraHeightHandle.contains(event->pos()));
+    mLowerBoundaryHandle.setHovered(mLowerBoundaryHandle.contains(event->pos()));
 
     bool isDirty = false;
 
@@ -208,13 +225,22 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
         }
     }
 
-    update();
+    if (mLowerBoundaryHandle.pressed()) {
+        float newLowerBoundaryHeight = mParameters->lowerBoundary.height - (event->pos() - mOldMousePosition).y() / mMeterToPixelRatio;
 
-    if (!isDirty && mMousePressedOnCanvas)
-        emit pan((event->pos() - mOldMousePosition).x(), (event->pos() - mOldMousePosition).y());
+        if (newLowerBoundaryHeight >= 0 || newLowerBoundaryHeight <= mParameters->target.height) {
+            isDirty = true;
+            mParameters->lowerBoundary.height = newLowerBoundaryHeight;
+        }
+    }
 
     if (isDirty)
         emit dirty();
+    else if (mMousePressedOnCanvas)
+        emit pan((event->pos() - mOldMousePosition).x(), (event->pos() - mOldMousePosition).y());
+
+    if (!isDirty) // dirty signal will call update anyway
+        update();
 
     mOldMousePosition = event->pos();
 }
@@ -224,6 +250,7 @@ void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)
     mTargetHeightHandle.setPressed(false);
     mTargetDistanceHandle.setPressed(false);
     mCameraHeightHandle.setPressed(false);
+    mLowerBoundaryHandle.setPressed(false);
     mMousePressedOnCanvas = false;
 
     mOldMousePosition = event->pos();
@@ -252,7 +279,8 @@ void SideViewWidget::setParameters(Dori::Core::Controller::SideViewWidgetParamet
 
 void SideViewWidget::updateHandles()
 {
-    mTargetHeightHandle.setCenter(mParameters->target.position.x(), mParameters->target.position.y());
+    mTargetHeightHandle.setCenter(mParameters->target.position);
     mTargetDistanceHandle.setCenter(mParameters->target.position.x(), mOrigin.y());
-    mCameraHeightHandle.setCenter(mParameters->camera.position.x(), mParameters->camera.position.y());
+    mCameraHeightHandle.setCenter(mParameters->camera.position);
+    mLowerBoundaryHandle.setCenter(mParameters->lowerBoundary.position);
 }

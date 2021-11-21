@@ -17,15 +17,18 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
     float cameraHeight = inputParameters.camera.height;
     float targetDistance = inputParameters.target.distance;
     float targetHeight = inputParameters.target.height;
-    float lowerBoundaryDistance = inputParameters.lowerBoundary.distance;
-    float lowerBoundaryHeight = inputParameters.lowerBoundary.height;
 
     float zNear = inputParameters.frustum.zNear;
     float zFar = inputParameters.frustum.zFar;
 
-    Eigen::Vector3f cameraPosition = Eigen::Vector3f(0, 0, cameraHeight);
-    Eigen::Vector3f targetPosition = Eigen::Vector3f(targetDistance, 0, targetHeight);
-    Eigen::Vector3f lowerBoundaryPosition = Eigen::Vector3f(lowerBoundaryDistance, 0, lowerBoundaryHeight);
+    float lowerBoundaryHeight = inputParameters.lowerBoundary.height;
+
+    // Validation
+    if (lowerBoundaryHeight <= 0)
+        lowerBoundaryHeight = 0;
+
+    if (lowerBoundaryHeight >= targetHeight)
+        lowerBoundaryHeight = targetHeight;
 
     // Vertical Fov
     float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(horizontalFov);
@@ -51,6 +54,7 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
     edgeVectors[V4] = Eigen::Vector3f(x, -y, z);
 
     Frustum frustum;
+    Eigen::Vector3f cameraPosition = Eigen::Vector3f(0, 0, cameraHeight);
 
     Eigen::AngleAxis<float> rotation(-tiltAngleRadians, Eigen::Vector3f(0, -1, 0));
 
@@ -69,16 +73,33 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
         }
     }
 
-    // Target intersections
+    // Target and lower boundary intersections
     Target target;
-    for (EdgeNames name : {V1, V2, V3, V4}) {
-        Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
-        float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -targetHeight)); // above z axis means negative offset
+    LowerBoundary lowerBoundary;
 
-        if (t >= 0) {
-            target.intersections[name - V1] = line.pointAt(t);
-        } else {
-            target.intersections[name - V1] = cameraPosition + zFar * edgeVectors[name];
+    for (EdgeNames name : {V1, V2, V3, V4}) {
+        // Target
+        {
+            Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
+            float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -targetHeight)); // above z axis means negative offset
+
+            if (t >= 0) {
+                target.intersections[name - V1] = line.pointAt(t);
+            } else {
+                target.intersections[name - V1] = cameraPosition + zFar * edgeVectors[name];
+            }
+        }
+
+        // Lower Boundary
+        {
+            Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
+            float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -lowerBoundaryHeight)); // above z axis means negative offset
+
+            if (t >= 0) {
+                lowerBoundary.intersections[name - V1] = line.pointAt(t);
+            } else {
+                lowerBoundary.intersections[name - V1] = cameraPosition + zFar * edgeVectors[name];
+            }
         }
     }
 
@@ -99,7 +120,8 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
     outputParameters.target.distance = targetDistance;
     outputParameters.target.height = targetHeight;
 
-    outputParameters.lowerBoundary.distance = lowerBoundaryDistance;
+    outputParameters.lowerBoundary = lowerBoundary;
+    outputParameters.lowerBoundary.distance = lowerBoundary.intersections[1].x();
     outputParameters.lowerBoundary.height = lowerBoundaryHeight;
 
     return outputParameters;

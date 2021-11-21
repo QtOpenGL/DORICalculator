@@ -41,6 +41,7 @@ private:
     Handle mTargetHeightHandle;
     Handle mTargetDistanceHandle;
     Handle mCameraHeightHandle;
+    Handle mLowerBoundaryHandle;
 
     QPoint mOldMousePosition;
     bool mMousePressedOnCanvas;

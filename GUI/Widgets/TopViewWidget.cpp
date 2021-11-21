@@ -6,6 +6,7 @@
 
 TopViewWidget::TopViewWidget(QWidget *parent)
     : QWidget(parent)
+    , mMousePressedOnCanvas(false)
 {
     // General GUI
     {
@@ -31,7 +32,7 @@ TopViewWidget::TopViewWidget(QWidget *parent)
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mTargetHandle.setPen(pen);
         mTargetHandle.setBrush(QColor(255, 0, 0));
-        mTargetHandle.setHoveredBrush(QColor(255, 255, 0));
+        mTargetHandle.setHoveredBrush(QColor(255, 255, 255));
         mTargetHandle.setPressedBrush(QColor(0, 255, 0));
         mTargetHandle.setSize(10, 10);
     }
@@ -41,8 +42,8 @@ TopViewWidget::TopViewWidget(QWidget *parent)
         pen.setWidth(1);
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mFovWidthHandleTop.setPen(pen);
-        mFovWidthHandleTop.setBrush(QColor(255, 128, 0));
-        mFovWidthHandleTop.setHoveredBrush(QColor(255, 255, 0));
+        mFovWidthHandleTop.setBrush(QColor(255, 0, 0));
+        mFovWidthHandleTop.setHoveredBrush(QColor(255, 255, 255));
         mFovWidthHandleTop.setPressedBrush(QColor(0, 255, 0));
         mFovWidthHandleTop.setSize(10, 10);
     }
@@ -52,8 +53,8 @@ TopViewWidget::TopViewWidget(QWidget *parent)
         pen.setWidth(1);
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mFovWidthHandleBottom.setPen(pen);
-        mFovWidthHandleBottom.setBrush(QColor(255, 128, 0));
-        mFovWidthHandleBottom.setHoveredBrush(QColor(255, 255, 0));
+        mFovWidthHandleBottom.setBrush(QColor(255, 0, 0));
+        mFovWidthHandleBottom.setHoveredBrush(QColor(255, 255, 255));
         mFovWidthHandleBottom.setPressedBrush(QColor(0, 255, 0));
         mFovWidthHandleBottom.setSize(10, 10);
     }
@@ -63,7 +64,7 @@ TopViewWidget::TopViewWidget(QWidget *parent)
         pen.setWidth(1);
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mCameraHandle.setPen(pen);
-        mCameraHandle.setBrush(QColor(255, 128, 0));
+        mCameraHandle.setBrush(QColor(63, 150, 157));
         mCameraHandle.setSize(10, 10);
     }
 
@@ -143,9 +144,9 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     painter.drawLine(mParameters->target[0], mParameters->ground[0]);
     painter.drawLine(mParameters->target[3], mParameters->ground[3]);
 
+    // Draw FOV Width
     painter.setRenderHint(QPainter::Antialiasing, false);
-
-    mSolidPen.setColor(QColor(0, 128, 0));
+    mSolidPen.setColor(QColor(145, 145, 145));
     mSolidPen.setWidth(3);
     mSolidPen.setCapStyle(Qt::FlatCap);
     painter.setPen(mSolidPen);
@@ -186,13 +187,13 @@ void TopViewWidget::mouseMoveEvent(QMouseEvent *event)
         mParameters->targetDistance += (event->pos() - mOldMousePosition).x() / mMeterToPixelRatio;
     }
 
-    update();
-
-    if (!isDirty && mMousePressedOnCanvas)
-        emit pan((event->pos() - mOldMousePosition).x(), (event->pos() - mOldMousePosition).y());
-
     if (isDirty)
         emit dirty();
+    else if (mMousePressedOnCanvas)
+        emit pan((event->pos() - mOldMousePosition).x(), (event->pos() - mOldMousePosition).y());
+
+    if (!isDirty) // dirty signal will call update anyway
+        update();
 
     mOldMousePosition = event->pos();
 }
