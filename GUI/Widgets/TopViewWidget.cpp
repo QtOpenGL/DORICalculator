@@ -1,5 +1,8 @@
 #include "TopViewWidget.h"
 
+#include <Core/Constants.h>
+#include <Core/Enums.h>
+
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -82,19 +85,27 @@ void TopViewWidget::refresh()
     update();
 }
 
+QPointF TopViewWidget::mapFrom3d(float x, float y)
+{
+    return QPointF(mOrigin.x() + x * mMeterToPixelRatio, mOrigin.y() - y * mMeterToPixelRatio);
+}
+
 QPointF TopViewWidget::mapFrom3d(Eigen::Vector3f vector)
 {
-    float x = mOrigin.x() + vector.x() * mMeterToPixelRatio;
-    float y = mOrigin.y() - vector.y() * mMeterToPixelRatio;
-    return QPointF(x, y);
+    return mapFrom3d(vector.x(), vector.y());
 }
 
 Eigen::Vector3f TopViewWidget::mapFrom2d(QPointF point)
 {
+    return mapFrom2d(point.x(), point.y());
+}
+
+Eigen::Vector3f TopViewWidget::mapFrom2d(float x, float y)
+{
     Eigen::Vector3f vector;
 
-    vector[0] = (point.x() - mOrigin.x()) / mMeterToPixelRatio;
-    vector[1] = (mOrigin.y() - point.y()) / mMeterToPixelRatio;
+    vector[0] = (x - mOrigin.x()) / mMeterToPixelRatio;
+    vector[1] = (mOrigin.y() - y) / mMeterToPixelRatio;
     vector[2] = 0;
     return vector;
 }
@@ -114,6 +125,24 @@ void TopViewWidget::paintEvent(QPaintEvent *)
 
     // Draw crossed pattern
     painter.fillRect(0, 0, width(), height(), mCrossedPatternBursh);
+
+    // Zones
+    {
+        painter.setRenderHint(QPainter::Antialiasing, false);
+        for (enum ZoneNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
+            if (mParameters->zones[name].visible) {
+                QPainterPath path;
+                path.addPolygon(mParameters->zones[name].region);
+
+                QBrush brush;
+                brush.setStyle(Qt::BrushStyle::SolidPattern);
+                brush.setColor(ZONE_COLORS[name]);
+
+                painter.fillPath(path, brush);
+            }
+        }
+        painter.setRenderHint(QPainter::Antialiasing, true);
+    }
 
     // Draw ground and frustum intersection
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -146,7 +175,7 @@ void TopViewWidget::paintEvent(QPaintEvent *)
 
     // Draw FOV Width
     painter.setRenderHint(QPainter::Antialiasing, false);
-    mSolidPen.setColor(QColor(145, 145, 145));
+    mSolidPen.setColor(QColor(0, 128, 0));
     mSolidPen.setWidth(3);
     mSolidPen.setCapStyle(Qt::FlatCap);
     painter.setPen(mSolidPen);

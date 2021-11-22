@@ -140,10 +140,10 @@ void SideViewWidget::paintEvent(QPaintEvent *)
         painter.setRenderHint(QPainter::Antialiasing, true);
     }
 
-    // Draw Target Height Line
+    // Draw target height line
     {
         painter.setRenderHint(QPainter::Antialiasing, false);
-        QPen pen(QColor(145, 145, 145));
+        QPen pen(QColor(0, 128, 0));
         pen.setWidth(3);
         pen.setCapStyle(Qt::FlatCap);
         painter.setPen(pen);
@@ -153,13 +153,13 @@ void SideViewWidget::paintEvent(QPaintEvent *)
 
     // Draw target height label
     {
-        painter.setPen(QColor(128, 128, 128));
+        painter.setPen(QColor(0, 128, 0));
         painter.setFont(mLabelFont);
         QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
         painter.drawText(point, QString::number(mParameters->target.height, 'f', 1) + " m");
     }
     {
-        // Opposite Bisector and Bisector
+        // Opposite bisector and bisector
         mDashedPen.setColor(QColor(0, 102, 213));
         painter.setPen(mDashedPen);
         painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[OPPOSITE_BISECTOR]);

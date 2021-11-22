@@ -74,6 +74,30 @@ void Controller::calculate()
             mTopViewWidgetParameters->target[i] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
             mTopViewWidgetParameters->lowerBoundary[i] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
         }
+
+        QPolygonF roi;
+        roi.append(mTopViewWidgetParameters->target[0]);
+        roi.append(mTopViewWidgetParameters->lowerBoundary[1]);
+        roi.append(mTopViewWidgetParameters->lowerBoundary[2]);
+        roi.append(mTopViewWidgetParameters->target[3]);
+
+        for (ZoneNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
+            if (!mLogicParameters->zones[name].insideFrustum) {
+                mTopViewWidgetParameters->zones[name].visible = false;
+                continue;
+            }
+
+            QPolygonF region;
+
+            region.append(mTopViewWidget->mapFrom3d(mLogicParameters->zones[name].topVertices[0]));
+            region.append(mTopViewWidget->mapFrom3d(mLogicParameters->zones[name].topVertices[1]));
+            region.append(mTopViewWidget->mapFrom3d(mLogicParameters->zones[name].topVertices[2]));
+            region.append(mTopViewWidget->mapFrom3d(mLogicParameters->zones[name].topVertices[3]));
+
+            //region = region.intersected(roi);
+            mTopViewWidgetParameters->zones[name].region = region;
+            mTopViewWidgetParameters->zones[name].visible = !region.isEmpty();
+        }
     }
 }
 

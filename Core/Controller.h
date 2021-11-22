@@ -56,6 +56,7 @@ public:
         QPointF ground[4];
         QPointF target[4];
         QPointF lowerBoundary[4];
+        Zone zones[7];
     };
 
     CentralWidget *centralWidget();

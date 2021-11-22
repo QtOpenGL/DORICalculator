@@ -23,8 +23,10 @@ signals:
 
 public slots:
     void refresh();
+    QPointF mapFrom3d(float x, float y);
     QPointF mapFrom3d(Eigen::Vector3f vector);
     Eigen::Vector3f mapFrom2d(QPointF point);
+    Eigen::Vector3f mapFrom2d(float x, float y);
 
 private:
     void updateHandles();
