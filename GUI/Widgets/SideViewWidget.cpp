@@ -1,5 +1,6 @@
 #include "SideViewWidget.h"
 
+#include <Core/Constants.h>
 #include <Core/Enums.h>
 
 #include <QDebug>
@@ -106,71 +107,101 @@ void SideViewWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    painter.setRenderHint(QPainter::Antialiasing, false);
+    // Zones
+    {
+        painter.setRenderHint(QPainter::Antialiasing, false);
+        for (enum ZoneNames zone : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
+            QPainterPath path;
+            if (mParameters->zones[zone].paint) {
+                path.moveTo(mParameters->zones[zone].vertices[0]);
+                for (int i = 1; i < 4; ++i) {
+                    path.lineTo(mParameters->zones[zone].vertices[i]);
+                }
+
+                path.closeSubpath();
+                QBrush brush;
+                brush.setStyle(Qt::BrushStyle::SolidPattern);
+                brush.setColor(ZONE_COLORS[zone]);
+                painter.fillPath(path, brush);
+            }
+        }
+        painter.setRenderHint(QPainter::Antialiasing, true);
+    }
 
     // Draw Target Height Line
-    QPen pen(QColor(145, 145, 145));
-    pen.setWidth(3);
-    pen.setCapStyle(Qt::FlatCap);
-    painter.setPen(pen);
-    painter.drawLine(mTargetDistanceHandle.getCenter(1, 0), mTargetHeightHandle.getCenter(1, 0));
-
-    painter.setRenderHint(QPainter::Antialiasing, true);
+    {
+        painter.setRenderHint(QPainter::Antialiasing, false);
+        QPen pen(QColor(145, 145, 145));
+        pen.setWidth(3);
+        pen.setCapStyle(Qt::FlatCap);
+        painter.setPen(pen);
+        painter.drawLine(mTargetDistanceHandle.getCenter(1, 0), mTargetHeightHandle.getCenter(1, 0));
+        painter.setRenderHint(QPainter::Antialiasing, true);
+    }
 
     // Draw target height label
-    painter.setPen(QColor(128, 128, 128));
-    painter.setFont(mLabelFont);
-    QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
-    painter.drawText(point, QString::number(mParameters->target.height, 'f', 1) + " m");
+    {
+        painter.setPen(QColor(128, 128, 128));
+        painter.setFont(mLabelFont);
+        QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
+        painter.drawText(point, QString::number(mParameters->target.height, 'f', 1) + " m");
+    }
+    {
+        // Opposite Bisector and Bisector
+        mDashedPen.setColor(QColor(0, 102, 213));
+        painter.setPen(mDashedPen);
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[OPPOSITE_BISECTOR]);
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[BISECTOR]);
+    }
 
-    // Opposite Bisector and Bisector
-    mDashedPen.setColor(QColor(0, 102, 213));
-    painter.setPen(mDashedPen);
-    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::OPPOSITE_BISECTOR]);
-    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::BISECTOR]);
+    // V1 V2
+    {
+        painter.setPen(QColor(0, 102, 213));
+        painter.drawLine(mCameraHeightHandle.getCenter(), mTargetHeightHandle.getCenter());
 
-    // V1
-    painter.setPen(QColor(0, 102, 213));
-    painter.drawLine(mCameraHeightHandle.getCenter(), mTargetHeightHandle.getCenter());
+        mDashedPen.setColor(QColor(128, 128, 128));
+        painter.setPen(mDashedPen);
+        painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->points[V1]);
 
-    mDashedPen.setColor(QColor(128, 128, 128));
-    painter.setPen(mDashedPen);
-    painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->points[Dori::Core::V1]);
-
-    // V2
-    painter.setPen(QColor(0, 102, 213));
-    painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[Dori::Core::V2]);
+        painter.setPen(QColor(0, 102, 213));
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[V2]);
+    }
 
     // Draw tilt angle reference line
-    mDashedPen.setColor(QColor(128, 128, 128));
-    painter.setPen(mDashedPen);
-    painter.setRenderHint(QPainter::Antialiasing, false);
-    painter.drawLine(mCameraHeightHandle.getCenter(), QPoint(0, mCameraHeightHandle.getCenter().y()));
-    painter.setRenderHint(QPainter::Antialiasing, true);
+    {
+        painter.setRenderHint(QPainter::Antialiasing, false);
+        mDashedPen.setColor(QColor(128, 128, 128));
+        painter.setPen(mDashedPen);
+        painter.drawLine(mCameraHeightHandle.getCenter(), QPoint(0, mCameraHeightHandle.getCenter().y()));
+        painter.setRenderHint(QPainter::Antialiasing, true);
+    }
 
     // Tilt angle
-    QPainterPath path;
-    path.moveTo(mCameraHeightHandle.getCenter().x(), mCameraHeightHandle.getCenter().y());
-    path.arcTo(mCameraHeightHandle.getCenter().x() - 50, mCameraHeightHandle.getCenter().y() - 50, 100, 100, -180, -mParameters->camera.tiltAngle);
-    path.closeSubpath();
-    QBrush brush;
-    brush.setStyle(Qt::BrushStyle::Dense6Pattern);
-    brush.setColor(QColor(0, 102, 213));
-    painter.fillPath(path, brush);
+    {
+        QPainterPath path;
+        path.moveTo(mCameraHeightHandle.getCenter().x(), mCameraHeightHandle.getCenter().y());
+        path.arcTo(mCameraHeightHandle.getCenter().x() - 50, mCameraHeightHandle.getCenter().y() - 50, 100, 100, -180, -mParameters->camera.tiltAngle);
+        path.closeSubpath();
+        QBrush brush;
+        brush.setStyle(Qt::BrushStyle::Dense6Pattern);
+        brush.setColor(QColor(0, 102, 213));
+        painter.fillPath(path, brush);
+    }
 
     // Tilt angle label
-    painter.setFont(mLabelFont);
-    painter.setPen(mLabelColor);
-    QString label = QString::number(mParameters->camera.tiltAngle, 'f', 2) + " º";
-    QRectF boundingBox;
-    if (mParameters->camera.tiltAngle > 0)
-        boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75, mCameraHeightHandle.getCenter().y(), 50, 2 * mLabelFont.pixelSize());
-    else
-        boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75, mCameraHeightHandle.getCenter().y() - 2 * mLabelFont.pixelSize(), 50, 2 * mLabelFont.pixelSize());
-    painter.drawText(boundingBox, Qt::AlignCenter, label);
+    {
+        painter.setFont(mLabelFont);
+        painter.setPen(mLabelColor);
+        QString label = QString::number(mParameters->camera.tiltAngle, 'f', 2) + " º";
+        QRectF boundingBox;
+        if (mParameters->camera.tiltAngle > 0)
+            boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75, mCameraHeightHandle.getCenter().y(), 50, 2 * mLabelFont.pixelSize());
+        else
+            boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75, mCameraHeightHandle.getCenter().y() - 2 * mLabelFont.pixelSize(), 50, 2 * mLabelFont.pixelSize());
+        painter.drawText(boundingBox, Qt::AlignCenter, label);
+    }
 
     // Draw handles
-
     mCameraHeightHandle.draw(this);
     mLowerBoundaryHandle.draw(this);
     mTargetHeightHandle.draw(this);
@@ -274,7 +305,7 @@ void SideViewWidget::setOrigin(QPointF newOrigin)
     mOrigin = newOrigin;
 }
 
-void SideViewWidget::setParameters(Dori::Core::Controller::SideViewWidgetParameters *newParameters)
+void SideViewWidget::setParameters(Controller::SideViewWidgetParameters *newParameters)
 {
     mParameters = newParameters;
 }

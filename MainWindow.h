@@ -14,7 +14,7 @@ public:
     ~MainWindow();
 
 private:
-    Dori::Core::Controller *mController;
+    Controller *mController;
     CentralWidget *mCentralWidget;
 };
 #endif // MAINWINDOW_H

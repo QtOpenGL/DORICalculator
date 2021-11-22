@@ -12,7 +12,7 @@ class TopViewWidget : public QWidget
 public:
     explicit TopViewWidget(QWidget *parent = nullptr);
 
-    void setParameters(Dori::Core::Controller::TopViewWidgetParamaters *newParameters);
+    void setParameters(Controller::TopViewWidgetParamaters *newParameters);
     void setOrigin(QPointF newOrigin);
     void setMeterToPixelRatio(float newMeterToPixelRatio);
 
@@ -35,7 +35,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *) override;
     void wheelEvent(QWheelEvent *event) override;
 
-    Dori::Core::Controller::TopViewWidgetParamaters *mParameters;
+    Controller::TopViewWidgetParamaters *mParameters;
     QPointF mOrigin;
     float mMeterToPixelRatio;
 

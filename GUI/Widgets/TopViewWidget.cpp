@@ -71,7 +71,7 @@ TopViewWidget::TopViewWidget(QWidget *parent)
     setMouseTracking(true);
 }
 
-void TopViewWidget::setParameters(Dori::Core::Controller::TopViewWidgetParamaters *newParameters)
+void TopViewWidget::setParameters(Controller::TopViewWidgetParamaters *newParameters)
 {
     mParameters = newParameters;
 }

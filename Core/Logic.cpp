@@ -1,13 +1,11 @@
 #include "Logic.h"
 
+#include <Core/Constants.h>
 #include <Core/Enums.h>
 #include <Dependencies/Eigen/src/Geometry/AngleAxis.h>
 
 #include <QtDebug>
 #include <QtMath>
-
-namespace Dori {
-namespace Core {
 
 Logic::Logic()
     : mGround(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), 0))
@@ -15,40 +13,34 @@ Logic::Logic()
 
 Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
 {
-    float aspectRatio = inputParameters.frustum.aspectRatio;
-    float horizontalFov = inputParameters.frustum.horizontalFov;
-    float cameraHeight = inputParameters.camera.height;
-    float targetDistance = inputParameters.target.distance;
-    float targetHeight = inputParameters.target.height;
+    const float aspectRatio = inputParameters.camera.sensor.aspectRatio;
+    const float horizontalFov = inputParameters.frustum.horizontalFov;
+    const float cameraHeight = inputParameters.camera.height;
+    const float targetDistance = inputParameters.target.distance;
+    const float targetHeight = inputParameters.target.height;
 
-    float zNear = inputParameters.frustum.zNear;
-    float zFar = inputParameters.frustum.zFar;
+    const float zNear = inputParameters.frustum.zNear;
+    const float zFar = inputParameters.frustum.zFar;
 
-    float lowerBoundaryHeight = inputParameters.lowerBoundary.height;
+    const float sensorWidth = inputParameters.camera.sensor.width;
 
-    // Validation
-    if (lowerBoundaryHeight <= 0)
-        lowerBoundaryHeight = 0;
-
-    if (lowerBoundaryHeight >= targetHeight)
-        lowerBoundaryHeight = targetHeight;
+    const float lowerBoundaryHeight = qMax(0.0f, qMin(inputParameters.lowerBoundary.height, targetHeight));
 
     // Vertical Fov
-    float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(horizontalFov);
-    float halfVerticalFovRadians = atan(tan(halfHorizontalFovRadians) / aspectRatio);
-    float verticalFov = 2.0f * qRadiansToDegrees(halfVerticalFovRadians);
+    const float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(horizontalFov);
+    const float halfVerticalFovRadians = atan(tan(halfHorizontalFovRadians) / aspectRatio);
+    const float verticalFov = 2.0f * qRadiansToDegrees(halfVerticalFovRadians);
 
     // Tilt angle (angle between negative x-axis and bisector of the furstum measured clockwise)
     const float tiltAngleRadians = halfVerticalFovRadians - atan2(targetHeight - cameraHeight, targetDistance);
     const float tiltAngle = qRadiansToDegrees(tiltAngleRadians);
 
     // Contruct frustum
-    float x = 1;
-    float y = x * tan(halfHorizontalFovRadians);
-    float z = x * tan(halfVerticalFovRadians);
+    const float x = 1;
+    const float y = x * tan(halfHorizontalFovRadians);
+    const float z = x * tan(halfVerticalFovRadians);
 
     Eigen::Vector3f edgeVectors[6];
-
     edgeVectors[OPPOSITE_BISECTOR] = Eigen::Vector3f(-1, 0, 0);
     edgeVectors[BISECTOR] = Eigen::Vector3f(1, 0, 0);
     edgeVectors[V1] = Eigen::Vector3f(x, y, z);
@@ -56,53 +48,105 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
     edgeVectors[V3] = Eigen::Vector3f(x, -y, -z);
     edgeVectors[V4] = Eigen::Vector3f(x, -y, z);
 
-    Frustum frustum;
     Eigen::Vector3f cameraPosition = Eigen::Vector3f(0, 0, cameraHeight);
+    Frustum frustum;
 
-    Eigen::AngleAxis<float> rotation(-tiltAngleRadians, Eigen::Vector3f(0, -1, 0));
+    {
+        Eigen::AngleAxis<float> rotation = Eigen::AngleAxis<float>(-tiltAngleRadians, Eigen::Vector3f(0, -1, 0));
 
-    for (EdgeNames name : {OPPOSITE_BISECTOR, BISECTOR, V1, V2, V3, V4}) {
-        edgeVectors[name].normalize();
-        edgeVectors[name] = rotation * edgeVectors[name];
-        frustum.topVertices[name] = cameraPosition + zNear * edgeVectors[name];
+        for (EdgeNames name : {OPPOSITE_BISECTOR, BISECTOR, V1, V2, V3, V4}) {
+            edgeVectors[name].normalize();
+            edgeVectors[name] = rotation * edgeVectors[name];
+            frustum.topVertices[name] = cameraPosition + zNear * edgeVectors[name];
 
-        Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
-        float t = line.intersectionParameter(mGround);
+            Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
+            float t = line.intersectionParameter(mGround);
 
-        if (t >= 0) {
-            frustum.bottomVertices[name] = line.pointAt(t);
-        } else {
-            frustum.bottomVertices[name] = cameraPosition + zFar * edgeVectors[name];
+            if (t >= 0)
+                frustum.bottomVertices[name] = line.pointAt(t);
+            else
+                frustum.bottomVertices[name] = cameraPosition + zFar * edgeVectors[name];
         }
     }
 
     // Target and lower boundary intersections
+
     Target target;
     LowerBoundary lowerBoundary;
+    {
+        for (EdgeNames name : {V1, V2, V3, V4}) {
+            // Target
+            {
+                Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
+                float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -targetHeight)); // above z axis means negative offset
 
-    for (EdgeNames name : {V1, V2, V3, V4}) {
-        // Target
+                if (t >= 0)
+                    target.intersections[name - V1] = line.pointAt(t);
+                else
+                    target.intersections[name - V1] = cameraPosition + zFar * edgeVectors[name];
+            }
+
+            // Lower Boundary
+            {
+                Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
+                float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -lowerBoundaryHeight)); // above z axis means negative offset
+
+                if (t >= 0)
+                    lowerBoundary.intersections[name - V1] = line.pointAt(t);
+                else
+                    lowerBoundary.intersections[name - V1] = cameraPosition + zFar * edgeVectors[name];
+            }
+        }
+    }
+
+    Zone zones[7];
+    // Zones
+    {
+        // STRONG_IDENTIFICATION
         {
-            Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
-            float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -targetHeight)); // above z axis means negative offset
+            Eigen::Vector3f edgeVectors[4];
+            float limit = 0.5 * (sensorWidth / ZONE_PPMS[STRONG_IDENTIFICATION]) / tan(halfHorizontalFovRadians);
+            constructEdgeVectorsForZones(edgeVectors, limit, tiltAngleRadians, halfHorizontalFovRadians, halfVerticalFovRadians);
 
-            if (t >= 0) {
-                target.intersections[name - V1] = line.pointAt(t);
+            if (limit < zNear || limit > zFar) {
+                zones[STRONG_IDENTIFICATION].visible = false;
             } else {
-                target.intersections[name - V1] = cameraPosition + zFar * edgeVectors[name];
+                zones[STRONG_IDENTIFICATION].visible = true;
+                for (int i = 0; i < 4; ++i) {
+                    zones[STRONG_IDENTIFICATION].topVertices[i] = frustum.topVertices[i];
+                    zones[STRONG_IDENTIFICATION].bottomVertices[i] = cameraPosition + edgeVectors[i];
+                }
             }
         }
 
-        // Lower Boundary
-        {
-            Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, edgeVectors[name]);
-            float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -lowerBoundaryHeight)); // above z axis means negative offset
+        // IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING
+        for (ZoneNames zone : {IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING}) {
+            float limit = 0.5 * (sensorWidth / ZONE_PPMS[zone]) / tan(halfHorizontalFovRadians);
 
-            if (t >= 0) {
-                lowerBoundary.intersections[name - V1] = line.pointAt(t);
-            } else {
-                lowerBoundary.intersections[name - V1] = cameraPosition + zFar * edgeVectors[name];
+            if (limit < zNear || limit > zFar) {
+                zones[zone].visible = false;
+                continue;
             }
+
+            Eigen::Vector3f edgeVectors[4];
+            constructEdgeVectorsForZones(edgeVectors, limit, tiltAngleRadians, halfHorizontalFovRadians, halfVerticalFovRadians);
+
+            zones[zone].visible = true;
+
+            for (int i = 0; i < 4; ++i) {
+                zones[zone].topVertices[i] = zones[zone - 1].bottomVertices[i];
+                zones[zone].bottomVertices[i] = cameraPosition + edgeVectors[i];
+            }
+        }
+
+        Eigen::Vector3f edgeVectors[4];
+        constructEdgeVectorsForZones(edgeVectors, zFar, tiltAngleRadians, halfHorizontalFovRadians, halfVerticalFovRadians);
+
+        // DEAD_ZONE
+        for (int i = 0; i < 4; ++i) {
+            zones[DEAD_ZONE].visible = true;
+            zones[DEAD_ZONE].topVertices[i] = zones[MONITORING].bottomVertices[i];
+            zones[DEAD_ZONE].bottomVertices[i] = cameraPosition + edgeVectors[i]; // V1, V2, V3, V4
         }
     }
 
@@ -111,11 +155,11 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
 
     frustum.verticalFov = verticalFov;
     frustum.horizontalFov = horizontalFov;
-    frustum.aspectRatio = aspectRatio;
     frustum.zNear = zNear;
     frustum.zFar = zFar;
     outputParameters.frustum = frustum;
 
+    outputParameters.camera.sensor = inputParameters.camera.sensor; /////
     outputParameters.camera.height = cameraHeight;
     outputParameters.camera.tiltAngle = tiltAngle;
 
@@ -127,7 +171,32 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
     outputParameters.lowerBoundary.distance = lowerBoundary.intersections[1].x();
     outputParameters.lowerBoundary.height = lowerBoundaryHeight;
 
+    for (ZoneNames zone : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
+        outputParameters.zones[zone] = zones[zone];
+    }
+
     return outputParameters;
+}
+
+void Logic::constructEdgeVectorsForZones(Eigen::Vector3f *edgeVectors, float limit, float tiltAngleRadians, float halfHorizontalFovRadians, float halfVerticalFovRadians)
+{
+    const float x = limit;
+    const float y = limit * tan(halfHorizontalFovRadians);
+    const float z = limit * tan(halfVerticalFovRadians);
+
+    edgeVectors[0] = Eigen::Vector3f(x, y, z);
+    edgeVectors[1] = Eigen::Vector3f(x, y, -z);
+    edgeVectors[2] = Eigen::Vector3f(x, -y, -z);
+    edgeVectors[3] = Eigen::Vector3f(x, -y, z);
+
+    Eigen::AngleAxis<float> rotation = Eigen::AngleAxis<float>(-tiltAngleRadians, Eigen::Vector3f(0, -1, 0));
+
+    for (int i = 0; i < 4; i++) {
+        float norm = edgeVectors[i].norm();
+        edgeVectors[i].normalize();
+        edgeVectors[i] = rotation * edgeVectors[i];
+        edgeVectors[i] = norm * edgeVectors[i];
+    }
 }
 
 Logic &Logic::getInstance()
@@ -135,6 +204,3 @@ Logic &Logic::getInstance()
     static Logic instance;
     return instance;
 }
-
-} // namespace Core
-} // namespace Dori

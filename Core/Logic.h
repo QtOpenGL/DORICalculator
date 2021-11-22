@@ -3,8 +3,6 @@
 
 #include <Dependencies/Eigen/Dense>
 
-namespace Dori {
-namespace Core {
 class Logic
 {
 public:
@@ -16,11 +14,18 @@ public:
         float zFar;
         float verticalFov;
         float horizontalFov;
+    };
+
+    struct Sensor
+    {
+        float width;
+        float height;
         float aspectRatio;
     };
 
     struct Camera
     {
+        Sensor sensor;
         float height;
         float tiltAngle;
     };
@@ -29,11 +34,18 @@ public:
     {
         float height;
         float distance;
-        Eigen::Vector3f intersections[4];
+        Eigen::Vector3f intersections[8];
     };
 
     struct LowerBoundary : Target
     {};
+
+    struct Zone
+    {
+        Eigen::Vector3f topVertices[4];
+        Eigen::Vector3f bottomVertices[4];
+        bool visible;
+    };
 
     struct Parameters
     {
@@ -41,6 +53,7 @@ public:
         Camera camera;
         Target target;
         LowerBoundary lowerBoundary;
+        Zone zones[7];
     };
 
 private:
@@ -49,11 +62,10 @@ private:
 public:
     static Logic &getInstance();
     Parameters calculate(const Parameters &newParameters);
+    void constructEdgeVectorsForZones(Eigen::Vector3f *edgeVectors, float limit, float tiltAngleRadians, float halfHorizontalFovRadians, float halfVerticalFovRadians);
 
 private:
     const Eigen::Hyperplane<float, 3> mGround;
 };
-} // namespace Core
-} // namespace Dori
 
 #endif // LOGIC_H

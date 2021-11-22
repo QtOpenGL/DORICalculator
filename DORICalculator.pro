@@ -21,6 +21,7 @@ SOURCES += \
     Main.cpp
 
 HEADERS += \
+    Core/Constants.h \
     Core/Controller.h \
     Core/Enums.h \
     GUI/Base/Handle.h \

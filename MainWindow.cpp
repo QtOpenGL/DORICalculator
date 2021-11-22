@@ -3,7 +3,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    mController = new Dori::Core::Controller;
+    mController = new Controller;
     mController->init();
 
     mCentralWidget = mController->centralWidget();

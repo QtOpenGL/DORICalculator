@@ -7,11 +7,9 @@
 
 #include <QDebug>
 
-namespace Dori {
-namespace Core {
 Controller::Controller(QObject *parent)
     : QObject(parent)
-    , mLogic(Dori::Core::Logic::getInstance())
+    , mLogic(Logic::getInstance())
     , mZoomStepSize(2.0f)
     , mOrigin(128, 368)
 {}
@@ -41,14 +39,27 @@ void Controller::calculate()
         mSideViewWidgetParameters->points[name] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[name]);
     }
 
+    for (ZoneNames zone : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
+        if (!mLogicParameters->zones[zone].visible) {
+            mSideViewWidgetParameters->zones[zone].paint = false;
+            continue;
+        }
+
+        mSideViewWidgetParameters->zones[zone].paint = true;
+        mSideViewWidgetParameters->zones[zone].vertices[0] = mSideViewWidget->mapFrom3d(mLogicParameters->zones[zone].bottomVertices[0]);
+        mSideViewWidgetParameters->zones[zone].vertices[1] = mSideViewWidget->mapFrom3d(mLogicParameters->zones[zone].topVertices[0]);
+        mSideViewWidgetParameters->zones[zone].vertices[2] = mSideViewWidget->mapFrom3d(mLogicParameters->zones[zone].topVertices[2]);
+        mSideViewWidgetParameters->zones[zone].vertices[3] = mSideViewWidget->mapFrom3d(mLogicParameters->zones[zone].bottomVertices[2]);
+    }
+
     // TopViewWidgetParameters
     mTopViewWidgetParameters->targetDistance = mLogicParameters->target.distance;
     mTopViewWidgetParameters->fovWidth = 0;
 
-    for (EdgeNames name : {V1, V2, V3, V4}) {
-        mTopViewWidgetParameters->ground[name - V1] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[name]);
-        mTopViewWidgetParameters->target[name - V1] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[name - V1]);
-        mTopViewWidgetParameters->lowerBoundary[name - V1] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[name - V1]);
+    for (int i = 0; i < 4; ++i) {
+        mTopViewWidgetParameters->ground[i] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i + 2]);
+        mTopViewWidgetParameters->target[i] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
+        mTopViewWidgetParameters->lowerBoundary[i] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
     }
 }
 
@@ -97,9 +108,13 @@ void Controller::init()
     mLogicParameters->lowerBoundary.height = 0;
     mLogicParameters->lowerBoundary.distance = 0;
     mLogicParameters->frustum.horizontalFov = 60;
-    mLogicParameters->frustum.aspectRatio = 16.0f / 9.0f;
+
     mLogicParameters->frustum.zNear = 0;
     mLogicParameters->frustum.zFar = 1000;
+
+    mLogicParameters->camera.sensor.width = 1920.0f;
+    mLogicParameters->camera.sensor.height = 1080.0f;
+    mLogicParameters->camera.sensor.aspectRatio = 1920.0f / 1080.0f;
 
     mCentralWidget = new CentralWidget;
     mCentralWidget->init();
@@ -156,6 +171,3 @@ void Controller::setOrigin(QPointF newOrigin)
     mAxisWidget->refresh();
     update();
 }
-
-} // namespace Core
-} // namespace Dori

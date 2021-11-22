@@ -10,8 +10,6 @@ class TopViewWidget;
 class CentralWidget;
 class AxisWidget;
 
-namespace Dori {
-namespace Core {
 class Controller : public QObject
 {
     Q_OBJECT
@@ -35,22 +33,25 @@ public:
     struct LowerBoundary : Target
     {};
 
+    struct Zone
+    {
+        QPointF vertices[4];
+        bool paint;
+    };
+
     struct SideViewWidgetParameters
     {
         Camera camera;
         Target target;
         LowerBoundary lowerBoundary;
-
-        // Ground intersections
         QPointF points[4]; // OPPOSITE_BISECTOR, BISECTOR, V1, V2
+        Zone zones[7];
     };
 
     struct TopViewWidgetParamaters
     {
         float targetDistance;
         float fovWidth;
-
-        // Intersections
         QPointF ground[4];
         QPointF target[4];
         QPointF lowerBoundary[4];
@@ -71,9 +72,9 @@ private:
     void setMeterToPixelRatio(float newMeterToPixelRatio);
     void setOrigin(QPointF newOrigin);
 
-    Dori::Core::Logic &mLogic;
+    Logic &mLogic;
 
-    Dori::Core::Logic::Parameters *mLogicParameters;
+    Logic::Parameters *mLogicParameters;
     SideViewWidgetParameters *mSideViewWidgetParameters;
     TopViewWidgetParamaters *mTopViewWidgetParameters;
 
@@ -88,6 +89,4 @@ private:
     QPointF mOrigin;
 };
 
-};     // namespace Core
-};     // namespace Dori
 #endif // CONTROLLER_H

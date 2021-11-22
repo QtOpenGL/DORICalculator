@@ -12,7 +12,7 @@ class SideViewWidget : public QWidget
     Q_OBJECT
 public:
     explicit SideViewWidget(QWidget *parent = nullptr);
-    void setParameters(Dori::Core::Controller::SideViewWidgetParameters *newParameters);
+    void setParameters(Controller::SideViewWidgetParameters *newParameters);
 
     void setOrigin(QPointF newOrigin);
     void setMeterToPixelRatio(float newMeterToPixelRatio);
@@ -36,7 +36,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *) override;
     void wheelEvent(QWheelEvent *) override;
 
-    Dori::Core::Controller::SideViewWidgetParameters *mParameters;
+    Controller::SideViewWidgetParameters *mParameters;
 
     Handle mTargetHeightHandle;
     Handle mTargetDistanceHandle;
