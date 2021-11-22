@@ -3,6 +3,7 @@
 
 #include "Logic.h"
 #include <QObject>
+#include <QPolygonF>
 #include <QVector2D>
 
 class SideViewWidget;
@@ -35,8 +36,8 @@ public:
 
     struct Zone
     {
-        QPointF vertices[4];
-        bool paint;
+        QPolygonF region;
+        bool visible;
     };
 
     struct SideViewWidgetParameters

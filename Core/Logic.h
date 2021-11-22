@@ -44,7 +44,7 @@ public:
     {
         Eigen::Vector3f topVertices[4];
         Eigen::Vector3f bottomVertices[4];
-        bool visible;
+        bool insideFrustum;
     };
 
     struct Parameters

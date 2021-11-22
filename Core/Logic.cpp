@@ -24,7 +24,7 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
 
     const float sensorWidth = inputParameters.camera.sensor.width;
 
-    const float lowerBoundaryHeight = qMax(0.0f, qMin(inputParameters.lowerBoundary.height, targetHeight));
+    float lowerBoundaryHeight = qMax(0.0f, qMin(inputParameters.lowerBoundary.height, qMin(targetHeight, cameraHeight)));
 
     // Vertical Fov
     const float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(horizontalFov);
@@ -109,9 +109,9 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
             constructEdgeVectorsForZones(edgeVectors, limit, tiltAngleRadians, halfHorizontalFovRadians, halfVerticalFovRadians);
 
             if (limit < zNear || limit > zFar) {
-                zones[STRONG_IDENTIFICATION].visible = false;
+                zones[STRONG_IDENTIFICATION].insideFrustum = false;
             } else {
-                zones[STRONG_IDENTIFICATION].visible = true;
+                zones[STRONG_IDENTIFICATION].insideFrustum = true;
                 for (int i = 0; i < 4; ++i) {
                     zones[STRONG_IDENTIFICATION].topVertices[i] = frustum.topVertices[i];
                     zones[STRONG_IDENTIFICATION].bottomVertices[i] = cameraPosition + edgeVectors[i];
@@ -124,14 +124,14 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
             float limit = 0.5 * (sensorWidth / ZONE_PPMS[zone]) / tan(halfHorizontalFovRadians);
 
             if (limit < zNear || limit > zFar) {
-                zones[zone].visible = false;
+                zones[zone].insideFrustum = false;
                 continue;
             }
 
             Eigen::Vector3f edgeVectors[4];
             constructEdgeVectorsForZones(edgeVectors, limit, tiltAngleRadians, halfHorizontalFovRadians, halfVerticalFovRadians);
 
-            zones[zone].visible = true;
+            zones[zone].insideFrustum = true;
 
             for (int i = 0; i < 4; ++i) {
                 zones[zone].topVertices[i] = zones[zone - 1].bottomVertices[i];
@@ -144,7 +144,7 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
 
         // DEAD_ZONE
         for (int i = 0; i < 4; ++i) {
-            zones[DEAD_ZONE].visible = true;
+            zones[DEAD_ZONE].insideFrustum = true;
             zones[DEAD_ZONE].topVertices[i] = zones[MONITORING].bottomVertices[i];
             zones[DEAD_ZONE].bottomVertices[i] = cameraPosition + edgeVectors[i]; // V1, V2, V3, V4
         }
@@ -168,7 +168,7 @@ Logic::Parameters Logic::calculate(const Logic::Parameters &inputParameters)
     outputParameters.target.height = targetHeight;
 
     outputParameters.lowerBoundary = lowerBoundary;
-    outputParameters.lowerBoundary.distance = lowerBoundary.intersections[1].x();
+    outputParameters.lowerBoundary.distance = qMin(targetDistance, lowerBoundary.intersections[1].x());
     outputParameters.lowerBoundary.height = lowerBoundaryHeight;
 
     for (ZoneNames zone : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {

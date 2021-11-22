@@ -47,7 +47,7 @@ SideViewWidget::SideViewWidget(QWidget *parent)
         pen.setWidth(1);
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mTargetDistanceHandle.setPen(pen);
-        mTargetDistanceHandle.setBrush(QColor(255, 0, 0));
+        mTargetDistanceHandle.setBrush(QColor(255, 128, 0));
         mTargetDistanceHandle.setHoveredBrush(QColor(255, 255, 255));
         mTargetDistanceHandle.setPressedBrush(QColor(0, 255, 0));
         mTargetDistanceHandle.setSize(10, 10);
@@ -86,11 +86,26 @@ void SideViewWidget::refresh()
     update();
 }
 
+QPointF SideViewWidget::mapFrom3d(float distance, float height)
+{
+    float x = mOrigin.x() + distance * mMeterToPixelRatio;
+    float y = mOrigin.y() - height * mMeterToPixelRatio;
+    return QPointF(x, y);
+}
+
 QPointF SideViewWidget::mapFrom3d(Eigen::Vector3f vector)
 {
-    float x = mOrigin.x() + vector.x() * mMeterToPixelRatio;
-    float y = mOrigin.y() - vector.z() * mMeterToPixelRatio;
-    return QPointF(x, y);
+    return mapFrom3d(vector.x(), vector.z());
+}
+
+Eigen::Vector3f SideViewWidget::mapFrom2d(float x, float y)
+{
+    Eigen::Vector3f vector;
+
+    vector[0] = (x - mOrigin.x()) / mMeterToPixelRatio;
+    vector[1] = 0;
+    vector[2] = (mOrigin.y() - y) / mMeterToPixelRatio;
+    return vector;
 }
 
 Eigen::Vector3f SideViewWidget::mapFrom2d(QPointF point)
@@ -110,18 +125,15 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     // Zones
     {
         painter.setRenderHint(QPainter::Antialiasing, false);
-        for (enum ZoneNames zone : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
-            QPainterPath path;
-            if (mParameters->zones[zone].paint) {
-                path.moveTo(mParameters->zones[zone].vertices[0]);
-                for (int i = 1; i < 4; ++i) {
-                    path.lineTo(mParameters->zones[zone].vertices[i]);
-                }
+        for (enum ZoneNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
+            if (mParameters->zones[name].visible) {
+                QPainterPath path;
+                path.addPolygon(mParameters->zones[name].region);
 
-                path.closeSubpath();
                 QBrush brush;
                 brush.setStyle(Qt::BrushStyle::SolidPattern);
-                brush.setColor(ZONE_COLORS[zone]);
+                brush.setColor(ZONE_COLORS[name]);
+
                 painter.fillPath(path, brush);
             }
         }
@@ -203,21 +215,21 @@ void SideViewWidget::paintEvent(QPaintEvent *)
 
     // Draw handles
     mCameraHeightHandle.draw(this);
-    mLowerBoundaryHandle.draw(this);
     mTargetHeightHandle.draw(this);
     mTargetDistanceHandle.draw(this);
+    mLowerBoundaryHandle.draw(this);
 }
 
 void SideViewWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (mTargetHeightHandle.contains(event->pos())) {
+    if (mLowerBoundaryHandle.contains(event->pos())) {
+        mLowerBoundaryHandle.setPressed(true);
+    } else if (mTargetHeightHandle.contains(event->pos())) {
         mTargetHeightHandle.setPressed(true);
     } else if (mTargetDistanceHandle.contains(event->pos())) {
         mTargetDistanceHandle.setPressed(true);
     } else if (mCameraHeightHandle.contains(event->pos())) {
         mCameraHeightHandle.setPressed(true);
-    } else if (mLowerBoundaryHandle.contains(event->pos())) {
-        mLowerBoundaryHandle.setPressed(true);
     } else {
         mMousePressedOnCanvas = true;
     }
@@ -261,7 +273,7 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
     if (mLowerBoundaryHandle.pressed()) {
         float newLowerBoundaryHeight = mParameters->lowerBoundary.height - (event->pos() - mOldMousePosition).y() / mMeterToPixelRatio;
 
-        if (newLowerBoundaryHeight >= 0 || newLowerBoundaryHeight <= mParameters->target.height) {
+        if (newLowerBoundaryHeight > 0 || newLowerBoundaryHeight < mParameters->target.height) {
             isDirty = true;
             mParameters->lowerBoundary.height = newLowerBoundaryHeight;
         }

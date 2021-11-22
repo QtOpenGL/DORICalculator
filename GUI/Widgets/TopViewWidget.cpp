@@ -31,7 +31,7 @@ TopViewWidget::TopViewWidget(QWidget *parent)
         pen.setWidth(1);
         pen.setJoinStyle(Qt::PenJoinStyle::MiterJoin);
         mTargetHandle.setPen(pen);
-        mTargetHandle.setBrush(QColor(255, 0, 0));
+        mTargetHandle.setBrush(QColor(255, 128, 0));
         mTargetHandle.setHoveredBrush(QColor(255, 255, 255));
         mTargetHandle.setPressedBrush(QColor(0, 255, 0));
         mTargetHandle.setSize(10, 10);
