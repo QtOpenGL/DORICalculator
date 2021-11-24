@@ -34,7 +34,7 @@ public:
     struct LowerBoundary : Target
     {};
 
-    struct Zone
+    struct Region
     {
         QPolygonF region;
         bool visible;
@@ -45,8 +45,8 @@ public:
         Camera camera;
         Target target;
         LowerBoundary lowerBoundary;
-        QPointF points[4]; // OPPOSITE_BISECTOR, BISECTOR, V1, V2
-        Zone zones[7];
+        QPointF points[4];
+        Region regions[6];
     };
 
     struct TopViewWidgetParamaters
@@ -56,7 +56,7 @@ public:
         QPointF ground[4];
         QPointF target[4];
         QPointF lowerBoundary[4];
-        Zone zones[7];
+        Region regions[6];
     };
 
     CentralWidget *centralWidget();
@@ -76,7 +76,8 @@ private:
 
     Logic &mLogic;
 
-    Logic::Parameters *mLogicParameters;
+    Logic::Parameters *mLogicInputParameters;
+    Logic::Parameters *mLogicOutputParameters;
     SideViewWidgetParameters *mSideViewWidgetParameters;
     TopViewWidgetParamaters *mTopViewWidgetParameters;
 

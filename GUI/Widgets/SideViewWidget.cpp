@@ -122,17 +122,17 @@ void SideViewWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    // Zones
+    // Regions
     {
         painter.setRenderHint(QPainter::Antialiasing, false);
-        for (enum ZoneNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
-            if (mParameters->zones[name].visible) {
+        for (enum RegionNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING}) {
+            if (mParameters->regions[name].visible) {
                 QPainterPath path;
-                path.addPolygon(mParameters->zones[name].region);
+                path.addPolygon(mParameters->regions[name].region);
 
                 QBrush brush;
                 brush.setStyle(Qt::BrushStyle::SolidPattern);
-                brush.setColor(ZONE_COLORS[name]);
+                brush.setColor(REGION_COLORS[name]);
 
                 painter.fillPath(path, brush);
             }
@@ -162,21 +162,20 @@ void SideViewWidget::paintEvent(QPaintEvent *)
         // Opposite bisector and bisector
         mDashedPen.setColor(QColor(0, 102, 213));
         painter.setPen(mDashedPen);
-        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[OPPOSITE_BISECTOR]);
-        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[BISECTOR]);
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[0]);
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[1]);
     }
 
-    // V1 V2
     {
         painter.setPen(QColor(0, 102, 213));
         painter.drawLine(mCameraHeightHandle.getCenter(), mTargetHeightHandle.getCenter());
 
         mDashedPen.setColor(QColor(128, 128, 128));
         painter.setPen(mDashedPen);
-        painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->points[V1]);
+        painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->points[2]);
 
         painter.setPen(QColor(0, 102, 213));
-        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[V2]);
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[3]);
     }
 
     // Draw tilt angle reference line

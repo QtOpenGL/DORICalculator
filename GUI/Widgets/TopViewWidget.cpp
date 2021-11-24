@@ -126,17 +126,17 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     // Draw crossed pattern
     painter.fillRect(0, 0, width(), height(), mCrossedPatternBursh);
 
-    // Zones
+    // Regions
     {
         painter.setRenderHint(QPainter::Antialiasing, false);
-        for (enum ZoneNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
-            if (mParameters->zones[name].visible) {
+        for (enum RegionNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
+            if (mParameters->regions[name].visible) {
                 QPainterPath path;
-                path.addPolygon(mParameters->zones[name].region);
+                path.addPolygon(mParameters->regions[name].region);
 
                 QBrush brush;
                 brush.setStyle(Qt::BrushStyle::SolidPattern);
-                brush.setColor(ZONE_COLORS[name]);
+                brush.setColor(REGION_COLORS[name]);
 
                 painter.fillPath(path, brush);
             }
