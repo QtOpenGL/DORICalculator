@@ -76,8 +76,7 @@ private:
 
     Logic &mLogic;
 
-    Logic::Parameters *mLogicInputParameters;
-    Logic::Parameters *mLogicOutputParameters;
+    Logic::Parameters *mLogicParameters;
     SideViewWidgetParameters *mSideViewWidgetParameters;
     TopViewWidgetParamaters *mTopViewWidgetParameters;
 

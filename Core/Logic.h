@@ -65,18 +65,14 @@ public:
     static Logic &getInstance();
     void calculate();
 
-    Parameters *outputParameters() const;
-    void setOutputParameters(Parameters *newOutputParameters);
-
-    Parameters *inputParameters() const;
-    void setInputParameters(Parameters *newInputParameters);
+    Parameters *parameters() const;
+    void setParameters(Parameters *newParameters);
 
 private:
     Logic();
 
     const Eigen::Hyperplane<float, 3> mGround;
-    Parameters *mInputParameters;
-    Parameters *mOutputParameters;
+    Parameters *mParameters;
 };
 
 #endif // LOGIC_H

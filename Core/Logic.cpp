@@ -11,27 +11,32 @@ Logic::Logic()
     : mGround(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), 0))
 {}
 
+Logic::Parameters *Logic::parameters() const
+{
+    return mParameters;
+}
+
+void Logic::setParameters(Logic::Parameters *newParameters)
+{
+    mParameters = newParameters;
+}
+
 void Logic::calculate()
 {
-    const float aspectRatio = mInputParameters->camera.sensor.aspectRatio;
-    const float horizontalFov = mInputParameters->frustum.horizontalFov;
-    const float cameraHeight = mInputParameters->camera.height;
-    const float targetDistance = mInputParameters->target.distance;
-    const float targetHeight = mInputParameters->target.height;
-    const float zNear = mInputParameters->frustum.zNear;
-    const float zFar = mInputParameters->frustum.zFar;
-    const float sensorWidth = mInputParameters->camera.sensor.width;
-    const float lowerBoundaryHeight = qMax(0.0f, qMin(mInputParameters->lowerBoundary.height, qMin(targetHeight, cameraHeight)));
-    const float lowerBoundaryDistance = mInputParameters->lowerBoundary.distance;
-    const Eigen::Vector3f cameraPosition = Eigen::Vector3f(0, 0, cameraHeight);
+    const float lowerBoundaryHeight = qMax(0.0f, qMin(mParameters->lowerBoundary.height, qMin(mParameters->target.height, mParameters->camera.height)));
+    const Eigen::Vector3f cameraPosition = Eigen::Vector3f(0, 0, mParameters->camera.height);
 
     // Vertical Fov
-    const float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(horizontalFov);
-    const float halfVerticalFovRadians = atan(tan(halfHorizontalFovRadians) / aspectRatio);
+    const float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(mParameters->frustum.horizontalFov);
+    const float halfVerticalFovRadians = atan(tan(halfHorizontalFovRadians) / mParameters->camera.sensor.aspectRatio);
 
     // Tilt angle (angle between negative x-axis and bisector of the furstum measured clockwise)
-    const float tiltAngleRadians = halfVerticalFovRadians - atan2(targetHeight - cameraHeight, targetDistance);
+    const float tiltAngleRadians = halfVerticalFovRadians - atan2(mParameters->target.height - mParameters->camera.height, mParameters->target.distance);
     const float tiltAngle = qRadiansToDegrees(tiltAngleRadians);
+
+    const float zNear = mParameters->frustum.zNear;
+    const float zFar = mParameters->frustum.zFar;
+    const float sensorWidth = mParameters->camera.sensor.width;
 
     // Construct frustum
     Frustum frustum;
@@ -88,20 +93,23 @@ void Logic::calculate()
     }
 
     //Find target intersections
-    Entity target = mInputParameters->target;
+    Entity target;
     {
         for (EdgeNames name : {E0, E1, E2, E3}) {
             Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, frustum.edgeDirections[name]);
-            float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -targetHeight)); // above z axis means negative offset
+            float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -mParameters->target.height)); // above z axis means negative offset
             if (t >= 0)
                 target.intersections[name] = line.pointAt(t);
             else
                 target.intersections[name] = cameraPosition + frustum.zFarNorm * frustum.edgeDirections[name];
         }
+
+        target.distance = mParameters->target.distance;
+        target.height = mParameters->target.height;
     }
 
     // Find lower boundary intersections
-    Entity lowerBoundary = mInputParameters->lowerBoundary;
+    Entity lowerBoundary;
     {
         for (EdgeNames name : {E0, E1, E2, E3}) {
             Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, frustum.edgeDirections[name]);
@@ -111,6 +119,9 @@ void Logic::calculate()
             else
                 lowerBoundary.intersections[name] = cameraPosition + frustum.zFarNorm * frustum.edgeDirections[name];
         }
+
+        lowerBoundary.distance = qMin(mParameters->target.distance, lowerBoundary.intersections[1].x());
+        lowerBoundary.height = lowerBoundaryHeight;
     }
 
     Region regions[6];
@@ -147,38 +158,12 @@ void Logic::calculate()
         }
     }
 
-    *mOutputParameters = *mInputParameters;
-    mOutputParameters->frustum = frustum;
+    mParameters->frustum = frustum;
+    mParameters->target = target;
+    mParameters->lowerBoundary = lowerBoundary;
+    mParameters->camera.tiltAngle = tiltAngle;
 
-    mOutputParameters->camera.sensor = mInputParameters->camera.sensor;
-    mOutputParameters->camera.height = cameraHeight;
-    mOutputParameters->camera.tiltAngle = tiltAngle;
-
-    mOutputParameters->target = target;
-    mOutputParameters->lowerBoundary = lowerBoundary;
-    mOutputParameters->lowerBoundary.distance = qMin(targetDistance, lowerBoundary.intersections[1].x());
-
-    std::copy(regions, regions + 6, mOutputParameters->regions);
-}
-
-Logic::Parameters *Logic::inputParameters() const
-{
-    return mInputParameters;
-}
-
-void Logic::setInputParameters(Parameters *newInputParameters)
-{
-    mInputParameters = newInputParameters;
-}
-
-Logic::Parameters *Logic::outputParameters() const
-{
-    return mOutputParameters;
-}
-
-void Logic::setOutputParameters(Parameters *newOutputParameters)
-{
-    mOutputParameters = newOutputParameters;
+    std::copy(regions, regions + 6, mParameters->regions);
 }
 
 Logic &Logic::getInstance()
