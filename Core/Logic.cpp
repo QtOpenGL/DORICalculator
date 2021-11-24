@@ -23,7 +23,8 @@ void Logic::setParameters(Logic::Parameters *newParameters)
 
 void Logic::calculate()
 {
-    const float lowerBoundaryHeight = qMax(0.0f, qMin(mParameters->lowerBoundary.height, qMin(mParameters->target.height, mParameters->camera.height)));
+    const float lowerBoundaryHeight = qMax(0.0f,
+                                           qMin(mParameters->lowerBoundary.height - 0.0001f, qMin(mParameters->target.height - 0.0001f, mParameters->camera.height - 0.0001f)));
     const Eigen::Vector3f cameraPosition = Eigen::Vector3f(0, 0, mParameters->camera.height);
 
     // Vertical Fov
@@ -60,7 +61,7 @@ void Logic::calculate()
             frustum.topVertices[name] = cameraPosition + zNearNorm * frustum.edgeDirections[name];
             Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, frustum.edgeDirections[name]);
             float t = line.intersectionParameter(mGround);
-            if (t >= 0)
+            if (!isnan(t) && !isinf(t) && 0 < t)
                 frustum.bottomVertices[name] = line.pointAt(t);
             else
                 frustum.bottomVertices[name] = cameraPosition + zFarNorm * frustum.edgeDirections[name];
@@ -76,7 +77,7 @@ void Logic::calculate()
 
             Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, bisectors[i]);
             float t = line.intersectionParameter(mGround);
-            if (t >= 0)
+            if (!isnan(t) && !isinf(t) && 0 < t)
                 bisectors[i] = line.pointAt(t);
             else
                 bisectors[i] = cameraPosition + zFar * bisectors[i];
@@ -98,7 +99,7 @@ void Logic::calculate()
         for (EdgeNames name : {E0, E1, E2, E3}) {
             Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, frustum.edgeDirections[name]);
             float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -mParameters->target.height)); // above z axis means negative offset
-            if (t >= 0)
+            if (!isnan(t) && !isinf(t) && 0 < t)
                 target.intersections[name] = line.pointAt(t);
             else
                 target.intersections[name] = cameraPosition + frustum.zFarNorm * frustum.edgeDirections[name];
@@ -114,7 +115,7 @@ void Logic::calculate()
         for (EdgeNames name : {E0, E1, E2, E3}) {
             Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, frustum.edgeDirections[name]);
             float t = line.intersectionParameter(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), -lowerBoundaryHeight)); // above z axis means negative offset
-            if (t >= 0)
+            if (!isnan(t) && !isinf(t) && 0 < t)
                 lowerBoundary.intersections[name] = line.pointAt(t);
             else
                 lowerBoundary.intersections[name] = cameraPosition + frustum.zFarNorm * frustum.edgeDirections[name];
@@ -124,37 +125,35 @@ void Logic::calculate()
         lowerBoundary.height = lowerBoundaryHeight;
     }
 
-    Region regions[6];
+    Region regions[NUMBER_OF_REGIONS];
     const Eigen::AngleAxis<float> rotation = Eigen::AngleAxis<float>(-tiltAngleRadians, Eigen::Vector3f(0, -1, 0));
     const Eigen::Vector3f normalAfterRotation = rotation * Eigen::Vector3f(-1, 0, 0);
 
-    for (RegionNames regionName : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING}) {
-        float limit = 0.5 * (sensorWidth / REGION_PPMS[regionName]) / tan(halfHorizontalFovRadians);
+    for (int i = 0; i < NUMBER_OF_REGIONS; i++) {
+        float limit = 0.5 * (sensorWidth / REGION_PPMS[i]) / tan(halfHorizontalFovRadians);
 
-        if (limit < zNear || limit > zFar) {
-            regions[regionName].visible = false;
+        if (limit < zNear)
+            limit = zNear;
 
-        } else {
-            regions[regionName].limit = limit;
-            regions[regionName].visible = true;
+        if (limit > zFar)
+            limit = zFar;
 
-            // STRONG_IDENTIFICATION
+        regions[i].limit = limit;
 
-            for (EdgeNames edgeName : {E0, E1, E2, E3}) {
-                if (regionName == STRONG_IDENTIFICATION) {
-                    regions[STRONG_IDENTIFICATION].topVertices[edgeName] = frustum.topVertices[edgeName]; // Top vertices is the same as previous region's bottom vertices
-                } else {
-                    regions[regionName].topVertices[edgeName] = regions[regionName - 1].bottomVertices[edgeName]; // Top vertices is the same as previous region's bottom vertices
-                }
+        for (EdgeNames edgeName : {E0, E1, E2, E3}) {
+            if (i == STRONG_IDENTIFICATION) {
+                regions[STRONG_IDENTIFICATION].topVertices[edgeName] = frustum.topVertices[edgeName];
+            } else {
+                regions[i].topVertices[edgeName] = regions[i - 1].bottomVertices[edgeName]; // Top vertices is the same as previous region's bottom vertices
             }
+        }
 
-            const Eigen::Vector3f limitPointAfterRotation = rotation * Eigen::Vector3f(limit, 0, 0);
+        const Eigen::Vector3f limitPointAfterRotation = Eigen::Vector3f(0, 0, mParameters->camera.height) + rotation * Eigen::Vector3f(limit, 0, 0);
 
-            for (EdgeNames edgeName : {E0, E1, E2, E3}) {
-                Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, frustum.edgeDirections[edgeName]);
-                Eigen::Hyperplane<float, 3> regionLimitPlaneAfterRotation(normalAfterRotation, limitPointAfterRotation);
-                regions[regionName].bottomVertices[edgeName] = line.intersectionPoint(regionLimitPlaneAfterRotation);
-            }
+        for (EdgeNames edgeName : {E0, E1, E2, E3}) {
+            Eigen::ParametrizedLine<float, 3> line = Eigen::ParametrizedLine<float, 3>(cameraPosition, frustum.edgeDirections[edgeName]);
+            Eigen::Hyperplane<float, 3> regionLimitPlaneAfterRotation(normalAfterRotation, limitPointAfterRotation);
+            regions[i].bottomVertices[edgeName] = line.intersectionPoint(regionLimitPlaneAfterRotation);
         }
     }
 
@@ -163,7 +162,42 @@ void Logic::calculate()
     mParameters->lowerBoundary = lowerBoundary;
     mParameters->camera.tiltAngle = tiltAngle;
 
-    std::copy(regions, regions + 6, mParameters->regions);
+    std::copy(regions, regions + NUMBER_OF_REGIONS, mParameters->regions);
+}
+
+QVector<Eigen::Vector3f> Logic::findIntersection(const Region &region, const Eigen::Hyperplane<float, 3> &plane)
+{
+    QVector<Eigen::Vector3f> result;
+
+    for (int i = 0; i < 4; i++)
+        result << findIntersection(region.bottomVertices[i], region.bottomVertices[(i + 1) % 4], plane);
+
+    for (int i = 0; i < 4; i++)
+        result << findIntersection(region.topVertices[i], region.topVertices[(i + 1) % 4], plane);
+
+    result << findIntersection(region.topVertices[0], region.bottomVertices[0], plane);
+    result << findIntersection(region.topVertices[1], region.bottomVertices[1], plane);
+    result << findIntersection(region.topVertices[2], region.bottomVertices[2], plane);
+    result << findIntersection(region.topVertices[3], region.bottomVertices[3], plane);
+
+    return result;
+}
+
+QVector<Eigen::Vector3f> Logic::findIntersection(const Eigen::Vector3f &start, const Eigen::Vector3f &end, const Eigen::Hyperplane<float, 3> &plane)
+{
+    float distance = (end - start).norm();
+    Eigen::Vector3f direction = (end - start).normalized();
+    Eigen::ParametrizedLine<float, 3> line(start, direction);
+    float t = line.intersectionParameter(plane);
+
+    if (isnan(t) || isinf(t))
+        return QVector<Eigen::Vector3f>();
+
+    Eigen::Vector3f point = line.pointAt(t);
+    if (0 < t && (start - point).norm() < distance)
+        return QVector<Eigen::Vector3f>(1, point);
+
+    return QVector<Eigen::Vector3f>();
 }
 
 Logic &Logic::getInstance()

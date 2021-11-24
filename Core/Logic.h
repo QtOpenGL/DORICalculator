@@ -1,6 +1,7 @@
 #ifndef LOGIC_H
 #define LOGIC_H
 
+#include "Enums.h"
 #include <Dependencies/Eigen/Dense>
 
 #include <QVector>
@@ -13,7 +14,6 @@ public:
         Eigen::Vector3f topVertices[4];
         Eigen::Vector3f bottomVertices[4];
         float limit;
-        bool visible;
     };
 
     struct Frustum
@@ -58,15 +58,19 @@ public:
         Camera camera;
         Entity target;
         Entity lowerBoundary;
-        Region regions[6];
+        Region regions[NUMBER_OF_REGIONS];
     };
 
 public:
     static Logic &getInstance();
     void calculate();
+    QVector<Eigen::Vector3f> findIntersection(const Region &region, const Eigen::Hyperplane<float, 3> &plane);
 
     Parameters *parameters() const;
     void setParameters(Parameters *newParameters);
+
+private:
+    QVector<Eigen::Vector3f> findIntersection(const Eigen::Vector3f &start, const Eigen::Vector3f &end, const Eigen::Hyperplane<float, 3> &plane);
 
 private:
     Logic();

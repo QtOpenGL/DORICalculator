@@ -129,14 +129,14 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     // Regions
     {
         painter.setRenderHint(QPainter::Antialiasing, false);
-        for (enum RegionNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE}) {
-            if (mParameters->regions[name].visible) {
+        for (int i = 0; i < NUMBER_OF_REGIONS; i++) {
+            if (mParameters->regions[i].visible) {
                 QPainterPath path;
-                path.addPolygon(mParameters->regions[name].region);
+                path.addPolygon(mParameters->regions[i].region);
 
                 QBrush brush;
                 brush.setStyle(Qt::BrushStyle::SolidPattern);
-                brush.setColor(REGION_COLORS[name]);
+                brush.setColor(REGION_COLORS[i]);
 
                 painter.fillPath(path, brush);
             }

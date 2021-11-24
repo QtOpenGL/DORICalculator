@@ -46,7 +46,7 @@ public:
         Target target;
         LowerBoundary lowerBoundary;
         QPointF points[4];
-        Region regions[6];
+        Region regions[NUMBER_OF_REGIONS];
     };
 
     struct TopViewWidgetParamaters
@@ -56,7 +56,7 @@ public:
         QPointF ground[4];
         QPointF target[4];
         QPointF lowerBoundary[4];
-        Region regions[6];
+        Region regions[NUMBER_OF_REGIONS];
     };
 
     CentralWidget *centralWidget();

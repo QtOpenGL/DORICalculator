@@ -6,6 +6,7 @@
 #include <GUI/Widgets/TopViewWidget.h>
 
 #include <QDebug>
+#include <QtMath>
 
 Controller::Controller(QObject *parent)
     : QObject(parent)
@@ -24,44 +25,40 @@ void Controller::calculate()
     mLogic.calculate();
 
     // SideViewWidgetParameters
+    {
+        mSideViewWidgetParameters->camera.tiltAngle = mLogicParameters->camera.tiltAngle;
+        mSideViewWidgetParameters->camera.height = mLogicParameters->camera.height;
+        mSideViewWidgetParameters->camera.position = mSideViewWidget->mapFrom3d(0, mLogicParameters->camera.height);
+        mSideViewWidgetParameters->target.height = mLogicParameters->target.height;
+        mSideViewWidgetParameters->target.distance = mLogicParameters->target.distance;
+        mSideViewWidgetParameters->target.position = mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->target.height);
+        mSideViewWidgetParameters->lowerBoundary.height = mLogicParameters->lowerBoundary.height;
+        mSideViewWidgetParameters->lowerBoundary.distance = mLogicParameters->lowerBoundary.distance;
+        mSideViewWidgetParameters->lowerBoundary.position = mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height);
 
-    mSideViewWidgetParameters->camera.tiltAngle = mLogicParameters->camera.tiltAngle;
-    mSideViewWidgetParameters->camera.height = mLogicParameters->camera.height;
-    mSideViewWidgetParameters->camera.position = mSideViewWidget->mapFrom3d(0, mLogicParameters->camera.height);
-    mSideViewWidgetParameters->target.height = mLogicParameters->target.height;
-    mSideViewWidgetParameters->target.distance = mLogicParameters->target.distance;
-    mSideViewWidgetParameters->target.position = mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->target.height);
-    mSideViewWidgetParameters->lowerBoundary.height = mLogicParameters->lowerBoundary.height;
-    mSideViewWidgetParameters->lowerBoundary.distance = mLogicParameters->lowerBoundary.distance;
-    mSideViewWidgetParameters->lowerBoundary.position = mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height);
+        mSideViewWidgetParameters->points[0] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.oppositeBisectorRay);
+        mSideViewWidgetParameters->points[1] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bisectorRay);
+        mSideViewWidgetParameters->points[2] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[0]);
+        mSideViewWidgetParameters->points[3] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[1]);
 
-    mSideViewWidgetParameters->points[0] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.oppositeBisectorRay);
-    mSideViewWidgetParameters->points[1] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bisectorRay);
-    mSideViewWidgetParameters->points[2] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[0]);
-    mSideViewWidgetParameters->points[3] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[1]);
+        QPolygonF roi;
+        roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->target.height));
+        roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->lowerBoundary.height));
+        roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height));
+        roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->target.height));
 
-    QPolygonF roi;
-    roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->target.height));
-    roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->lowerBoundary.height));
-    roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height));
-    roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->target.height));
+        for (int i = 0; i < NUMBER_OF_REGIONS; ++i) {
+            QPolygonF region;
 
-    for (RegionNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING}) {
-        if (!mLogicParameters->regions[name].visible) {
-            mSideViewWidgetParameters->regions[name].visible = false;
-            continue;
+            region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[i].bottomVertices[0]));
+            region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[i].topVertices[0]));
+            region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[i].topVertices[2]));
+            region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[i].bottomVertices[2]));
+
+            region = region.intersected(roi);
+            mSideViewWidgetParameters->regions[i].region = region;
+            mSideViewWidgetParameters->regions[i].visible = !region.isEmpty();
         }
-
-        QPolygonF region;
-
-        region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[name].bottomVertices[0]));
-        region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[name].topVertices[0]));
-        region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[name].topVertices[2]));
-        region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[name].bottomVertices[2]));
-
-        region = region.intersected(roi);
-        mSideViewWidgetParameters->regions[name].region = region;
-        mSideViewWidgetParameters->regions[name].visible = !region.isEmpty();
     }
 
     // TopViewWidgetParameters
@@ -77,26 +74,25 @@ void Controller::calculate()
 
         QPolygonF roi;
         roi.append(mTopViewWidgetParameters->target[0]);
-        roi.append(mTopViewWidgetParameters->lowerBoundary[1]);
-        roi.append(mTopViewWidgetParameters->lowerBoundary[2]);
+        roi.append(mTopViewWidgetParameters->target[1]);
+        roi.append(mTopViewWidgetParameters->target[2]);
         roi.append(mTopViewWidgetParameters->target[3]);
 
-        for (RegionNames name : {STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING}) {
-            if (!mLogicParameters->regions[name].visible) {
-                mTopViewWidgetParameters->regions[name].visible = false;
-                continue;
-            }
+        for (int i = 0; i < NUMBER_OF_REGIONS; ++i) {
+            Eigen::Hyperplane<float, 3> plane(Eigen::Vector3f(0, 0, 1), -mLogicParameters->lowerBoundary.height);
+            QVector<Eigen::Vector3f> intersections = mLogic.findIntersection(mLogicParameters->regions[i], plane);
 
             QPolygonF region;
-
-            region.append(mTopViewWidget->mapFrom3d(mLogicParameters->regions[name].topVertices[0]));
-            region.append(mTopViewWidget->mapFrom3d(mLogicParameters->regions[name].topVertices[1]));
-            region.append(mTopViewWidget->mapFrom3d(mLogicParameters->regions[name].topVertices[2]));
-            region.append(mTopViewWidget->mapFrom3d(mLogicParameters->regions[name].topVertices[3]));
+            if (intersections.size() == 4) {
+                region.append(mTopViewWidget->mapFrom3d(intersections[0]));
+                region.append(mTopViewWidget->mapFrom3d(intersections[3]));
+                region.append(mTopViewWidget->mapFrom3d(intersections[1]));
+                region.append(mTopViewWidget->mapFrom3d(intersections[2]));
+            }
 
             region = region.intersected(roi);
-            mTopViewWidgetParameters->regions[name].region = region;
-            mTopViewWidgetParameters->regions[name].visible = !region.isEmpty();
+            mTopViewWidgetParameters->regions[i].region = region;
+            mTopViewWidgetParameters->regions[i].visible = !region.isEmpty();
         }
     }
 }
@@ -147,7 +143,7 @@ void Controller::init()
     mLogicParameters->lowerBoundary.distance = 0;
     mLogicParameters->frustum.horizontalFov = 60;
 
-    mLogicParameters->frustum.zNear = 1.0;
+    mLogicParameters->frustum.zNear = 0.0001;
     mLogicParameters->frustum.zFar = 1000;
 
     mLogicParameters->camera.sensor.width = 1920.0f;
