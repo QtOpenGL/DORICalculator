@@ -64,7 +64,7 @@ void Controller::calculate()
     // TopViewWidgetParameters
     {
         mTopViewWidgetParameters->targetDistance = mLogicParameters->target.distance;
-        mTopViewWidgetParameters->fovWidth = 0;
+        mTopViewWidgetParameters->fovWidth = mLogicParameters->target.fovWidth;
 
         for (int i = 0; i < 4; ++i) {
             mTopViewWidgetParameters->ground[i] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);
@@ -126,6 +126,7 @@ void Controller::onDirty()
         mLogicParameters->lowerBoundary.height = mSideViewWidgetParameters->lowerBoundary.height;
     } else if (sender == mTopViewWidget) {
         mLogicParameters->target.distance = mTopViewWidgetParameters->targetDistance;
+        mLogicParameters->target.fovWidth = mTopViewWidgetParameters->fovWidth;
     }
 
     update();
@@ -153,7 +154,6 @@ void Controller::init()
     mLogicParameters->target.distance = 5;
     mLogicParameters->lowerBoundary.height = 0;
     mLogicParameters->lowerBoundary.distance = 0;
-    mLogicParameters->frustum.horizontalFov = 60;
 
     mLogicParameters->frustum.zNear = 0.0001;
     mLogicParameters->frustum.zFar = 1000;
@@ -161,6 +161,8 @@ void Controller::init()
     mLogicParameters->camera.sensor.width = 1920.0f;
     mLogicParameters->camera.sensor.height = 1080.0f;
     mLogicParameters->camera.sensor.aspectRatio = 1920.0f / 1080.0f;
+    mLogicParameters->target.fovWidth = 10;
+    mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mLogicParameters->target, mLogicParameters->camera);
 
     mLogic.setParameters(mLogicParameters);
 

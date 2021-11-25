@@ -216,8 +216,14 @@ void TopViewWidget::mouseMoveEvent(QMouseEvent *event)
         mParameters->targetDistance += (event->pos() - mOldMousePosition).x() / mMeterToPixelRatio;
     }
 
+    if (mFovWidthHandleTop.pressed() || mFovWidthHandleBottom.pressed()) {
+        isDirty = true;
+        mParameters->fovWidth += 2 * (mOldMousePosition - event->pos()).y() / mMeterToPixelRatio;
+    }
+
     if (isDirty)
         emit dirty();
+
     else if (mMousePressedOnCanvas)
         emit pan((event->pos() - mOldMousePosition).x(), (event->pos() - mOldMousePosition).y());
 

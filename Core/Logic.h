@@ -50,6 +50,7 @@ public:
         float height;
         float distance;
         Eigen::Vector3f intersections[4];
+        float fovWidth;
     };
 
     struct Parameters
@@ -65,6 +66,7 @@ public:
     static Logic &getInstance();
     void calculate();
     QVector<Eigen::Vector3f> findIntersection(const Region &region, const Eigen::Hyperplane<float, 3> &plane);
+    float calculateHorizontalFovForGivenFovWidth(const Entity &entity, const Camera &camera);
 
     Parameters *parameters() const;
     void setParameters(Parameters *newParameters);
@@ -81,6 +83,8 @@ private:
 
     const Eigen::Hyperplane<float, 3> mGround;
     Parameters *mParameters;
+
+    inline float f(double x, double c, double k, float aspectRatio) { return k * cos(x - c) + k * tan(x) * sin(x - c) - aspectRatio * tan(x); }
 };
 
 #endif // LOGIC_H

@@ -27,12 +27,18 @@ void Logic::calculate()
                                            qMin(mParameters->lowerBoundary.height - 0.0001f, qMin(mParameters->target.height - 0.0001f, mParameters->camera.height - 0.0001f)));
     const Eigen::Vector3f cameraPosition = Eigen::Vector3f(0, 0, mParameters->camera.height);
 
+    // Horizontal Fov
+    const float horizontalFov = calculateHorizontalFovForGivenFovWidth(mParameters->target, mParameters->camera);
+
     // Vertical Fov
-    const float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(mParameters->frustum.horizontalFov);
+    const float halfHorizontalFovRadians = 0.5 * qDegreesToRadians(horizontalFov);
     const float halfVerticalFovRadians = atan(tan(halfHorizontalFovRadians) / mParameters->camera.sensor.aspectRatio);
 
     // Tilt angle (angle between negative x-axis and bisector of the furstum measured clockwise)
-    const float tiltAngleRadians = halfVerticalFovRadians - atan2(mParameters->target.height - mParameters->camera.height, mParameters->target.distance);
+    float tiltAngleRadians = halfVerticalFovRadians - atan2(mParameters->target.height - mParameters->camera.height, mParameters->target.distance);
+    if (tiltAngleRadians >= M_PI_2)
+        tiltAngleRadians = M_PI_2;
+
     const float tiltAngle = qRadiansToDegrees(tiltAngleRadians);
 
     const float zNear = mParameters->frustum.zNear;
@@ -107,6 +113,7 @@ void Logic::calculate()
 
         target.distance = mParameters->target.distance;
         target.height = mParameters->target.height;
+        target.fovWidth = 2 * abs(target.distance) * tan(atan2(frustum.edgeDirections[E0].y(), frustum.edgeDirections[E0].x()));
     }
 
     // Find lower boundary intersections
@@ -189,6 +196,45 @@ QVector<Eigen::Vector3f> Logic::findIntersection(const Region &region, const Eig
     }
 
     return result;
+}
+
+float Logic::calculateHorizontalFovForGivenFovWidth(const Entity &entity, const Camera &camera)
+{
+    double c = atan2(entity.height - camera.height, entity.distance);
+    double k = entity.fovWidth / (2 * entity.distance);
+    double x0 = 0.0f, x1 = 0.0f, x2 = 0.0f;
+    bool hasSolution = false;
+
+    for (int i = 0; i < 9000; ++i) {
+        if (f(x0, c, k, camera.sensor.aspectRatio) * f(i * 0.000174532925, c, k, camera.sensor.aspectRatio) < 0) {
+            x1 = i * 0.000174532925;
+            hasSolution = true;
+            break;
+        }
+    }
+
+    if (hasSolution == false) {
+        double tiltAngle = atan(tan(qDegreesToRadians(0.5 * 179.0)) / camera.sensor.aspectRatio) - c;
+        if (tiltAngle > M_PI_2) {
+            return 2 * qRadiansToDegrees(atan(tan(M_PI_2 + c) * camera.sensor.aspectRatio));
+        } else
+            return 179.0;
+    }
+
+    int i = 0;
+    while ((abs(x1 - x0) > 0.000001) & (i < 10000)) {
+        x2 = x1 - (x1 - x0) * f(x1, c, k, camera.sensor.aspectRatio) / (f(x1, c, k, camera.sensor.aspectRatio) - f(x0, c, k, camera.sensor.aspectRatio));
+        x0 = x1;
+        x1 = x2;
+        ++i;
+    }
+
+    double horizontalFov = 2 * qRadiansToDegrees(atan(camera.sensor.aspectRatio * tan(x1)));
+    double tiltAngle = atan(tan(0.5 * qDegreesToRadians(horizontalFov)) / camera.sensor.aspectRatio) - c;
+    if (tiltAngle > M_PI_2)
+        return 2 * qRadiansToDegrees(atan(tan(M_PI_2 + c) * camera.sensor.aspectRatio));
+    else
+        return qMax(1.0, qMin(horizontalFov, 179.0));
 }
 
 QVector<Eigen::Vector3f> Logic::findIntersection(const Eigen::Vector3f &start, const Eigen::Vector3f &end, const Eigen::Hyperplane<float, 3> &plane)
