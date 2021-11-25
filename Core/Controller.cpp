@@ -72,22 +72,34 @@ void Controller::calculate()
             mTopViewWidgetParameters->lowerBoundary[i] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
         }
 
-        QPolygonF roi;
-        roi.append(mTopViewWidgetParameters->target[0]);
-        roi.append(mTopViewWidgetParameters->target[1]);
-        roi.append(mTopViewWidgetParameters->target[2]);
-        roi.append(mTopViewWidgetParameters->target[3]);
+        QPolygonF targetRoi;
+
+        if (mLogicParameters->camera.height <= mLogicParameters->target.height) {
+            targetRoi.append(mTopViewWidget->mapFrom3d(0, 0));
+            targetRoi.append(mTopViewWidgetParameters->target[0]);
+            targetRoi.append(mTopViewWidgetParameters->target[3]);
+        } else {
+            targetRoi.append(mTopViewWidgetParameters->target[0]);
+            targetRoi.append(mTopViewWidgetParameters->target[1]);
+            targetRoi.append(mTopViewWidgetParameters->target[2]);
+            targetRoi.append(mTopViewWidgetParameters->target[3]);
+        }
+
+        QPolygonF lowerBoundaryRoi;
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary[0]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary[1]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary[2]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary[3]);
+
+        QPolygonF roi = lowerBoundaryRoi.intersected(targetRoi);
 
         for (int i = 0; i < NUMBER_OF_REGIONS; ++i) {
             Eigen::Hyperplane<float, 3> plane(Eigen::Vector3f(0, 0, 1), -mLogicParameters->lowerBoundary.height);
             QVector<Eigen::Vector3f> intersections = mLogic.findIntersection(mLogicParameters->regions[i], plane);
 
             QPolygonF region;
-            if (intersections.size() == 4) {
-                region.append(mTopViewWidget->mapFrom3d(intersections[0]));
-                region.append(mTopViewWidget->mapFrom3d(intersections[3]));
-                region.append(mTopViewWidget->mapFrom3d(intersections[1]));
-                region.append(mTopViewWidget->mapFrom3d(intersections[2]));
+            for (int i = 0; i < intersections.size(); ++i) {
+                region.append(mTopViewWidget->mapFrom3d(intersections[i]));
             }
 
             region = region.intersected(roi);

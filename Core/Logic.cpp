@@ -167,18 +167,26 @@ void Logic::calculate()
 
 QVector<Eigen::Vector3f> Logic::findIntersection(const Region &region, const Eigen::Hyperplane<float, 3> &plane)
 {
+    QVector<Eigen::Vector3f> intersections3d;
+
+    for (int i = 0; i < 4; i++)
+        intersections3d << findIntersection(region.bottomVertices[i], region.bottomVertices[(i + 1) % 4], plane);
+
+    for (int i = 0; i < 4; i++)
+        intersections3d << findIntersection(region.topVertices[i], region.topVertices[(i + 1) % 4], plane);
+
+    intersections3d << findIntersection(region.topVertices[0], region.bottomVertices[0], plane);
+    intersections3d << findIntersection(region.topVertices[1], region.bottomVertices[1], plane);
+    intersections3d << findIntersection(region.topVertices[2], region.bottomVertices[2], plane);
+    intersections3d << findIntersection(region.topVertices[3], region.bottomVertices[3], plane);
+
+    QVector<Eigen::Vector2f> intersections2d = projectOntoXYPlane(intersections3d);
+    intersections2d = sortClockwiseOrder(intersections2d);
+
     QVector<Eigen::Vector3f> result;
-
-    for (int i = 0; i < 4; i++)
-        result << findIntersection(region.bottomVertices[i], region.bottomVertices[(i + 1) % 4], plane);
-
-    for (int i = 0; i < 4; i++)
-        result << findIntersection(region.topVertices[i], region.topVertices[(i + 1) % 4], plane);
-
-    result << findIntersection(region.topVertices[0], region.bottomVertices[0], plane);
-    result << findIntersection(region.topVertices[1], region.bottomVertices[1], plane);
-    result << findIntersection(region.topVertices[2], region.bottomVertices[2], plane);
-    result << findIntersection(region.topVertices[3], region.bottomVertices[3], plane);
+    for (int i = 0; i < intersections2d.size(); ++i) {
+        result << Eigen::Vector3f(intersections2d[i].x(), intersections2d[i].y(), 0);
+    }
 
     return result;
 }
@@ -198,6 +206,61 @@ QVector<Eigen::Vector3f> Logic::findIntersection(const Eigen::Vector3f &start, c
         return QVector<Eigen::Vector3f>(1, point);
 
     return QVector<Eigen::Vector3f>();
+}
+
+QVector<Eigen::Vector2f> Logic::sortClockwiseOrder(const QVector<Eigen::Vector2f> &points)
+{
+    Eigen::Vector2f meanCenter = findMeanCenter(points);
+    QVector<Eigen::Vector2f> newPoint = translate(points, -meanCenter);
+
+    std::sort(newPoint.begin(), newPoint.end(), [=](const Eigen::Vector2f &p1, const Eigen::Vector2f &p2) -> bool {
+        float theta1 = atan2(p1.y(), p1.x());
+        if (theta1 < 0)
+            theta1 += 2 * M_PI;
+
+        float theta2 = atan2(p2.y(), p2.x());
+
+        if (theta2 < 0)
+            theta2 += 2 * M_PI;
+
+        if (qFuzzyCompare(theta1, theta2))
+            return p1.norm() < p2.norm();
+        else
+            return theta1 < theta2;
+    });
+
+    return translate(newPoint, meanCenter);
+}
+
+Eigen::Vector2f Logic::findMeanCenter(const QVector<Eigen::Vector2f> &points)
+{
+    float x = 0;
+    float y = 0;
+    for (const auto &point : points) {
+        x += point.x();
+        y += point.y();
+    }
+
+    return Eigen::Vector2f(x / points.size(), y / points.size());
+}
+
+QVector<Eigen::Vector2f> Logic::translate(const QVector<Eigen::Vector2f> &points, const Eigen::Vector2f &translation)
+{
+    QVector<Eigen::Vector2f> result;
+    for (const auto &point : points)
+        result << (point + translation);
+    return result;
+}
+
+QVector<Eigen::Vector2f> Logic::projectOntoXYPlane(const QVector<Eigen::Vector3f> &points)
+{
+    QVector<Eigen::Vector2f> result;
+
+    for (int i = 0; i < points.size(); ++i) {
+        result << Eigen::Vector2f(points[i].x(), points[i].y());
+    }
+
+    return result;
 }
 
 Logic &Logic::getInstance()
