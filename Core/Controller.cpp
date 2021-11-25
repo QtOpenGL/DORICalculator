@@ -120,13 +120,29 @@ void Controller::onDirty()
 {
     QObject *sender = QObject::sender();
     if (sender == mSideViewWidget) {
-        mLogicParameters->camera.height = mSideViewWidgetParameters->camera.height;
-        mLogicParameters->target.height = mSideViewWidgetParameters->target.height;
-        mLogicParameters->target.distance = mSideViewWidgetParameters->target.distance;
+        if (!qFuzzyCompare(mLogicParameters->target.height, mSideViewWidgetParameters->target.height)) {
+            mLogicParameters->target.height = mLogic.validateTargetHeight(mSideViewWidgetParameters->target.height);
+        }
+
+        if (!qFuzzyCompare(mLogicParameters->target.distance, mSideViewWidgetParameters->target.distance)) {
+            mLogicParameters->target.distance = mLogic.validateTargetDistance(mSideViewWidgetParameters->target.distance);
+        }
+
+        if (!qFuzzyCompare(mLogicParameters->camera.height, mSideViewWidgetParameters->camera.height)) {
+            mLogicParameters->camera.height = mLogic.validateCameraHeight(mSideViewWidgetParameters->camera.height);
+        }
+
         mLogicParameters->lowerBoundary.height = mSideViewWidgetParameters->lowerBoundary.height;
+
     } else if (sender == mTopViewWidget) {
-        mLogicParameters->target.distance = mTopViewWidgetParameters->targetDistance;
-        mLogicParameters->target.fovWidth = mTopViewWidgetParameters->fovWidth;
+        if (!qFuzzyCompare(mLogicParameters->target.distance, mTopViewWidgetParameters->targetDistance)) {
+            mLogicParameters->target.distance = mLogic.validateTargetDistance(mTopViewWidgetParameters->targetDistance);
+        }
+
+        if (!qFuzzyCompare(mLogicParameters->target.fovWidth, mTopViewWidgetParameters->fovWidth)) {
+            mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mTopViewWidgetParameters->fovWidth);
+            mLogicParameters->target.fovWidth = mTopViewWidgetParameters->fovWidth;
+        }
     }
 
     update();
@@ -162,9 +178,9 @@ void Controller::init()
     mLogicParameters->camera.sensor.height = 1080.0f;
     mLogicParameters->camera.sensor.aspectRatio = 1920.0f / 1080.0f;
     mLogicParameters->target.fovWidth = 10;
-    mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mLogicParameters->target, mLogicParameters->camera);
 
     mLogic.setParameters(mLogicParameters);
+    mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(10);
 
     mCentralWidget = new CentralWidget;
     mCentralWidget->init();

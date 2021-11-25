@@ -66,7 +66,11 @@ public:
     static Logic &getInstance();
     void calculate();
     QVector<Eigen::Vector3f> findIntersection(const Region &region, const Eigen::Hyperplane<float, 3> &plane);
-    float calculateHorizontalFovForGivenFovWidth(const Entity &entity, const Camera &camera);
+
+    float calculateHorizontalFovForGivenFovWidth(float fovWidth);
+    float validateTargetDistance(float newTargetDistance);
+    float validateTargetHeight(float newTargetHeight);
+    float validateCameraHeight(float newCameraHeight);
 
     Parameters *parameters() const;
     void setParameters(Parameters *newParameters);
