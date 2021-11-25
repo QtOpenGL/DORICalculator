@@ -63,33 +63,33 @@ void Controller::calculate()
 
     // TopViewWidgetParameters
     {
-        mTopViewWidgetParameters->targetDistance = mLogicParameters->target.distance;
-        mTopViewWidgetParameters->fovWidth = mLogicParameters->target.fovWidth;
+        mTopViewWidgetParameters->target.distance = mLogicParameters->target.distance;
+        mTopViewWidgetParameters->target.fovWidth = mLogicParameters->target.fovWidth;
 
         for (int i = 0; i < 4; ++i) {
-            mTopViewWidgetParameters->ground[i] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);
-            mTopViewWidgetParameters->target[i] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
-            mTopViewWidgetParameters->lowerBoundary[i] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
+            mTopViewWidgetParameters->groundIntersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);
+            mTopViewWidgetParameters->targetIntersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
+            mTopViewWidgetParameters->lowerBoundaryIntersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
         }
 
         QPolygonF targetRoi;
 
         if (mLogicParameters->camera.height <= mLogicParameters->target.height) {
             targetRoi.append(mTopViewWidget->mapFrom3d(0, 0));
-            targetRoi.append(mTopViewWidgetParameters->target[0]);
-            targetRoi.append(mTopViewWidgetParameters->target[3]);
+            targetRoi.append(mTopViewWidgetParameters->targetIntersections[0]);
+            targetRoi.append(mTopViewWidgetParameters->targetIntersections[3]);
         } else {
-            targetRoi.append(mTopViewWidgetParameters->target[0]);
-            targetRoi.append(mTopViewWidgetParameters->target[1]);
-            targetRoi.append(mTopViewWidgetParameters->target[2]);
-            targetRoi.append(mTopViewWidgetParameters->target[3]);
+            targetRoi.append(mTopViewWidgetParameters->targetIntersections[0]);
+            targetRoi.append(mTopViewWidgetParameters->targetIntersections[1]);
+            targetRoi.append(mTopViewWidgetParameters->targetIntersections[2]);
+            targetRoi.append(mTopViewWidgetParameters->targetIntersections[3]);
         }
 
         QPolygonF lowerBoundaryRoi;
-        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary[0]);
-        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary[1]);
-        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary[2]);
-        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary[3]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundaryIntersections[0]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundaryIntersections[1]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundaryIntersections[2]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundaryIntersections[3]);
 
         QPolygonF roi = lowerBoundaryRoi.intersected(targetRoi);
 
@@ -135,13 +135,13 @@ void Controller::onDirty()
         mLogicParameters->lowerBoundary.height = mSideViewWidgetParameters->lowerBoundary.height;
 
     } else if (sender == mTopViewWidget) {
-        if (!qFuzzyCompare(mLogicParameters->target.distance, mTopViewWidgetParameters->targetDistance)) {
-            mLogicParameters->target.distance = mLogic.validateTargetDistance(mTopViewWidgetParameters->targetDistance);
+        if (!qFuzzyCompare(mLogicParameters->target.distance, mTopViewWidgetParameters->target.distance)) {
+            mLogicParameters->target.distance = mLogic.validateTargetDistance(mTopViewWidgetParameters->target.distance);
         }
 
-        if (!qFuzzyCompare(mLogicParameters->target.fovWidth, mTopViewWidgetParameters->fovWidth)) {
-            mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mTopViewWidgetParameters->fovWidth);
-            mLogicParameters->target.fovWidth = mTopViewWidgetParameters->fovWidth;
+        if (!qFuzzyCompare(mLogicParameters->target.fovWidth, mTopViewWidgetParameters->target.fovWidth)) {
+            mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mTopViewWidgetParameters->target.fovWidth);
+            mLogicParameters->target.fovWidth = mTopViewWidgetParameters->target.fovWidth;
         }
     }
 
@@ -212,7 +212,7 @@ void Controller::init()
 
 void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
 {
-    if (newMeterToPixelRatio < 4.0 || newMeterToPixelRatio > 128.0f) {
+    if (newMeterToPixelRatio < 2.0 || newMeterToPixelRatio > 128.0f) {
         return;
     }
 

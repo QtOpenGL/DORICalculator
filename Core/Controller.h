@@ -28,6 +28,7 @@ public:
     {
         float height;
         float distance;
+        float fovWidth;
         QPointF position;
     };
 
@@ -51,11 +52,10 @@ public:
 
     struct TopViewWidgetParamaters
     {
-        float targetDistance;
-        float fovWidth;
-        QPointF ground[4];
-        QPointF target[4];
-        QPointF lowerBoundary[4];
+        Target target;
+        QPointF groundIntersections[4];
+        QPointF targetIntersections[4];
+        QPointF lowerBoundaryIntersections[4];
         Region regions[NUMBER_OF_REGIONS];
     };
 

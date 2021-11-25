@@ -112,9 +112,9 @@ Eigen::Vector3f TopViewWidget::mapFrom2d(float x, float y)
 
 void TopViewWidget::updateHandles()
 {
-    mTargetHandle.setCenter(mapFrom3d(Eigen::Vector3f(mParameters->targetDistance, 0, 0)));
-    mFovWidthHandleTop.setCenter(mParameters->target[0]);
-    mFovWidthHandleBottom.setCenter(mParameters->target[3]);
+    mTargetHandle.setCenter(mapFrom3d(Eigen::Vector3f(mParameters->target.distance, 0, 0)));
+    mFovWidthHandleTop.setCenter(mParameters->targetIntersections[0]);
+    mFovWidthHandleBottom.setCenter(mParameters->targetIntersections[3]);
     mCameraHandle.setCenter(mOrigin.x(), mOrigin.y());
 }
 
@@ -147,10 +147,10 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     // Draw ground and frustum intersection
     painter.setRenderHint(QPainter::Antialiasing, true);
     QPainterPath path;
-    path.moveTo(mParameters->ground[0]);
-    path.lineTo(mParameters->ground[1]);
-    path.lineTo(mParameters->ground[2]);
-    path.lineTo(mParameters->ground[3]);
+    path.moveTo(mParameters->groundIntersections[0]);
+    path.lineTo(mParameters->groundIntersections[1]);
+    path.lineTo(mParameters->groundIntersections[2]);
+    path.lineTo(mParameters->groundIntersections[3]);
     path.closeSubpath();
     mSolidPen.setColor(QColor(128, 128, 128));
     mSolidPen.setWidth(1);
@@ -163,15 +163,15 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     mSolidPen.setWidth(1);
     mSolidPen.setCapStyle(Qt::FlatCap);
     painter.setPen(mSolidPen);
-    painter.drawLine(mOrigin, mParameters->ground[1]);
-    painter.drawLine(mOrigin, mParameters->ground[2]);
-    painter.drawLine(mOrigin, mParameters->target[0]);
-    painter.drawLine(mOrigin, mParameters->target[3]);
+    painter.drawLine(mOrigin, mParameters->groundIntersections[1]);
+    painter.drawLine(mOrigin, mParameters->groundIntersections[2]);
+    painter.drawLine(mOrigin, mParameters->targetIntersections[0]);
+    painter.drawLine(mOrigin, mParameters->targetIntersections[3]);
 
     mDashedPen.setColor(QColor(128, 128, 128));
     painter.setPen(mDashedPen);
-    painter.drawLine(mParameters->target[0], mParameters->ground[0]);
-    painter.drawLine(mParameters->target[3], mParameters->ground[3]);
+    painter.drawLine(mParameters->targetIntersections[0], mParameters->groundIntersections[0]);
+    painter.drawLine(mParameters->targetIntersections[3], mParameters->groundIntersections[3]);
 
     // Draw FOV Width
     painter.setRenderHint(QPainter::Antialiasing, false);
@@ -213,12 +213,12 @@ void TopViewWidget::mouseMoveEvent(QMouseEvent *event)
 
     if (mTargetHandle.pressed()) {
         isDirty = true;
-        mParameters->targetDistance += (event->pos() - mOldMousePosition).x() / mMeterToPixelRatio;
+        mParameters->target.distance += (event->pos() - mOldMousePosition).x() / mMeterToPixelRatio;
     }
 
     if (mFovWidthHandleTop.pressed() || mFovWidthHandleBottom.pressed()) {
         isDirty = true;
-        mParameters->fovWidth += 2 * (mOldMousePosition - event->pos()).y() / mMeterToPixelRatio;
+        mParameters->target.fovWidth += 2 * (mOldMousePosition - event->pos()).y() / mMeterToPixelRatio;
     }
 
     if (isDirty)
