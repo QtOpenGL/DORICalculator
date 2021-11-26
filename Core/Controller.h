@@ -28,14 +28,25 @@ public:
 
     struct Target
     {
+        float fovWidth;
         float height;
         float distance;
-        float fovWidth;
         QPointF position;
+        QPointF intersections[4];
     };
 
-    struct LowerBoundary : Target
-    {};
+    struct LowerBoundary
+    {
+        float height;
+        float distance;
+        QPointF position;
+        QPointF intersections[4];
+    };
+
+    struct Ground
+    {
+        QPointF intersections[4];
+    };
 
     struct Region
     {
@@ -47,17 +58,18 @@ public:
     {
         Camera camera;
         Target target;
+        Ground ground;
         LowerBoundary lowerBoundary;
-        QPointF points[4];
         Region regions[NUMBER_OF_REGIONS];
+        QPointF bisectorIntersection;
+        QPointF oppositeBisectorIntersection;
     };
 
     struct TopViewWidgetParamaters
     {
         Target target;
-        QPointF groundIntersections[4];
-        QPointF targetIntersections[4];
-        QPointF lowerBoundaryIntersections[4];
+        Ground ground;
+        LowerBoundary lowerBoundary;
         Region regions[NUMBER_OF_REGIONS];
     };
 

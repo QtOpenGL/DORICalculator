@@ -113,8 +113,8 @@ Eigen::Vector3f TopViewWidget::mapFrom2d(float x, float y)
 void TopViewWidget::updateHandles()
 {
     mTargetHandle.setCenter(mapFrom3d(Eigen::Vector3f(mParameters->target.distance, 0, 0)));
-    mFovWidthHandleTop.setCenter(mParameters->targetIntersections[0]);
-    mFovWidthHandleBottom.setCenter(mParameters->targetIntersections[3]);
+    mFovWidthHandleTop.setCenter(mParameters->target.intersections[0]);
+    mFovWidthHandleBottom.setCenter(mParameters->target.intersections[3]);
     mCameraHandle.setCenter(mOrigin.x(), mOrigin.y());
 }
 
@@ -146,10 +146,10 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     // Draw ground and frustum intersection
     painter.setRenderHint(QPainter::Antialiasing, true);
     QPainterPath path;
-    path.moveTo(mParameters->groundIntersections[0]);
-    path.lineTo(mParameters->groundIntersections[1]);
-    path.lineTo(mParameters->groundIntersections[2]);
-    path.lineTo(mParameters->groundIntersections[3]);
+    path.moveTo(mParameters->ground.intersections[0]);
+    path.lineTo(mParameters->ground.intersections[1]);
+    path.lineTo(mParameters->ground.intersections[2]);
+    path.lineTo(mParameters->ground.intersections[3]);
     path.closeSubpath();
     mSolidPen.setColor(QColor(128, 128, 128));
     mSolidPen.setWidth(1);
@@ -162,15 +162,15 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     mSolidPen.setWidth(1);
     mSolidPen.setCapStyle(Qt::FlatCap);
     painter.setPen(mSolidPen);
-    painter.drawLine(mOrigin, mParameters->groundIntersections[1]);
-    painter.drawLine(mOrigin, mParameters->groundIntersections[2]);
-    painter.drawLine(mOrigin, mParameters->targetIntersections[0]);
-    painter.drawLine(mOrigin, mParameters->targetIntersections[3]);
+    painter.drawLine(mOrigin, mParameters->ground.intersections[1]);
+    painter.drawLine(mOrigin, mParameters->ground.intersections[2]);
+    painter.drawLine(mOrigin, mParameters->target.intersections[0]);
+    painter.drawLine(mOrigin, mParameters->target.intersections[3]);
 
     mDashedPen.setColor(QColor(128, 128, 128));
     painter.setPen(mDashedPen);
-    painter.drawLine(mParameters->targetIntersections[0], mParameters->groundIntersections[0]);
-    painter.drawLine(mParameters->targetIntersections[3], mParameters->groundIntersections[3]);
+    painter.drawLine(mParameters->target.intersections[0], mParameters->ground.intersections[0]);
+    painter.drawLine(mParameters->target.intersections[3], mParameters->ground.intersections[3]);
 
     // Draw FOV Width
     painter.setRenderHint(QPainter::Antialiasing, false);

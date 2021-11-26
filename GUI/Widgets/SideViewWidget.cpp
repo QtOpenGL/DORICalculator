@@ -161,8 +161,8 @@ void SideViewWidget::paintEvent(QPaintEvent *)
         // Opposite bisector and bisector
         mDashedPen.setColor(QColor(0, 102, 213));
         painter.setPen(mDashedPen);
-        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[0]);
-        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[1]);
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->bisectorIntersection);
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->oppositeBisectorIntersection);
     }
 
     {
@@ -171,10 +171,10 @@ void SideViewWidget::paintEvent(QPaintEvent *)
 
         mDashedPen.setColor(QColor(128, 128, 128));
         painter.setPen(mDashedPen);
-        painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->points[2]);
+        painter.drawLine(mTargetHeightHandle.getCenter(), mParameters->ground.intersections[0]);
 
         painter.setPen(QColor(0, 102, 213));
-        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->points[3]);
+        painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->ground.intersections[1]);
     }
 
     // Draw tilt angle reference line

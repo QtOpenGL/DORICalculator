@@ -36,12 +36,17 @@ void Controller::calculate()
         mSideViewWidgetParameters->lowerBoundary.distance = mLogicParameters->lowerBoundary.distance;
         mSideViewWidgetParameters->lowerBoundary.position = mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height);
 
-        mSideViewWidgetParameters->points[0] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.oppositeBisectorRay);
-        mSideViewWidgetParameters->points[1] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bisectorRay);
-        mSideViewWidgetParameters->points[2] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[0]);
-        mSideViewWidgetParameters->points[3] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[1]);
+        for (int i = 0; i < 4; ++i) {
+            mSideViewWidgetParameters->ground.intersections[i] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);
+            mSideViewWidgetParameters->target.intersections[i] = mSideViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
+            mSideViewWidgetParameters->lowerBoundary.intersections[i] = mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
+        }
+
+        mSideViewWidgetParameters->bisectorIntersection = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.oppositeBisectorRay);
+        mSideViewWidgetParameters->oppositeBisectorIntersection = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bisectorRay);
 
         QPolygonF roi;
+
         roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->target.height));
         roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->lowerBoundary.height));
         roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height));
@@ -67,29 +72,29 @@ void Controller::calculate()
         mTopViewWidgetParameters->target.fovWidth = mLogicParameters->target.fovWidth;
 
         for (int i = 0; i < 4; ++i) {
-            mTopViewWidgetParameters->groundIntersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);
-            mTopViewWidgetParameters->targetIntersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
-            mTopViewWidgetParameters->lowerBoundaryIntersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
+            mTopViewWidgetParameters->ground.intersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);
+            mTopViewWidgetParameters->target.intersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
+            mTopViewWidgetParameters->lowerBoundary.intersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
         }
 
         QPolygonF targetRoi;
 
         if (mLogicParameters->camera.height <= mLogicParameters->target.height) {
             targetRoi.append(mTopViewWidget->mapFrom3d(0, 0));
-            targetRoi.append(mTopViewWidgetParameters->targetIntersections[0]);
-            targetRoi.append(mTopViewWidgetParameters->targetIntersections[3]);
+            targetRoi.append(mTopViewWidgetParameters->target.intersections[0]);
+            targetRoi.append(mTopViewWidgetParameters->target.intersections[3]);
         } else {
-            targetRoi.append(mTopViewWidgetParameters->targetIntersections[0]);
-            targetRoi.append(mTopViewWidgetParameters->targetIntersections[1]);
-            targetRoi.append(mTopViewWidgetParameters->targetIntersections[2]);
-            targetRoi.append(mTopViewWidgetParameters->targetIntersections[3]);
+            targetRoi.append(mTopViewWidgetParameters->target.intersections[0]);
+            targetRoi.append(mTopViewWidgetParameters->target.intersections[1]);
+            targetRoi.append(mTopViewWidgetParameters->target.intersections[2]);
+            targetRoi.append(mTopViewWidgetParameters->target.intersections[3]);
         }
 
         QPolygonF lowerBoundaryRoi;
-        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundaryIntersections[0]);
-        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundaryIntersections[1]);
-        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundaryIntersections[2]);
-        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundaryIntersections[3]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary.intersections[0]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary.intersections[1]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary.intersections[2]);
+        lowerBoundaryRoi.append(mTopViewWidgetParameters->lowerBoundary.intersections[3]);
 
         QPolygonF roi = lowerBoundaryRoi.intersected(targetRoi);
 
