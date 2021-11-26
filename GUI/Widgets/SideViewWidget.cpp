@@ -124,7 +124,7 @@ void SideViewWidget::paintEvent(QPaintEvent *)
 
     // Regions
     {
-        painter.setRenderHint(QPainter::Antialiasing, false);
+        painter.setRenderHint(QPainter::Antialiasing, true);
         for (int i = 0; i < NUMBER_OF_REGIONS; i++) {
             if (mParameters->regions[i].visible) {
                 QPainterPath path;
@@ -137,7 +137,6 @@ void SideViewWidget::paintEvent(QPaintEvent *)
                 painter.fillPath(path, brush);
             }
         }
-        painter.setRenderHint(QPainter::Antialiasing, true);
     }
 
     // Draw target height line

@@ -7,13 +7,13 @@ CentralWidget::CentralWidget(QWidget *parent)
 
 void CentralWidget::init()
 {
-    QVBoxLayout *containerLayout = new QVBoxLayout;
-
+    QHBoxLayout *mainLayout = new QHBoxLayout;
+    QVBoxLayout *viewLayout = new QVBoxLayout;
     // SideViewWidget
     {
         mSideViewTitle = new QLabel("SideViewWidget");
         mSideViewTitle->setAlignment(Qt::AlignLeft);
-        containerLayout->addWidget(mSideViewTitle);
+        viewLayout->addWidget(mSideViewTitle);
 
         QGridLayout *layout = new QGridLayout;
         mAxisWidget = new AxisWidget;
@@ -24,21 +24,27 @@ void CentralWidget::init()
         mSideViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         layout->addWidget(mSideViewWidget, 0, 0);
 
-        containerLayout->addLayout(layout);
+        viewLayout->addLayout(layout);
     }
 
     // TopViewWidget
     {
         mTopViewTitle = new QLabel("TopViewWidget");
         mTopViewTitle->setAlignment(Qt::AlignLeft);
-        containerLayout->addWidget(mTopViewTitle);
+        viewLayout->addWidget(mTopViewTitle);
 
         mTopViewWidget = new TopViewWidget;
         mTopViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        containerLayout->addWidget(mTopViewWidget);
+        viewLayout->addWidget(mTopViewWidget);
     }
 
-    setLayout(containerLayout);
+    {
+        mLeftWidget = new LeftWidget;
+        mainLayout->addWidget(mLeftWidget);
+    }
+
+    mainLayout->addLayout(viewLayout);
+    setLayout(mainLayout);
 }
 
 SideViewWidget *CentralWidget::sideViewWidget() const
@@ -54,4 +60,9 @@ TopViewWidget *CentralWidget::topViewWidget() const
 AxisWidget *CentralWidget::axisWidget() const
 {
     return mAxisWidget;
+}
+
+LeftWidget *CentralWidget::leftWidget() const
+{
+    return mLeftWidget;
 }

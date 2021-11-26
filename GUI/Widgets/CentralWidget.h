@@ -1,6 +1,7 @@
 #ifndef CENTRALWIDGET_H
 #define CENTRALWIDGET_H
 
+#include "LeftWidget.h"
 #include "SideViewWidget.h"
 #include "TopViewWidget.h"
 
@@ -21,11 +22,13 @@ public:
     SideViewWidget *sideViewWidget() const;
     TopViewWidget *topViewWidget() const;
     AxisWidget *axisWidget() const;
+    LeftWidget *leftWidget() const;
 
 private:
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;
     AxisWidget *mAxisWidget;
+    LeftWidget *mLeftWidget;
 
     QLabel *mSideViewTitle;
     QLabel *mTopViewTitle;

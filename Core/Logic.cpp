@@ -23,6 +23,8 @@ void Logic::setParameters(Logic::Parameters *newParameters)
 
 void Logic::calculate()
 {
+    mParameters->camera.sensor.aspectRatio = mParameters->camera.sensor.width / mParameters->camera.sensor.height;
+
     const float lowerBoundaryHeight = qMax(0.0f,
                                            qMin(mParameters->lowerBoundary.height - 0.0001f, qMin(mParameters->target.height - 0.0001f, mParameters->camera.height - 0.0001f)));
     const Eigen::Vector3f cameraPosition = Eigen::Vector3f(0, 0, mParameters->camera.height);

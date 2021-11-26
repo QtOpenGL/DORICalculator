@@ -3,7 +3,6 @@
 
 #include "Enums.h"
 #include <Dependencies/Eigen/Dense>
-
 #include <QVector>
 
 class Logic

@@ -12,7 +12,7 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
     , mLogic(Logic::getInstance())
     , mZoomStepSize(2.0f)
-    , mOrigin(128, 368)
+    , mOrigin(368, 368)
 {}
 
 CentralWidget *Controller::centralWidget()
@@ -107,6 +107,11 @@ void Controller::calculate()
             mTopViewWidgetParameters->regions[i].visible = !region.isEmpty();
         }
     }
+
+    // LeftWidgetParameters
+    {
+        *mLeftWidgetParameters = *mLogicParameters;
+    }
 }
 
 void Controller::update()
@@ -114,35 +119,41 @@ void Controller::update()
     calculate();
     mSideViewWidget->refresh();
     mTopViewWidget->refresh();
+    mLeftWidget->refresh();
 }
 
 void Controller::onDirty()
 {
     QObject *sender = QObject::sender();
     if (sender == mSideViewWidget) {
-        if (!qFuzzyCompare(mLogicParameters->target.height, mSideViewWidgetParameters->target.height)) {
-            mLogicParameters->target.height = mLogic.validateTargetHeight(mSideViewWidgetParameters->target.height);
-        }
-
-        if (!qFuzzyCompare(mLogicParameters->target.distance, mSideViewWidgetParameters->target.distance)) {
-            mLogicParameters->target.distance = mLogic.validateTargetDistance(mSideViewWidgetParameters->target.distance);
-        }
-
-        if (!qFuzzyCompare(mLogicParameters->camera.height, mSideViewWidgetParameters->camera.height)) {
-            mLogicParameters->camera.height = mLogic.validateCameraHeight(mSideViewWidgetParameters->camera.height);
-        }
-
+        mLogicParameters->target.height = mLogic.validateTargetHeight(mSideViewWidgetParameters->target.height);
+        mLogicParameters->target.distance = mLogic.validateTargetDistance(mSideViewWidgetParameters->target.distance);
+        mLogicParameters->camera.height = mLogic.validateCameraHeight(mSideViewWidgetParameters->camera.height);
         mLogicParameters->lowerBoundary.height = mSideViewWidgetParameters->lowerBoundary.height;
 
     } else if (sender == mTopViewWidget) {
-        if (!qFuzzyCompare(mLogicParameters->target.distance, mTopViewWidgetParameters->target.distance)) {
-            mLogicParameters->target.distance = mLogic.validateTargetDistance(mTopViewWidgetParameters->target.distance);
-        }
+        mLogicParameters->target.distance = mLogic.validateTargetDistance(mTopViewWidgetParameters->target.distance);
+        mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mTopViewWidgetParameters->target.fovWidth);
+        mLogicParameters->target.fovWidth = mTopViewWidgetParameters->target.fovWidth;
 
-        if (!qFuzzyCompare(mLogicParameters->target.fovWidth, mTopViewWidgetParameters->target.fovWidth)) {
-            mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mTopViewWidgetParameters->target.fovWidth);
-            mLogicParameters->target.fovWidth = mTopViewWidgetParameters->target.fovWidth;
-        }
+    } else if (sender == mLeftWidget) {
+        mLogicParameters->camera.height = mLogic.validateCameraHeight(mLeftWidgetParameters->camera.height);
+        mLogicParameters->camera.sensor.width = mLeftWidgetParameters->camera.sensor.width;
+        mLogicParameters->camera.sensor.height = mLeftWidgetParameters->camera.sensor.height;
+
+        mLogicParameters->frustum.zNear = mLeftWidgetParameters->frustum.zNear;
+        mLogicParameters->frustum.zFar = mLeftWidgetParameters->frustum.zFar;
+
+        mLogicParameters->target.height = mLeftWidgetParameters->target.height;
+        mLogicParameters->target.distance = mLeftWidgetParameters->target.distance;
+
+        mLogicParameters->lowerBoundary.height = mLeftWidgetParameters->lowerBoundary.height;
+        mLogicParameters->lowerBoundary.distance = mLeftWidgetParameters->lowerBoundary.distance;
+
+        if (!qFuzzyCompare(mLogicParameters->target.fovWidth, mLeftWidgetParameters->target.fovWidth))
+            mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mLeftWidgetParameters->target.fovWidth);
+        else
+            mLogicParameters->frustum.horizontalFov = mLeftWidgetParameters->frustum.horizontalFov;
     }
 
     update();
@@ -171,7 +182,7 @@ void Controller::init()
     mLogicParameters->lowerBoundary.height = 0;
     mLogicParameters->lowerBoundary.distance = 0;
 
-    mLogicParameters->frustum.zNear = 0.0001;
+    mLogicParameters->frustum.zNear = 0.1;
     mLogicParameters->frustum.zFar = 1000;
 
     mLogicParameters->camera.sensor.width = 1920.0f;
@@ -195,6 +206,10 @@ void Controller::init()
 
     mAxisWidget = mCentralWidget->axisWidget();
 
+    mLeftWidgetParameters = new Logic::Parameters;
+    mLeftWidget = mCentralWidget->leftWidget();
+    mLeftWidget->setParameters(mLeftWidgetParameters);
+
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
     connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
@@ -203,6 +218,8 @@ void Controller::init()
     connect(mTopViewWidget, &TopViewWidget::dirty, this, &Controller::onDirty);
     connect(mTopViewWidget, &TopViewWidget::zoom, this, &Controller::onZoom);
     connect(mTopViewWidget, &TopViewWidget::pan, this, &Controller::onPan);
+
+    connect(mLeftWidget, &LeftWidget::dirty, this, &Controller::onDirty);
 
     setMeterToPixelRatio(10);
     setOrigin(mOrigin);

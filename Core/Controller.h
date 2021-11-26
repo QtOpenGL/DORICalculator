@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include "Logic.h"
+#include <GUI/Widgets/LeftWidget.h>
 #include <QObject>
 #include <QPolygonF>
 #include <QVector2D>
@@ -16,11 +17,12 @@ class Controller : public QObject
     Q_OBJECT
 public:
     explicit Controller(QObject *parent = nullptr);
-
     struct Camera
     {
         float height;
         float tiltAngle;
+        float horizontalFov;
+        float verticalFov;
         QPointF position;
     };
 
@@ -79,11 +81,13 @@ private:
     Logic::Parameters *mLogicParameters;
     SideViewWidgetParameters *mSideViewWidgetParameters;
     TopViewWidgetParamaters *mTopViewWidgetParameters;
+    Logic::Parameters *mLeftWidgetParameters;
 
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;
     CentralWidget *mCentralWidget;
     AxisWidget *mAxisWidget;
+    LeftWidget *mLeftWidget;
 
     const float mZoomStepSize;
 
