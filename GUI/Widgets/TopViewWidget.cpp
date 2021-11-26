@@ -112,10 +112,24 @@ Eigen::Vector3f TopViewWidget::mapFrom2d(float x, float y)
 
 void TopViewWidget::updateHandles()
 {
-    mTargetHandle.setCenter(mapFrom3d(Eigen::Vector3f(mParameters->target.distance, 0, 0)));
-    mFovWidthHandleTop.setCenter(mParameters->target.intersections[0]);
-    mFovWidthHandleBottom.setCenter(mParameters->target.intersections[3]);
+    mTargetHandle.setCenter(mapFrom3d(mParameters->target.distance, 0));
+    mFovWidthHandleTop.setCenter(mapFrom3d(mParameters->target.distance, 0.5 * mParameters->target.fovWidth));
+    mFovWidthHandleBottom.setCenter(mapFrom3d(mParameters->target.distance, -0.5 * mParameters->target.fovWidth));
     mCameraHandle.setCenter(mOrigin.x(), mOrigin.y());
+}
+
+void TopViewWidget::updateCursor()
+{
+    bool horizontalCursor = mTargetHandle.hovered() || mTargetHandle.pressed();
+    bool verticalCursor = mFovWidthHandleTop.hovered() || mFovWidthHandleTop.pressed();
+    verticalCursor = verticalCursor || mFovWidthHandleBottom.hovered() || mFovWidthHandleBottom.pressed();
+
+    if (verticalCursor)
+        this->setCursor(Qt::SizeVerCursor);
+    else if (horizontalCursor)
+        this->setCursor(Qt::SizeHorCursor);
+    else
+        this->setCursor(Qt::ArrowCursor);
 }
 
 void TopViewWidget::paintEvent(QPaintEvent *)
@@ -230,6 +244,7 @@ void TopViewWidget::mouseMoveEvent(QMouseEvent *event)
         update();
 
     mOldMousePosition = event->pos();
+    updateCursor();
 }
 
 void TopViewWidget::mouseReleaseEvent(QMouseEvent *event)

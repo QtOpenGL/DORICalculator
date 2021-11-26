@@ -79,7 +79,11 @@ void Controller::calculate()
 
         QPolygonF targetRoi;
 
-        if (mLogicParameters->camera.height <= mLogicParameters->target.height) {
+        if (abs(mLogicParameters->camera.height - mLogicParameters->target.height) < 0.0001f) {
+            targetRoi.append(mTopViewWidget->mapFrom3d(mTopViewWidgetParameters->target.distance, 0.5f * mTopViewWidgetParameters->target.fovWidth));
+            targetRoi.append(mTopViewWidget->mapFrom3d(0, 0));
+            targetRoi.append(mTopViewWidget->mapFrom3d(mTopViewWidgetParameters->target.distance, -0.5f * mTopViewWidgetParameters->target.fovWidth));
+        } else if (mLogicParameters->camera.height < mLogicParameters->target.height) {
             targetRoi.append(mTopViewWidget->mapFrom3d(0, 0));
             targetRoi.append(mTopViewWidgetParameters->target.intersections[0]);
             targetRoi.append(mTopViewWidgetParameters->target.intersections[3]);

@@ -31,6 +31,7 @@ public slots:
 
 private:
     void updateHandles();
+    void updateCursor();
 
     void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *) override;

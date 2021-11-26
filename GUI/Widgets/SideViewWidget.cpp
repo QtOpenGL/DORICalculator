@@ -286,6 +286,7 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
         update();
 
     mOldMousePosition = event->pos();
+    updateCursor();
 }
 
 void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)
@@ -326,4 +327,19 @@ void SideViewWidget::updateHandles()
     mTargetDistanceHandle.setCenter(mParameters->target.position.x(), mOrigin.y());
     mCameraHeightHandle.setCenter(mParameters->camera.position);
     mLowerBoundaryHandle.setCenter(mParameters->lowerBoundary.position);
+}
+
+void SideViewWidget::updateCursor()
+{
+    bool verticalCursor = mTargetHeightHandle.hovered() || mTargetHeightHandle.pressed();
+    verticalCursor = verticalCursor || mCameraHeightHandle.hovered() || mCameraHeightHandle.pressed();
+    verticalCursor = verticalCursor || mLowerBoundaryHandle.hovered() || mLowerBoundaryHandle.pressed();
+    bool horizontalCursor = mTargetDistanceHandle.hovered() || mTargetDistanceHandle.pressed();
+
+    if (verticalCursor)
+        this->setCursor(Qt::SizeVerCursor);
+    else if (horizontalCursor)
+        this->setCursor(Qt::SizeHorCursor);
+    else
+        this->setCursor(Qt::ArrowCursor);
 }
