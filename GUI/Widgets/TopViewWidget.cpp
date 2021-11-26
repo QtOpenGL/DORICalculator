@@ -157,42 +157,64 @@ void TopViewWidget::paintEvent(QPaintEvent *)
         }
     }
 
-    // Draw ground and frustum intersection
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    QPainterPath path;
-    path.moveTo(mParameters->ground.intersections[0]);
-    path.lineTo(mParameters->ground.intersections[1]);
-    path.lineTo(mParameters->ground.intersections[2]);
-    path.lineTo(mParameters->ground.intersections[3]);
-    path.closeSubpath();
-    mSolidPen.setColor(QColor(128, 128, 128));
-    mSolidPen.setWidth(1);
-    mSolidPen.setCapStyle(Qt::FlatCap);
-    painter.setPen(mSolidPen);
-    painter.drawPath(path);
+    {
+        // Draw ground and frustum intersection
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        QPainterPath path;
+        path.moveTo(mParameters->ground.intersections[0]);
+        path.lineTo(mParameters->ground.intersections[1]);
+        path.lineTo(mParameters->ground.intersections[2]);
+        path.lineTo(mParameters->ground.intersections[3]);
+        path.closeSubpath();
+        mSolidPen.setColor(QColor(128, 128, 128));
+        mSolidPen.setWidth(1);
+        mSolidPen.setCapStyle(Qt::FlatCap);
+        painter.setPen(mSolidPen);
+        painter.drawPath(path);
+    }
 
     // Draw frustum and target intersection
-    mSolidPen.setColor(QColor(0, 102, 213));
-    mSolidPen.setWidth(1);
-    mSolidPen.setCapStyle(Qt::FlatCap);
-    painter.setPen(mSolidPen);
-    painter.drawLine(mOrigin, mParameters->ground.intersections[1]);
-    painter.drawLine(mOrigin, mParameters->ground.intersections[2]);
-    painter.drawLine(mOrigin, mParameters->target.intersections[0]);
-    painter.drawLine(mOrigin, mParameters->target.intersections[3]);
+    {
+        mSolidPen.setColor(QColor(0, 102, 213));
+        mSolidPen.setWidth(1);
+        mSolidPen.setCapStyle(Qt::FlatCap);
+        painter.setPen(mSolidPen);
+        painter.drawLine(mOrigin, mParameters->ground.intersections[1]);
+        painter.drawLine(mOrigin, mParameters->ground.intersections[2]);
+        painter.drawLine(mOrigin, mParameters->target.intersections[0]);
+        painter.drawLine(mOrigin, mParameters->target.intersections[3]);
 
-    mDashedPen.setColor(QColor(128, 128, 128));
-    painter.setPen(mDashedPen);
-    painter.drawLine(mParameters->target.intersections[0], mParameters->ground.intersections[0]);
-    painter.drawLine(mParameters->target.intersections[3], mParameters->ground.intersections[3]);
+        mDashedPen.setColor(QColor(128, 128, 128));
+        painter.setPen(mDashedPen);
+        painter.drawLine(mParameters->target.intersections[0], mParameters->ground.intersections[0]);
+        painter.drawLine(mParameters->target.intersections[3], mParameters->ground.intersections[3]);
+    }
 
-    // Draw FOV Width
-    painter.setRenderHint(QPainter::Antialiasing, false);
-    mSolidPen.setColor(QColor(0, 128, 0));
-    mSolidPen.setWidth(3);
-    mSolidPen.setCapStyle(Qt::FlatCap);
-    painter.setPen(mSolidPen);
-    painter.drawLine(mFovWidthHandleBottom.getCenter(1, 0), mFovWidthHandleTop.getCenter(1, 0));
+    // Draw fov width line
+    {
+        painter.setRenderHint(QPainter::Antialiasing, false);
+        mSolidPen.setColor(QColor(0, 128, 0));
+        mSolidPen.setWidth(3);
+        mSolidPen.setCapStyle(Qt::FlatCap);
+        painter.setPen(mSolidPen);
+        painter.drawLine(mFovWidthHandleBottom.getCenter(1, 0), mFovWidthHandleTop.getCenter(1, 0));
+    }
+
+    // Draw fov width label
+    {
+        painter.setPen(QColor(0, 128, 0));
+        painter.setFont(mLabelFont);
+        QPointF point = QPointF(mTargetHandle.getCenter().x() + 12, mTargetHandle.getCenter().y() + mLabelFont.pixelSize() / 2);
+        painter.drawText(point, QString::number(mParameters->target.fovWidth, 'f', 2) + " m");
+    }
+
+    // Fill horizontal fov label
+    {
+        painter.setPen(QColor(0, 0, 0));
+        painter.setFont(mLabelFont);
+        QPointF point(mCameraHandle.getCenter().x() - 50, mCameraHandle.getCenter().y() + mLabelFont.pixelSize() / 2);
+        painter.drawText(point, QString::number(mParameters->camera.horizontalFov, 'f', 2) + " °");
+    }
 
     mCameraHandle.draw(this);
     mTargetHandle.draw(this);

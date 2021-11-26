@@ -28,6 +28,8 @@ void Controller::calculate()
     {
         mSideViewWidgetParameters->camera.tiltAngle = mLogicParameters->camera.tiltAngle;
         mSideViewWidgetParameters->camera.height = mLogicParameters->camera.height;
+        mSideViewWidgetParameters->camera.horizontalFov = mLogicParameters->frustum.horizontalFov;
+        mSideViewWidgetParameters->camera.verticalFov = mLogicParameters->frustum.verticalFov;
         mSideViewWidgetParameters->camera.position = mSideViewWidget->mapFrom3d(0, mLogicParameters->camera.height);
         mSideViewWidgetParameters->target.height = mLogicParameters->target.height;
         mSideViewWidgetParameters->target.distance = mLogicParameters->target.distance;
@@ -70,6 +72,10 @@ void Controller::calculate()
     {
         mTopViewWidgetParameters->target.distance = mLogicParameters->target.distance;
         mTopViewWidgetParameters->target.fovWidth = mLogicParameters->target.fovWidth;
+        mTopViewWidgetParameters->camera.tiltAngle = mLogicParameters->camera.tiltAngle;
+        mTopViewWidgetParameters->camera.height = mLogicParameters->camera.height;
+        mTopViewWidgetParameters->camera.horizontalFov = mLogicParameters->frustum.horizontalFov;
+        mTopViewWidgetParameters->camera.verticalFov = mLogicParameters->frustum.verticalFov;
 
         for (int i = 0; i < 4; ++i) {
             mTopViewWidgetParameters->ground.intersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);

@@ -67,6 +67,7 @@ public:
 
     struct TopViewWidgetParamaters
     {
+        Camera camera;
         Target target;
         Ground ground;
         LowerBoundary lowerBoundary;

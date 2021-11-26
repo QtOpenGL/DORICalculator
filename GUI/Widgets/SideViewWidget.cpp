@@ -155,7 +155,7 @@ void SideViewWidget::paintEvent(QPaintEvent *)
         painter.setPen(QColor(0, 128, 0));
         painter.setFont(mLabelFont);
         QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
-        painter.drawText(point, QString::number(mParameters->target.height, 'f', 1) + " m");
+        painter.drawText(point, QString::number(mParameters->target.height, 'f', 2) + " m");
     }
     {
         // Opposite bisector and bisector
