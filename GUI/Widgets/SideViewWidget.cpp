@@ -21,8 +21,6 @@ SideViewWidget::SideViewWidget(QWidget *parent)
         mDashedPen.setDashPattern(dashes);
         mDashedPen.setStyle(Qt::DashLine);
 
-        mSolidPen.setWidthF(1);
-
         mLabelFont = QFont("Arial");
         mLabelFont.setPixelSize(11);
 
@@ -129,11 +127,9 @@ void SideViewWidget::paintEvent(QPaintEvent *)
             if (mParameters->regions[i].visible) {
                 QPainterPath path;
                 path.addPolygon(mParameters->regions[i].region);
-
                 QBrush brush;
                 brush.setStyle(Qt::BrushStyle::SolidPattern);
                 brush.setColor(REGION_COLORS[i]);
-
                 painter.fillPath(path, brush);
             }
         }
@@ -143,22 +139,24 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     {
         painter.setRenderHint(QPainter::Antialiasing, false);
         QPen pen(QColor(0, 128, 0));
-        pen.setWidth(3);
+        pen.setWidthF(3);
         pen.setCapStyle(Qt::FlatCap);
         painter.setPen(pen);
         painter.drawLine(mTargetDistanceHandle.getCenter(1, 0), mTargetHeightHandle.getCenter(1, 0));
-        painter.setRenderHint(QPainter::Antialiasing, true);
     }
 
     // Draw target height label
     {
+        painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setPen(QColor(0, 128, 0));
         painter.setFont(mLabelFont);
         QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
         painter.drawText(point, QString::number(mParameters->target.height, 'f', 2) + " m");
     }
+
+    // Opposite bisector and bisector
     {
-        // Opposite bisector and bisector
+        painter.setRenderHint(QPainter::Antialiasing, true);
         mDashedPen.setColor(QColor(0, 102, 213));
         painter.setPen(mDashedPen);
         painter.drawLine(mCameraHeightHandle.getCenter(), mParameters->bisectorIntersection);
@@ -166,6 +164,7 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     }
 
     {
+        painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setPen(QColor(0, 102, 213));
         painter.drawLine(mCameraHeightHandle.getCenter(), mTargetHeightHandle.getCenter());
 
@@ -183,11 +182,11 @@ void SideViewWidget::paintEvent(QPaintEvent *)
         mDashedPen.setColor(QColor(128, 128, 128));
         painter.setPen(mDashedPen);
         painter.drawLine(mCameraHeightHandle.getCenter(), QPoint(0, mCameraHeightHandle.getCenter().y()));
-        painter.setRenderHint(QPainter::Antialiasing, true);
     }
 
     // Tilt angle
     {
+        painter.setRenderHint(QPainter::Antialiasing, true);
         QPainterPath path;
         path.moveTo(mCameraHeightHandle.getCenter().x(), mCameraHeightHandle.getCenter().y());
         path.arcTo(mCameraHeightHandle.getCenter().x() - 50, mCameraHeightHandle.getCenter().y() - 50, 100, 100, -180, -mParameters->camera.tiltAngle);
@@ -200,6 +199,7 @@ void SideViewWidget::paintEvent(QPaintEvent *)
 
     // Tilt angle label
     {
+        painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setFont(mLabelFont);
         painter.setPen(mLabelColor);
         QString label = QString::number(mParameters->camera.tiltAngle, 'f', 2) + " º";

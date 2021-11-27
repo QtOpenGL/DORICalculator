@@ -49,7 +49,6 @@ private:
 
     QBrush mCrossedPatternBursh;
     QPen mDashedPen;
-    QPen mSolidPen;
 
     QPoint mOldMousePosition;
 

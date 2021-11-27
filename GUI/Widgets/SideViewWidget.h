@@ -50,7 +50,6 @@ private:
     bool mMousePressedOnCanvas;
 
     QPen mDashedPen;
-    QPen mSolidPen;
     QFont mLabelFont;
     QColor mLabelColor;
 

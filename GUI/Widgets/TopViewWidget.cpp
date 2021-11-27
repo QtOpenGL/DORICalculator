@@ -18,8 +18,6 @@ TopViewWidget::TopViewWidget(QWidget *parent)
         mDashedPen.setDashPattern(dashes);
         mDashedPen.setStyle(Qt::DashLine);
 
-        mSolidPen.setWidthF(1);
-
         mLabelFont = QFont("Arial");
         mLabelFont.setPixelSize(11);
         mLabelColor = QColor(100, 100, 100);
@@ -160,25 +158,24 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     {
         // Draw ground and frustum intersection
         painter.setRenderHint(QPainter::Antialiasing, true);
-        QPainterPath path;
-        path.moveTo(mParameters->ground.intersections[0]);
-        path.lineTo(mParameters->ground.intersections[1]);
-        path.lineTo(mParameters->ground.intersections[2]);
-        path.lineTo(mParameters->ground.intersections[3]);
-        path.closeSubpath();
-        mSolidPen.setColor(QColor(128, 128, 128));
-        mSolidPen.setWidth(1);
-        mSolidPen.setCapStyle(Qt::FlatCap);
-        painter.setPen(mSolidPen);
-        painter.drawPath(path);
+        QPen pen;
+        pen.setColor(QColor(128, 128, 128));
+        pen.setWidthF(1.0f);
+        pen.setCapStyle(Qt::FlatCap);
+        painter.setPen(pen);
+
+        for (int i = 0; i < 4; i++)
+            painter.drawLine(mParameters->ground.intersections[i], mParameters->ground.intersections[(i + 1) % 4]);
     }
 
     // Draw frustum and target intersection
     {
-        mSolidPen.setColor(QColor(0, 102, 213));
-        mSolidPen.setWidth(1);
-        mSolidPen.setCapStyle(Qt::FlatCap);
-        painter.setPen(mSolidPen);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        QPen pen;
+        pen.setColor(QColor(0, 102, 213));
+        pen.setWidth(1.0f);
+        pen.setCapStyle(Qt::FlatCap);
+        painter.setPen(pen);
         painter.drawLine(mOrigin, mParameters->ground.intersections[1]);
         painter.drawLine(mOrigin, mParameters->ground.intersections[2]);
         painter.drawLine(mOrigin, mParameters->target.intersections[0]);
@@ -193,10 +190,11 @@ void TopViewWidget::paintEvent(QPaintEvent *)
     // Draw fov width line
     {
         painter.setRenderHint(QPainter::Antialiasing, false);
-        mSolidPen.setColor(QColor(0, 128, 0));
-        mSolidPen.setWidth(3);
-        mSolidPen.setCapStyle(Qt::FlatCap);
-        painter.setPen(mSolidPen);
+        QPen pen;
+        pen.setColor(QColor(0, 128, 0));
+        pen.setWidthF(3.0f);
+        pen.setCapStyle(Qt::FlatCap);
+        painter.setPen(pen);
         painter.drawLine(mFovWidthHandleBottom.getCenter(1, 0), mFovWidthHandleTop.getCenter(1, 0));
     }
 
