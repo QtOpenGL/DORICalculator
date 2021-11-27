@@ -165,8 +165,8 @@ LeftWidget::LeftWidget(QWidget *parent)
         layout->addWidget(mLabelCursorY, 2, 1);
     }
 
-    mainLayout->addWidget(mTargetGroupBox);
     mainLayout->addWidget(mCameraGroupBox);
+    mainLayout->addWidget(mTargetGroupBox);
     mainLayout->addWidget(mLowerBoundaryGroupBox);
     mainLayout->addWidget(mCursorPositionGroupBox);
     mainLayout->addSpacerItem(new QSpacerItem(-1, -1, QSizePolicy::Expanding, QSizePolicy::Expanding));
