@@ -18,8 +18,8 @@ TopViewWidget::TopViewWidget(QWidget *parent)
         mDashedPen.setDashPattern(dashes);
         mDashedPen.setStyle(Qt::DashLine);
 
-        mLabelFont = QFont("Arial");
-        mLabelFont.setPixelSize(11);
+        mLabelFont = QFont();
+        mLabelFont.setPixelSize(10);
         mLabelColor = QColor(100, 100, 100);
 
         mCrossedPatternBursh.setStyle(Qt::BrushStyle::CrossPattern);
@@ -70,6 +70,7 @@ TopViewWidget::TopViewWidget(QWidget *parent)
     }
 
     setMouseTracking(true);
+    setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 }
 
 void TopViewWidget::setParameters(Controller::TopViewWidgetParamaters *newParameters)
@@ -265,6 +266,8 @@ void TopViewWidget::mouseMoveEvent(QMouseEvent *event)
 
     mOldMousePosition = event->pos();
     updateCursor();
+    Eigen::Vector3f position = mapFrom2d(event->pos());
+    emit cursorPositionChanged(QPointF(position.x(), position.y()));
 }
 
 void TopViewWidget::mouseReleaseEvent(QMouseEvent *event)

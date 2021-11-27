@@ -3,6 +3,7 @@
 
 #include <Core/Logic.h>
 #include <QGroupBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QWidget>
 
@@ -19,11 +20,14 @@ public:
 signals:
     void dirty();
 
+public slots:
+    void onCursorPositionChanged(QPointF position);
+
 private:
     QGroupBox *mCameraGroupBox;
     QGroupBox *mTargetGroupBox;
     QGroupBox *mLowerBoundaryGroupBox;
-    QGroupBox *CursorInfoGroupBox;
+    QGroupBox *mCursorPositionGroupBox;
 
     QLineEdit *mLineEditCameraHeight;
     QLineEdit *mLineEditTiltAngle;
@@ -39,6 +43,9 @@ private:
     QLineEdit *mLineEditFovWidth;
     QLineEdit *mLineEditLowerBoundaryHeight;
     QLineEdit *mLineEditLowerBoundaryDistance;
+
+    QLabel *mLabelCursorX;
+    QLabel *mLabelCursorY;
 
     Logic::Parameters *mParameters;
 };

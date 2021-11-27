@@ -8,21 +8,23 @@
 AxisWidget::AxisWidget(QWidget *parent)
     : QWidget(parent)
 {
-    mMinorTickmarkCount = 1;
+    mMinorTickmarkCount = 0;
     mTickmarkPixelStep = 50;
 
     mAxisPen = QPen(QColor(0, 0, 0));
     mAxisPen.setWidthF(1);
 
-    mLabelFont = QFont("Arial");
-    mLabelFont.setPixelSize(9);
+    mLabelFont = QFont();
+    mLabelFont.setPixelSize(10);
 
-    mTickmarkSize = QSizeF(1.5, 6);
+    mTickmarkSize = QSizeF(1, 5);
     mMinorTickmarkSize = QSizeF(1, 4);
 
     mLabelColor = QColor(0, 0, 0);
     mTickmarkColor = QColor(100, 100, 100);
     mMinorTickmarkColor = QColor(0, 0, 0);
+
+    setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 }
 
 void AxisWidget::refresh()
@@ -74,13 +76,15 @@ void AxisWidget::paintEvent(QPaintEvent *event)
             painter.fillRect(tickmark, mTickmarkColor);
 
             tickmark.moveCenter(QPointF(x, mOrigin.y()));
+
             float value = (x - mOrigin.x()) / mMeterToPixelRatio;
+            float integral = (int) value;
 
             QString label;
-            if (mMeterToPixelRatio > 16)
-                label = QString::number(value, 'f', 2);
-            else
+            if (qFuzzyCompare(integral, value))
                 label = QString::number(value, 'f', 0);
+            else
+                label = QString::number(value, 'f', 2);
 
             QRectF boundingBox(x - 50, tickmark.y() + 10, 100, mLabelFont.pixelSize());
             painter.drawText(boundingBox, Qt::AlignCenter, label);
@@ -126,13 +130,15 @@ void AxisWidget::paintEvent(QPaintEvent *event)
             painter.fillRect(tickmark, mTickmarkColor);
 
             tickmark.moveCenter(QPointF(mOrigin.x(), y));
+
             float value = (mOrigin.y() - y) / mMeterToPixelRatio;
+            float integral = (int) value;
 
             QString label;
-            if (mMeterToPixelRatio > 16)
-                label = QString::number(value, 'f', 2);
-            else
+            if (qFuzzyCompare(integral, value))
                 label = QString::number(value, 'f', 0);
+            else
+                label = QString::number(value, 'f', 2);
 
             QRectF boundingBox(mOrigin.x() - 105, tickmark.y() - 0.5 * mLabelFont.pixelSize(), 100, mLabelFont.pixelSize());
             painter.drawText(boundingBox, Qt::AlignRight, label);
@@ -140,19 +146,37 @@ void AxisWidget::paintEvent(QPaintEvent *event)
     }
 }
 
-void AxisWidget::setTickmarkPixelStep(int newTickmarkPixelStep)
-{
-    mTickmarkPixelStep = newTickmarkPixelStep;
-}
-
 void AxisWidget::setMinorTickmarkCount(int newMinorTickmarkCount)
 {
     mMinorTickmarkCount = newMinorTickmarkCount;
 }
 
+int AxisWidget::findSuitableTickmarkPixelStep(float meterToPixelRatio)
+{
+    float tickmarkMeterStep = 36 / meterToPixelRatio;
+
+    int powers = 0;
+
+    while (tickmarkMeterStep > 1) {
+        tickmarkMeterStep = tickmarkMeterStep / 10.0f;
+        powers++;
+    }
+
+    if (tickmarkMeterStep <= 0.25)
+        return round(0.25f * pow(10, powers) * meterToPixelRatio);
+    else if (tickmarkMeterStep <= 0.5)
+        return round(0.5f * pow(10, powers) * meterToPixelRatio);
+    else if (tickmarkMeterStep <= 0.75)
+        return round(0.75f * pow(10, powers) * meterToPixelRatio);
+    else
+        return round(pow(10, powers) * meterToPixelRatio);
+}
+
 void AxisWidget::setMeterToPixelRatio(float newMeterToPixelRatio)
 {
     mMeterToPixelRatio = newMeterToPixelRatio;
+
+    mTickmarkPixelStep = findSuitableTickmarkPixelStep(newMeterToPixelRatio);
 }
 
 void AxisWidget::setOrigin(QPointF newOrigin)

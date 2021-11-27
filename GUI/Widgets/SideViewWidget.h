@@ -21,6 +21,7 @@ signals:
     void dirty();
     void zoom(int);
     void pan(int x, int y);
+    void cursorPositionChanged(QPointF position);
 
 public slots:
     void refresh();

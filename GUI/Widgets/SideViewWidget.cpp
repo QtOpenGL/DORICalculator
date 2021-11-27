@@ -21,8 +21,8 @@ SideViewWidget::SideViewWidget(QWidget *parent)
         mDashedPen.setDashPattern(dashes);
         mDashedPen.setStyle(Qt::DashLine);
 
-        mLabelFont = QFont("Arial");
-        mLabelFont.setPixelSize(11);
+        mLabelFont = QFont();
+        mLabelFont.setPixelSize(10);
 
         mLabelColor = QColor(0, 0, 0);
     }
@@ -76,6 +76,7 @@ SideViewWidget::SideViewWidget(QWidget *parent)
     }
 
     setMouseTracking(true);
+    setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 }
 
 void SideViewWidget::refresh()
@@ -287,6 +288,8 @@ void SideViewWidget::mouseMoveEvent(QMouseEvent *event)
 
     mOldMousePosition = event->pos();
     updateCursor();
+    Eigen::Vector3f position = mapFrom2d(event->pos());
+    emit cursorPositionChanged(QPointF(position.x(), position.z()));
 }
 
 void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)

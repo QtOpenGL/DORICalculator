@@ -229,14 +229,16 @@ void Controller::init()
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
     connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
     connect(mSideViewWidget, &SideViewWidget::pan, this, &Controller::onPan);
+    connect(mSideViewWidget, &SideViewWidget::cursorPositionChanged, mLeftWidget, &LeftWidget::onCursorPositionChanged);
 
     connect(mTopViewWidget, &TopViewWidget::dirty, this, &Controller::onDirty);
     connect(mTopViewWidget, &TopViewWidget::zoom, this, &Controller::onZoom);
     connect(mTopViewWidget, &TopViewWidget::pan, this, &Controller::onPan);
+    connect(mTopViewWidget, &TopViewWidget::cursorPositionChanged, mLeftWidget, &LeftWidget::onCursorPositionChanged);
 
     connect(mLeftWidget, &LeftWidget::dirty, this, &Controller::onDirty);
 
-    setMeterToPixelRatio(10);
+    setMeterToPixelRatio(8);
     setOrigin(mOrigin);
 
     update();
@@ -244,7 +246,7 @@ void Controller::init()
 
 void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
 {
-    if (newMeterToPixelRatio < 2.0 || newMeterToPixelRatio > 128.0f) {
+    if (newMeterToPixelRatio < 2.0 || newMeterToPixelRatio > 512.0f) {
         return;
     }
 

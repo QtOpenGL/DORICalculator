@@ -15,7 +15,7 @@ public:
     void setOrigin(QPointF newOrigin);
     void setMeterToPixelRatio(float newMeterToPixelRatio);
     void setMinorTickmarkCount(int newMinorTickmarkCount);
-    void setTickmarkPixelStep(int newTickmarkPixelStep);
+    int findSuitableTickmarkPixelStep(float meterToPixelRatio);
 
 private:
     void paintEvent(QPaintEvent *) override;

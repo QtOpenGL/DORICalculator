@@ -10,6 +10,7 @@ LeftWidget::LeftWidget(QWidget *parent)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
 
+    // CAMERA
     {
         QGridLayout *layout = new QGridLayout;
 
@@ -87,6 +88,7 @@ LeftWidget::LeftWidget(QWidget *parent)
         });
     }
 
+    // TARGET
     {
         QGridLayout *layout = new QGridLayout;
 
@@ -122,6 +124,7 @@ LeftWidget::LeftWidget(QWidget *parent)
         });
     }
 
+    // LOWER BOUNDARY
     {
         QGridLayout *layout = new QGridLayout;
 
@@ -145,11 +148,28 @@ LeftWidget::LeftWidget(QWidget *parent)
         layout->addWidget(mLineEditLowerBoundaryDistance, 2, 1);
     }
 
-    mainLayout->setSpacing(15);
-    mainLayout->addWidget(mCameraGroupBox);
+    // CURSOR POSITON
+    {
+        QGridLayout *layout = new QGridLayout;
+
+        mCursorPositionGroupBox = new QGroupBox;
+        mCursorPositionGroupBox->setTitle("Cursor Position");
+        mCursorPositionGroupBox->setLayout(layout);
+
+        mLabelCursorX = new QLabel;
+        layout->addWidget(new QLabel("X:"), 1, 0);
+        layout->addWidget(mLabelCursorX, 1, 1);
+
+        mLabelCursorY = new QLabel;
+        layout->addWidget(new QLabel("Y:"), 2, 0);
+        layout->addWidget(mLabelCursorY, 2, 1);
+    }
+
     mainLayout->addWidget(mTargetGroupBox);
+    mainLayout->addWidget(mCameraGroupBox);
     mainLayout->addWidget(mLowerBoundaryGroupBox);
-    mainLayout->addSpacerItem(new QSpacerItem(-1, -1, QSizePolicy::Preferred, QSizePolicy::Expanding));
+    mainLayout->addWidget(mCursorPositionGroupBox);
+    mainLayout->addSpacerItem(new QSpacerItem(-1, -1, QSizePolicy::Expanding, QSizePolicy::Expanding));
     setLayout(mainLayout);
     setFixedWidth(275);
 }
@@ -182,4 +202,10 @@ Logic::Parameters *LeftWidget::parameters() const
 void LeftWidget::setParameters(Logic::Parameters *newParameters)
 {
     mParameters = newParameters;
+}
+
+void LeftWidget::onCursorPositionChanged(QPointF position)
+{
+    mLabelCursorX->setText(QString("%1 m").arg(position.x(), 0, 'f', 3));
+    mLabelCursorY->setText(QString("%1 m").arg(position.y(), 0, 'f', 3));
 }
