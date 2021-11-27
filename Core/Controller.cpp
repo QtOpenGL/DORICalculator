@@ -109,7 +109,7 @@ void Controller::calculate()
         QPolygonF roi = lowerBoundaryRoi.intersected(targetRoi);
 
         for (int i = 0; i < NUMBER_OF_REGIONS; ++i) {
-            Eigen::Hyperplane<float, 3> plane(Eigen::Vector3f(0, 0, 1), -mLogicParameters->lowerBoundary.height);
+            Eigen::Hyperplane<float, 3> plane(Eigen::Vector3f(0, 0, 1).normalized(), -mLogicParameters->lowerBoundary.height);
             QVector<Eigen::Vector3f> intersections = mLogic.findIntersection(mLogicParameters->regions[i], plane);
 
             QPolygonF region;

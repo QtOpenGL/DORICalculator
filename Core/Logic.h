@@ -76,10 +76,9 @@ public:
 
 private:
     QVector<Eigen::Vector3f> findIntersection(const Eigen::Vector3f &start, const Eigen::Vector3f &end, const Eigen::Hyperplane<float, 3> &plane);
-    QVector<Eigen::Vector2f> sortClockwiseOrder(const QVector<Eigen::Vector2f> &points);
-    Eigen::Vector2f findMeanCenter(const QVector<Eigen::Vector2f> &points);
-    QVector<Eigen::Vector2f> translate(const QVector<Eigen::Vector2f> &points, const Eigen::Vector2f &translation);
-    QVector<Eigen::Vector2f> projectOntoXYPlane(const QVector<Eigen::Vector3f> &points);
+    QVector<Eigen::Vector3f> sortClockwiseOrder(const QVector<Eigen::Vector3f> &points, const Eigen::Vector3f &planeNormal);
+    Eigen::Vector3f findMeanCenter(const QVector<Eigen::Vector3f> &points);
+    QVector<Eigen::Vector3f> translate(const QVector<Eigen::Vector3f> &points, const Eigen::Vector3f &translation);
 
 private:
     Logic();
