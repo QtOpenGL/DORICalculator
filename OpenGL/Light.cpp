@@ -1,30 +1,12 @@
 #include "Light.h"
 
 Light::Light()
-    : mAmbientStrength(0.1)
-    , mColor(QVector3D(1, 1, 1))
-    , mPosition(QVector3D(0, 0, 1))
+    : mPosition(0, 0, 0)
+    , mColor(1, 1, 1)
+    , mAmbientStrength(0.1f)
+    , mLightPower(160.0f)
+
 {}
-
-float Light::ambientStrength() const
-{
-    return mAmbientStrength;
-}
-
-void Light::setAmbientStrength(float newAmbientStrength)
-{
-    mAmbientStrength = newAmbientStrength;
-}
-
-const QVector3D &Light::color() const
-{
-    return mColor;
-}
-
-void Light::setColor(const QVector3D &newColor)
-{
-    mColor = newColor;
-}
 
 const QVector3D &Light::position() const
 {
@@ -39,4 +21,34 @@ void Light::setPosition(const QVector3D &newPosition)
 void Light::setPosition(float x, float y, float z)
 {
     mPosition = QVector3D(x, y, z);
+}
+
+const QVector3D &Light::color() const
+{
+    return mColor;
+}
+
+void Light::setColor(const QVector3D &newColor)
+{
+    mColor = newColor;
+}
+
+float Light::ambientStrength() const
+{
+    return mAmbientStrength;
+}
+
+void Light::setAmbientStrength(float newAmbientStrength)
+{
+    mAmbientStrength = newAmbientStrength;
+}
+
+float Light::lightPower() const
+{
+    return mLightPower;
+}
+
+void Light::setLightPower(float newLightPower)
+{
+    mLightPower = newLightPower;
 }

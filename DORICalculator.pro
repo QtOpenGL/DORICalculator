@@ -20,11 +20,14 @@ SOURCES += \
     GUI/TopViewWidget.cpp \
     Main.cpp \
     OpenGL/Camera.cpp \
-    OpenGL/Cuboid.cpp \
-    OpenGL/CuboidRenderer.cpp \
     OpenGL/Light.cpp \
-    OpenGL/Object.cpp \
-    OpenGL/OpenGLWindow3D.cpp
+    OpenGL/Object/Cuboid.cpp \
+    OpenGL/Object/Object.cpp \
+    OpenGL/Object/Plane.cpp \
+    OpenGL/OpenGLWindow3D.cpp \
+    OpenGL/Renderer/CuboidRenderer.cpp \
+    OpenGL/Renderer/PlaneRenderer.cpp \
+    OpenGL/Renderer/Renderer.cpp
 
 HEADERS += \
     Core/Constants.h \
@@ -38,11 +41,15 @@ HEADERS += \
     GUI/SideViewWidget.h \
     GUI/TopViewWidget.h \
     OpenGL/Camera.h \
-    OpenGL/Cuboid.h \
-    OpenGL/CuboidRenderer.h \
     OpenGL/Light.h \
-    OpenGL/Object.h \
-    OpenGL/OpenGLWindow3D.h
+    OpenGL/Object/Cuboid.h \
+    OpenGL/Object/Object.h \
+    OpenGL/Object/Plane.h \
+    OpenGL/OpenGLWindow3D.h \
+    OpenGL/Renderer/CuboidRenderer.h \
+    OpenGL/Renderer/PlaneRenderer.h \
+    OpenGL/Renderer/Renderer.h
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -50,6 +57,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    Shaders/Cuboid/FragmentShader.frag \
-    Shaders/Cuboid/VertexShader.vert
+    Shaders/Simple/FragmentShader.frag \
+    Shaders/Simple/VertexShader.vert
+
+
 

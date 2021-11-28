@@ -2,12 +2,14 @@
 #define OPENGLWINDOW3D_H
 
 #include "Camera.h"
-#include "CuboidRenderer.h"
+#include "Renderer/CuboidRenderer.h"
 
 #include <QOpenGLFunctions>
 #include <QOpenGLWindow>
 #include <QTimer>
 #include <QWidget>
+
+#include <OpenGL/Renderer/PlaneRenderer.h>
 
 class OpenGLWindow3D : public QOpenGLWindow, protected QOpenGLFunctions
 {
@@ -27,10 +29,11 @@ protected:
 
 private:
     CuboidRenderer *mCuboidRenderer;
+    PlaneRenderer *mPlaneRenderer;
     QVector<Object *> mObjects;
 
-    Camera mCamera;
-    Light mLight;
+    Camera *mCamera;
+    Light *mLight;
     QTimer mTimer;
 
     QPointF mPreviousMousePosition;

@@ -1,7 +1,8 @@
 #include "Camera.h"
 
 Camera::Camera()
-    : mDirty(false)
+    : mPosition(0, 0, 0)
+    , mDirty(false)
     , mMovementSpeed(1.0f)
 {
     mProjectionMatrix.setToIdentity();
@@ -57,22 +58,22 @@ void Camera::update()
 
         switch (key) {
         case FORWARD:
-            mTranslation += mRotation.rotatedVector(QVector3D(0, 0, -amount));
+            mPosition += mRotation.rotatedVector(QVector3D(0, 0, -amount));
             break;
         case BACKWARD:
-            mTranslation += mRotation.rotatedVector(QVector3D(0, 0, +amount));
+            mPosition += mRotation.rotatedVector(QVector3D(0, 0, +amount));
             break;
         case LEFT:
-            mTranslation += mRotation.rotatedVector(QVector3D(-amount, 0, 0));
+            mPosition += mRotation.rotatedVector(QVector3D(-amount, 0, 0));
             break;
         case RIGHT:
-            mTranslation += mRotation.rotatedVector(QVector3D(amount, 0, 0));
+            mPosition += mRotation.rotatedVector(QVector3D(amount, 0, 0));
             break;
         case UP:
-            mTranslation += mRotation.rotatedVector(QVector3D(0, amount, 0));
+            mPosition += mRotation.rotatedVector(QVector3D(0, amount, 0));
             break;
         case DOWN:
-            mTranslation += mRotation.rotatedVector(QVector3D(0, -amount, 0));
+            mPosition += mRotation.rotatedVector(QVector3D(0, -amount, 0));
             break;
         }
     }
@@ -93,7 +94,7 @@ const QMatrix4x4 &Camera::viewMatrix() const
     if (mDirty) {
         mViewMatrix.setToIdentity();
         mViewMatrix.rotate(mRotation.conjugated());
-        mViewMatrix.translate(-mTranslation);
+        mViewMatrix.translate(-mPosition);
         return mViewMatrix;
     }
 
@@ -107,14 +108,19 @@ void Camera::setViewMatrix(const QMatrix4x4 &newViewMatrix)
 
 void Camera::setPosition(const QVector3D &position)
 {
-    mTranslation = -position;
+    mPosition = position;
     mDirty = true;
 }
 
 void Camera::setPosition(float x, float y, float z)
 {
-    mTranslation = -QVector3D(x, y, z);
+    mPosition = QVector3D(x, y, z);
     mDirty = true;
+}
+
+QVector3D Camera::position() const
+{
+    return mPosition;
 }
 
 float Camera::movementSpeed() const

@@ -11,7 +11,7 @@ out vec3 vertexPosition;
 
 void main(void)
 {
-    vertexNormal = normal;
+    vertexNormal = mat3(transpose(inverse(modelMatrix))) * normal;
     vertexPosition = vec3(modelMatrix * vec4(vertex,1.0));
     gl_Position = projectionMatrix * viewMatrix * vec4(vertexPosition, 1.0);
 }

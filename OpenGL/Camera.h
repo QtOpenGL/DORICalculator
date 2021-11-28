@@ -24,12 +24,14 @@ public:
     void setPosition(const QVector3D &position);
     void setPosition(float x, float y, float z);
 
+    QVector3D position() const;
+
     float movementSpeed() const;
     void setMovementSpeed(float newMovementSpeed);
 
 private:
     QQuaternion mRotation;
-    QVector3D mTranslation;
+    QVector3D mPosition;
     QMap<KeyboardControl, float> mKeyboardControls;
     QMap<MouseControl, float> mMouseControls;
     QMatrix4x4 mProjectionMatrix;
