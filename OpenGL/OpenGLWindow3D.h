@@ -2,14 +2,12 @@
 #define OPENGLWINDOW3D_H
 
 #include "Camera.h"
-#include "Renderer/CuboidRenderer.h"
+#include "Renderer/BasicObjectRenderer.h"
 
 #include <QOpenGLFunctions>
 #include <QOpenGLWindow>
 #include <QTimer>
 #include <QWidget>
-
-#include <OpenGL/Renderer/PlaneRenderer.h>
 
 class OpenGLWindow3D : public QOpenGLWindow, protected QOpenGLFunctions
 {
@@ -28,9 +26,8 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *) override;
 
 private:
-    CuboidRenderer *mCuboidRenderer;
-    PlaneRenderer *mPlaneRenderer;
-    QVector<Object *> mObjects;
+    BasicObjectRenderer *mBasicObjectRenderer;
+    QVector<BasicObject *> mBasicObjects;
 
     Camera *mCamera;
     Light *mLight;

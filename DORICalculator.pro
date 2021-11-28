@@ -21,13 +21,13 @@ SOURCES += \
     Main.cpp \
     OpenGL/Camera.cpp \
     OpenGL/Light.cpp \
-    OpenGL/Object/Cuboid.cpp \
-    OpenGL/Object/Object.cpp \
-    OpenGL/Object/Plane.cpp \
+    OpenGL/Node/BasicObject.cpp \
+    OpenGL/Node/BasicObjectData.cpp \
+    OpenGL/Node/CuboidData.cpp \
+    OpenGL/Node/Node.cpp \
+    OpenGL/Node/PlaneData.cpp \
     OpenGL/OpenGLWindow3D.cpp \
-    OpenGL/Renderer/CuboidRenderer.cpp \
-    OpenGL/Renderer/PlaneRenderer.cpp \
-    OpenGL/Renderer/Renderer.cpp
+    OpenGL/Renderer/BasicObjectRenderer.cpp
 
 HEADERS += \
     Core/Constants.h \
@@ -42,13 +42,13 @@ HEADERS += \
     GUI/TopViewWidget.h \
     OpenGL/Camera.h \
     OpenGL/Light.h \
-    OpenGL/Object/Cuboid.h \
-    OpenGL/Object/Object.h \
-    OpenGL/Object/Plane.h \
+    OpenGL/Node/BasicObject.h \
+    OpenGL/Node/BasicObjectData.h \
+    OpenGL/Node/CuboidData.h \
+    OpenGL/Node/Node.h \
+    OpenGL/Node/PlaneData.h \
     OpenGL/OpenGLWindow3D.h \
-    OpenGL/Renderer/CuboidRenderer.h \
-    OpenGL/Renderer/PlaneRenderer.h \
-    OpenGL/Renderer/Renderer.h
+    OpenGL/Renderer/BasicObjectRenderer.h
 
 
 # Default rules for deployment.
@@ -57,8 +57,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    Shaders/Simple/FragmentShader.frag \
-    Shaders/Simple/VertexShader.vert
+    Shaders/BasicObject/FragmentShader.frag \
+    Shaders/BasicObject/VertexShader.vert
+
 
 
 

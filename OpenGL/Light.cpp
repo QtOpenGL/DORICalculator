@@ -13,11 +13,6 @@ const QVector3D &Light::position() const
     return mPosition;
 }
 
-void Light::setPosition(const QVector3D &newPosition)
-{
-    mPosition = newPosition;
-}
-
 void Light::setPosition(float x, float y, float z)
 {
     mPosition = QVector3D(x, y, z);
@@ -28,9 +23,9 @@ const QVector3D &Light::color() const
     return mColor;
 }
 
-void Light::setColor(const QVector3D &newColor)
+void Light::setColor(float r, float g, float b)
 {
-    mColor = newColor;
+    mColor = QVector3D(r, g, b);
 }
 
 float Light::ambientStrength() const

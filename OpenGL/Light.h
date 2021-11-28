@@ -9,11 +9,10 @@ public:
     Light();
 
     const QVector3D &position() const;
-    void setPosition(const QVector3D &newPosition);
     void setPosition(float x, float y, float z);
 
     const QVector3D &color() const;
-    void setColor(const QVector3D &newColor);
+    void setColor(float r, float g, float b);
 
     float ambientStrength() const;
     void setAmbientStrength(float newAmbientStrength);

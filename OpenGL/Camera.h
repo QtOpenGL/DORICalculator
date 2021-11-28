@@ -2,12 +2,11 @@
 #define CAMERA_H
 
 #include <QMatrix4x4>
-
+#include <QVector3D>
 class Camera
 {
 public:
     Camera();
-
     enum KeyboardControl { FORWARD, BACKWARD, LEFT, RIGHT, UP, DOWN };
     enum MouseControl { TILT, PAN };
 
