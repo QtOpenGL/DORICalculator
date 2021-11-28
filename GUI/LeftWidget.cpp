@@ -133,7 +133,7 @@ LeftWidget::LeftWidget(QWidget *parent)
         mLowerBoundaryGroupBox->setLayout(layout);
 
         mLineEditLowerBoundaryHeight = new QLineEdit;
-        mLineEditLowerBoundaryHeight->setValidator(new QDoubleValidator(0.1, 10000, 1));
+        mLineEditLowerBoundaryHeight->setValidator(new QDoubleValidator(0.01, 10000, 2));
         layout->addWidget(new QLabel("Height (m):"), 1, 0);
         layout->addWidget(mLineEditLowerBoundaryHeight, 1, 1);
         connect(mLineEditLowerBoundaryHeight, &QLineEdit::editingFinished, this, [this]() {
@@ -143,7 +143,7 @@ LeftWidget::LeftWidget(QWidget *parent)
 
         mLineEditLowerBoundaryDistance = new QLineEdit;
         mLineEditLowerBoundaryDistance->setEnabled(false);
-        mLineEditLowerBoundaryDistance->setValidator(new QDoubleValidator(0.1, 10000, 1));
+        mLineEditLowerBoundaryDistance->setValidator(new QDoubleValidator(0.01, 10000, 2));
         layout->addWidget(new QLabel("Distance (m):"), 2, 0);
         layout->addWidget(mLineEditLowerBoundaryDistance, 2, 1);
     }

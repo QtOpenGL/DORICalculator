@@ -1,14 +1,18 @@
-#include "MainWindow.h"
+#include <Core/Controller.h>
+#include <GUI/CentralWidget.h>
+#include <OpenGL/OpenGLWindow3D.h>
 
 #include <QApplication>
 #include <QFile>
 #include <QFontDatabase>
 #include <QStyleFactory>
+#include <QSurfaceFormat>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
+    // Resources
     QFile file("Resources/StyleSheet.qss");
 
     if (file.open(QFile::ReadOnly)) {
@@ -33,7 +37,28 @@ int main(int argc, char *argv[])
         qDebug() << "Font is loaded. Using" << qApp->font();
     }
 
-    MainWindow w;
-    w.showMaximized();
-    return a.exec();
+    QSurfaceFormat format;
+    format.setDepthBufferSize(24);
+    format.setSamples(16);
+    format.setVersion(3, 3);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+
+    QSurfaceFormat::setDefaultFormat(format);
+
+    qDebug().noquote() << "QSurfaceFormat:" << QSurfaceFormat::defaultFormat();
+
+    // Initialize
+    Controller *controller = new Controller;
+    controller->init();
+
+    CentralWidget *centralWidget = controller->centralWidget();
+
+    centralWidget->setWindowTitle("DORI Calculator");
+    centralWidget->showMaximized();
+
+    OpenGLWindow3D *openGLWindow3D = controller->openGLWindow3D();
+    openGLWindow3D->setTitle("DORI Calculator - OpenGLWindow3D");
+    openGLWindow3D->showMaximized();
+
+    return app.exec();
 }

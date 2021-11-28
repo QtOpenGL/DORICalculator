@@ -1,9 +1,10 @@
 #include "Controller.h"
 
 #include <Core/Enums.h>
-#include <GUI/Widgets/CentralWidget.h>
-#include <GUI/Widgets/SideViewWidget.h>
-#include <GUI/Widgets/TopViewWidget.h>
+#include <GUI/CentralWidget.h>
+#include <GUI/SideViewWidget.h>
+#include <GUI/TopViewWidget.h>
+#include <OpenGL/OpenGLWindow3D.h>
 
 #include <QDebug>
 #include <QtMath>
@@ -225,6 +226,8 @@ void Controller::init()
     mLeftWidget = mCentralWidget->leftWidget();
     mLeftWidget->setParameters(mLeftWidgetParameters);
 
+    mOpenGLWindow3D = new OpenGLWindow3D;
+
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
     connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
@@ -270,4 +273,9 @@ void Controller::setOrigin(QPointF newOrigin)
 
     mAxisWidget->refresh();
     update();
+}
+
+OpenGLWindow3D *Controller::openGLWindow3D() const
+{
+    return mOpenGLWindow3D;
 }

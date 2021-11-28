@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -11,28 +11,38 @@ include(Dependencies/Dependencies.pri)
 
 SOURCES += \
     Core/Controller.cpp \
-    GUI/Base/Handle.cpp \
-    GUI/Widgets/AxisWidget.cpp \
-    GUI/Widgets/CentralWidget.cpp \
-    GUI/Widgets/LeftWidget.cpp \
-    GUI/Widgets/SideViewWidget.cpp \
-    GUI/Widgets/TopViewWidget.cpp \
     Core/Logic.cpp \
-    MainWindow.cpp \
-    Main.cpp
+    GUI/AxisWidget.cpp \
+    GUI/CentralWidget.cpp \
+    GUI/Handle.cpp \
+    GUI/LeftWidget.cpp \
+    GUI/SideViewWidget.cpp \
+    GUI/TopViewWidget.cpp \
+    Main.cpp \
+    OpenGL/Camera.cpp \
+    OpenGL/Cuboid.cpp \
+    OpenGL/CuboidRenderer.cpp \
+    OpenGL/Light.cpp \
+    OpenGL/Object.cpp \
+    OpenGL/OpenGLWindow3D.cpp
 
 HEADERS += \
     Core/Constants.h \
     Core/Controller.h \
     Core/Enums.h \
-    GUI/Base/Handle.h \
-    GUI/Widgets/AxisWidget.h \
-    GUI/Widgets/CentralWidget.h \
-    GUI/Widgets/LeftWidget.h \
-    GUI/Widgets/SideViewWidget.h \
-    GUI/Widgets/TopViewWidget.h \
     Core/Logic.h \
-    MainWindow.h
+    GUI/AxisWidget.h \
+    GUI/CentralWidget.h \
+    GUI/Handle.h \
+    GUI/LeftWidget.h \
+    GUI/SideViewWidget.h \
+    GUI/TopViewWidget.h \
+    OpenGL/Camera.h \
+    OpenGL/Cuboid.h \
+    OpenGL/CuboidRenderer.h \
+    OpenGL/Light.h \
+    OpenGL/Object.h \
+    OpenGL/OpenGLWindow3D.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -40,4 +50,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    ElegantDark.qss
+    Shaders/Cuboid/FragmentShader.frag \
+    Shaders/Cuboid/VertexShader.vert
+

@@ -4,7 +4,7 @@
 #include "AxisWidget.h"
 
 #include <Core/Controller.h>
-#include <GUI/Base/Handle.h>
+#include <GUI/Handle.h>
 #include <QWidget>
 
 class SideViewWidget : public QWidget

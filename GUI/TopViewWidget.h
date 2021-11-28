@@ -3,7 +3,7 @@
 
 #include <Core/Controller.h>
 #include <Dependencies/Eigen/Core>
-#include <GUI/Base/Handle.h>
+#include <GUI/Handle.h>
 #include <QWidget>
 
 class TopViewWidget : public QWidget

@@ -2,7 +2,7 @@
 #define CONTROLLER_H
 
 #include "Logic.h"
-#include <GUI/Widgets/LeftWidget.h>
+#include <GUI/LeftWidget.h>
 #include <QObject>
 #include <QPolygonF>
 #include <QVector2D>
@@ -11,6 +11,7 @@ class SideViewWidget;
 class TopViewWidget;
 class CentralWidget;
 class AxisWidget;
+class OpenGLWindow3D;
 
 class Controller : public QObject
 {
@@ -76,6 +77,8 @@ public:
 
     CentralWidget *centralWidget();
 
+    OpenGLWindow3D *openGLWindow3D() const;
+
 public slots:
     void onDirty();
     void onZoom(int);
@@ -101,6 +104,7 @@ private:
     CentralWidget *mCentralWidget;
     AxisWidget *mAxisWidget;
     LeftWidget *mLeftWidget;
+    OpenGLWindow3D *mOpenGLWindow3D;
 
     const float mZoomStepSize;
 
