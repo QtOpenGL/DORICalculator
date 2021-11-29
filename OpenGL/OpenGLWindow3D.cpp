@@ -3,6 +3,8 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 
+#include <OpenGL/Node/Model.h>
+
 OpenGLWindow3D::OpenGLWindow3D()
     : mMousePressed(false)
 {}
@@ -14,48 +16,77 @@ void OpenGLWindow3D::initializeGL()
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
 
-    mBasicObjects << new BasicObject(BasicObject::Plane);
-    mBasicObjects[0]->setPosition(0, 0, 0);
-    mBasicObjects[0]->setColor(1, 1, 1);
-    mBasicObjects[0]->scale(100);
+    {
+        BasicObject *object = new BasicObject(BasicObject::Plane);
+        object->setPosition(0, 0, 0);
+        object->setColor(1, 1, 1);
+        object->scale(100);
+        mNodes << object;
+    }
 
-    mBasicObjects << new BasicObject(BasicObject::Cuboid);
-    mBasicObjects[1]->setPosition(0, 5, -1);
-    mBasicObjects[1]->setColor(1, 0, 0);
+    {
+        BasicObject *object = new BasicObject(BasicObject::Cuboid);
+        object->setPosition(0, 5, -1);
+        object->setColor(1, 0, 0);
+        mNodes << object;
+    }
 
-    mBasicObjects << new BasicObject(BasicObject::Cuboid);
-    mBasicObjects[2]->setPosition(5, 5, -3);
-    mBasicObjects[2]->setColor(1, 0, 1);
+    {
+        BasicObject *object = new BasicObject(BasicObject::Cuboid);
+        object->setPosition(5, 5, -3);
+        object->setColor(1, 0, 1);
+        mNodes << object;
+    }
 
-    mBasicObjects << new BasicObject(BasicObject::Cuboid);
-    mBasicObjects[3]->setPosition(-2, 2, -3);
-    mBasicObjects[3]->setColor(1, 1, 0);
+    {
+        BasicObject *object = new BasicObject(BasicObject::Cuboid);
+        object->setPosition(-2, 2, -3);
+        object->setColor(1, 1, 0);
+        mNodes << object;
+    }
 
-    mBasicObjects << new BasicObject(BasicObject::Cuboid);
-    mBasicObjects[4]->setPosition(2, 2, -7);
-    mBasicObjects[4]->setColor(1, 1, 1);
+    {
+        BasicObject *object = new BasicObject(BasicObject::Cuboid);
+        object->setPosition(2, 2, -7);
+        object->setColor(1, 1, 1);
+        mNodes << object;
+    }
 
-    mBasicObjects << new BasicObject(BasicObject::Cuboid);
-    mBasicObjects[5]->setPosition(2, 4, -5);
-    mBasicObjects[5]->setColor(0, 1, 1);
+    {
+        BasicObject *object = new BasicObject(BasicObject::Cuboid);
+        object->setPosition(2, 4, -5);
+        object->setColor(0, 1, 1);
+        mNodes << object;
+    }
 
-    mBasicObjects << new BasicObject(BasicObject::Cuboid);
-    mBasicObjects[6]->setPosition(3, 7, -5);
-    mBasicObjects[6]->setColor(0, 1, 0);
+    {
+        BasicObject *object = new BasicObject(BasicObject::Cuboid);
+        object->setPosition(3, 7, -5);
+        object->setColor(0, 1, 0);
+        mNodes << object;
+    }
+
+    {
+        Model *model = new Model("Suzanne");
+        model->setPosition(0, 6, 0);
+        mNodes << model;
+    }
 
     mBasicObjectRenderer = new BasicObjectRenderer;
     mBasicObjectRenderer->init();
 
+    mModelRenderer = new ModelRenderer;
+    mModelRenderer->init();
+
     mCamera = new Camera;
     mLight = new Light;
     mCamera->setPosition(0, 5, 5);
-    mLight->setPosition(5, 15, 0);
+    mLight->setPosition(0, 10, 5);
 
     connect(&mTimer, &QTimer::timeout, this, [=]() {
         mCamera->update();
         QQuaternion dr = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), 0.5);
-        dr = dr * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 0.25);
-        mBasicObjects[1]->rotate(dr);
+        mNodes.last()->rotate(dr);
     });
     mTimer.start(10);
 
@@ -67,7 +98,8 @@ void OpenGLWindow3D::paintGL()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    mBasicObjectRenderer->render(mBasicObjects, mCamera, mLight);
+    mBasicObjectRenderer->render(mNodes, mCamera, mLight);
+    mModelRenderer->render(mNodes, mCamera, mLight);
 }
 
 void OpenGLWindow3D::resizeGL(int w, int h)

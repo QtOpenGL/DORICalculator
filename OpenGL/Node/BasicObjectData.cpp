@@ -51,13 +51,13 @@ void BasicObjectData::create()
     mVertexBuffer.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
     mVertexBuffer.allocate(mVertices.constData(), sizeof(QVector3D) * mVertices.size());
 
-    glEnableVertexAttribArray(0);              // Vertex atribute location in the shader
-    glVertexAttribPointer(0,                   // Vertex atribute location in the shader
-                          3,                   // Size
-                          GL_FLOAT,            // Type
-                          GL_FALSE,            // Normalized?
-                          3 * sizeof(GLfloat), // Stride
-                          nullptr              // Offset
+    glEnableVertexAttribArray(0);            // Vertex atribute location in the shader
+    glVertexAttribPointer(0,                 // Vertex atribute location in the shader
+                          3,                 // Size
+                          GL_FLOAT,          // Type
+                          GL_FALSE,          // Normalized?
+                          sizeof(QVector3D), // Stride
+                          nullptr            // Offset
     );
     mVertexBuffer.release();
 
@@ -66,13 +66,13 @@ void BasicObjectData::create()
     mNormalBuffer.setUsagePattern(QOpenGLBuffer::UsagePattern::StaticDraw);
     mNormalBuffer.allocate(mNormals.constData(), sizeof(QVector3D) * mNormals.size());
 
-    glEnableVertexAttribArray(1);              // Vertex atribute location in the shader
-    glVertexAttribPointer(1,                   // Vertex atribute location in the shader
-                          3,                   // Size
-                          GL_FLOAT,            // Type
-                          GL_FALSE,            // Normalized?
-                          3 * sizeof(GLfloat), // Stride
-                          nullptr              // Offset
+    glEnableVertexAttribArray(1);            // Vertex atribute location in the shader
+    glVertexAttribPointer(1,                 // Vertex atribute location in the shader
+                          3,                 // Size
+                          GL_FLOAT,          // Type
+                          GL_FALSE,          // Normalized?
+                          sizeof(QVector3D), // Stride
+                          nullptr            // Offset
     );
     mNormalBuffer.release();
 

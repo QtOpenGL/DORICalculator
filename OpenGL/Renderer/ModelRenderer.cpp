@@ -1,11 +1,13 @@
-#include "BasicObjectRenderer.h"
+#include "ModelRenderer.h"
 
-BasicObjectRenderer::BasicObjectRenderer()
-    : Renderer("Shaders/BasicObject/VertexShader.vert", "Shaders/BasicObject/FragmentShader.frag")
+#include <OpenGL/Node/Model.h>
+
+ModelRenderer::ModelRenderer()
+    : Renderer("Shaders/Model/VertexShader.vert", "Shaders/Model/FragmentShader.frag")
     , mInit(false)
 {}
 
-bool BasicObjectRenderer::init()
+bool ModelRenderer::init()
 {
     if (!Renderer::init())
         return false;
@@ -14,21 +16,27 @@ bool BasicObjectRenderer::init()
     mShader->bindAttributeLocation("normal", 1);
     mShader->bind();
 
-    mObjectColorLocation = mShader->uniformLocation("objectColor");
+    mShader->bindAttributeLocation("vertex", 0);
+    mShader->bindAttributeLocation("normal", 1);
 
-    for (BasicObject::Type type : {BasicObject::Cuboid, BasicObject::Plane}) {
-        BasicObjectData *data = new BasicObjectData(type);
-        data->create();
-        mObjectData.insert(type, data);
+    ModelData *data = new ModelData("Suzanne");
+
+    if (!data->loadDataFromFile("Resources/Models/Suzanne.obj")) {
+        qWarning() << QString("Could not load model data for '%1'.").arg(data->name());
+        return false;
     }
 
+    data->create();
+
+    mModels.insert(data->name(), data);
     mShader->release();
 
     mInit = true;
+
     return true;
 }
 
-void BasicObjectRenderer::render(QVector<Node *> nodes, const Camera *camera, const Light *light)
+void ModelRenderer::render(QVector<Node *> nodes, const Camera *camera, const Light *light)
 {
     if (!mInit)
         return;
@@ -43,12 +51,11 @@ void BasicObjectRenderer::render(QVector<Node *> nodes, const Camera *camera, co
     mShader->setUniformValue(mLightPowerLocation, light->lightPower());
 
     for (const auto &node : nodes) {
-        BasicObject *object = dynamic_cast<BasicObject *>(node);
-        if (object) {
-            mShader->setUniformValue(mObjectColorLocation, object->color());
-            mShader->setUniformValue(mModelMatrixLocation, object->transformationMatrix());
+        Model *model = dynamic_cast<Model *>(node);
+        if (model) {
+            mShader->setUniformValue(mModelMatrixLocation, model->transformationMatrix());
 
-            BasicObjectData *data = mObjectData.value(object->type(), nullptr);
+            ModelData *data = mModels.value(model->name(), nullptr);
             if (data) {
                 data->bind();
                 glDrawArrays(GL_TRIANGLES, 0, data->getVertexCount());

@@ -9,6 +9,8 @@
 #include <QTimer>
 #include <QWidget>
 
+#include <OpenGL/Renderer/ModelRenderer.h>
+
 class OpenGLWindow3D : public QOpenGLWindow, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -27,7 +29,8 @@ protected:
 
 private:
     BasicObjectRenderer *mBasicObjectRenderer;
-    QVector<BasicObject *> mBasicObjects;
+    ModelRenderer *mModelRenderer;
+    QVector<Node *> mNodes;
 
     Camera *mCamera;
     Light *mLight;

@@ -4,7 +4,7 @@ Light::Light()
     : mPosition(0, 0, 0)
     , mColor(1, 1, 1)
     , mAmbientStrength(0.1f)
-    , mLightPower(160.0f)
+    , mLightPower(60.0f)
 
 {}
 

@@ -5,36 +5,24 @@
 #include "../Light.h"
 #include "../Node/BasicObject.h"
 #include "../Node/BasicObjectData.h"
+#include "Renderer.h"
 
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QString>
 
-class BasicObjectRenderer : protected QOpenGLFunctions
+class BasicObjectRenderer : public Renderer
 {
 public:
     BasicObjectRenderer();
 
-    bool init();
-    void render(QVector<BasicObject *> objects, const Camera *camera, const Light *light);
+    virtual bool init() override;
+    virtual void render(QVector<Node *> nodes, const Camera *camera, const Light *light) override;
 
 private:
     QMap<BasicObject::Type, BasicObjectData *> mObjectData;
 
-    QOpenGLShaderProgram *mShader;
-
-    const QString mVertexShaderPath;
-    const QString mFragmentShaderPath;
-
-    int mModelMatrixLocation;
-    int mViewMatrixLocation;
-    int mProjectionMatrixLocation;
     int mObjectColorLocation;
-    int mAmbientStrengthLocation;
-    int mCameraPositionLocation;
-    int mLightPositionLocation;
-    int mLightColorLocation;
-    int mLightPowerLocation;
 
     bool mInit;
 };

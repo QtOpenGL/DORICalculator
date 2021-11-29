@@ -23,9 +23,13 @@ SOURCES += \
     OpenGL/Light.cpp \
     OpenGL/Node/BasicObject.cpp \
     OpenGL/Node/BasicObjectData.cpp \
+    OpenGL/Node/Model.cpp \
+    OpenGL/Node/ModelData.cpp \
     OpenGL/Node/Node.cpp \
     OpenGL/OpenGLWindow3D.cpp \
-    OpenGL/Renderer/BasicObjectRenderer.cpp
+    OpenGL/Renderer/BasicObjectRenderer.cpp \
+    OpenGL/Renderer/ModelRenderer.cpp \
+    OpenGL/Renderer/Renderer.cpp
 
 HEADERS += \
     Core/Constants.h \
@@ -42,9 +46,13 @@ HEADERS += \
     OpenGL/Light.h \
     OpenGL/Node/BasicObject.h \
     OpenGL/Node/BasicObjectData.h \
+    OpenGL/Node/Model.h \
+    OpenGL/Node/ModelData.h \
     OpenGL/Node/Node.h \
     OpenGL/OpenGLWindow3D.h \
-    OpenGL/Renderer/BasicObjectRenderer.h
+    OpenGL/Renderer/BasicObjectRenderer.h \
+    OpenGL/Renderer/ModelRenderer.h \
+    OpenGL/Renderer/Renderer.h
 
 
 # Default rules for deployment.
@@ -54,7 +62,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     Shaders/BasicObject/FragmentShader.frag \
-    Shaders/BasicObject/VertexShader.vert
+    Shaders/BasicObject/VertexShader.vert \
+    Shaders/Model/FragmentShader.frag \
+    Shaders/Model/VertexShader.vert
 
 
 
