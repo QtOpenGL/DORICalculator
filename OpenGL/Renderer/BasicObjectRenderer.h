@@ -4,7 +4,7 @@
 #include "../Camera.h"
 #include "../Light.h"
 #include "../Node/BasicObject.h"
-#include "../Node/CuboidData.h"
+#include "../Node/BasicObjectData.h"
 
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>

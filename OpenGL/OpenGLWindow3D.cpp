@@ -52,14 +52,14 @@ void OpenGLWindow3D::initializeGL()
     mLight->setPosition(5, 15, 0);
 
     connect(&mTimer, &QTimer::timeout, this, [=]() {
-        update();
         mCamera->update();
-
         QQuaternion dr = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), 0.5);
         dr = dr * QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 0.25);
         mBasicObjects[1]->rotate(dr);
     });
     mTimer.start(10);
+
+    connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
 }
 
 void OpenGLWindow3D::paintGL()
@@ -76,7 +76,6 @@ void OpenGLWindow3D::resizeGL(int w, int h)
     projection.setToIdentity();
     projection.perspective(45.0f, float(w) / float(h), 0.1f, 10000.0f);
     mCamera->setProjectionMatrix(projection);
-    update();
 }
 
 void OpenGLWindow3D::keyPressEvent(QKeyEvent *event)

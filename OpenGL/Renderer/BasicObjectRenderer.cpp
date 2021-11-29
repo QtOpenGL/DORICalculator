@@ -1,7 +1,5 @@
 #include "BasicObjectRenderer.h"
 
-#include <OpenGL/Node/PlaneData.h>
-
 BasicObjectRenderer::BasicObjectRenderer()
     : mVertexShaderPath("Shaders/BasicObject/VertexShader.vert")
     , mFragmentShaderPath("Shaders/BasicObject/FragmentShader.frag")
@@ -50,13 +48,11 @@ bool BasicObjectRenderer::init()
     mCameraPositionLocation = mShader->uniformLocation("cameraPosition");
     mLightPowerLocation = mShader->uniformLocation("lightPower");
 
-    CuboidData *cuboidData = new CuboidData;
-    cuboidData->create();
-    mObjectData.insert(BasicObject::Cuboid, cuboidData);
-
-    PlaneData *planeData = new PlaneData;
-    planeData->create();
-    mObjectData.insert(BasicObject::Plane, planeData);
+    for (BasicObject::Type type : {BasicObject::Cuboid, BasicObject::Plane}) {
+        BasicObjectData *data = new BasicObjectData(type);
+        data->create();
+        mObjectData.insert(type, data);
+    }
 
     mShader->release();
 

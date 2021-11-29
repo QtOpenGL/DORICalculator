@@ -1,12 +1,48 @@
 #include "BasicObjectData.h"
 
-BasicObjectData::BasicObjectData() {}
+BasicObjectData::BasicObjectData(BasicObject::Type type)
+    : mType(type)
+{}
 
 void BasicObjectData::create()
 {
-    createVertexData();
+    if (mType == BasicObject::Plane) {
+        mVertices = {QVector3D(-0.5f, 0.0f, -0.5f),
+                     QVector3D(-0.5f, 0.0f, 0.5f),
+                     QVector3D(0.5f, 0.0f, -0.5f),
+                     QVector3D(0.5f, 0.0f, -0.5f),
+                     QVector3D(-0.5f, 0.0f, 0.5f),
+                     QVector3D(0.5f, 0.0f, 0.5f)};
+
+        mNormals = {QVector3D(0.0f, 1.0f, 0.0f),
+                    QVector3D(0.0f, 1.0f, 0.0f),
+                    QVector3D(0.0f, 1.0f, 0.0f),
+                    QVector3D(0.0f, 1.0f, 0.0f),
+                    QVector3D(0.0f, 1.0f, 0.0f),
+                    QVector3D(0.0f, 1.0f, 0.0f)};
+
+    } else if (mType == BasicObject::Cuboid) {
+        mVertices = {QVector3D(-0.5f, -0.5f, -0.5f), QVector3D(0.5f, -0.5f, -0.5f), QVector3D(0.5f, 0.5f, -0.5f), QVector3D(0.5f, 0.5f, -0.5f),  QVector3D(-0.5f, 0.5f, -0.5f),
+                     QVector3D(-0.5f, -0.5f, -0.5f), QVector3D(-0.5f, -0.5f, 0.5f), QVector3D(0.5f, -0.5f, 0.5f), QVector3D(0.5f, 0.5f, 0.5f),   QVector3D(0.5f, 0.5f, 0.5f),
+                     QVector3D(-0.5f, 0.5f, 0.5f),   QVector3D(-0.5f, -0.5f, 0.5f), QVector3D(-0.5f, 0.5f, 0.5f), QVector3D(-0.5f, 0.5f, -0.5f), QVector3D(-0.5f, -0.5f, -0.5f),
+                     QVector3D(-0.5f, -0.5f, -0.5f), QVector3D(-0.5f, -0.5f, 0.5f), QVector3D(-0.5f, 0.5f, 0.5f), QVector3D(0.5f, 0.5f, 0.5f),   QVector3D(0.5f, 0.5f, -0.5f),
+                     QVector3D(0.5f, -0.5f, -0.5f),  QVector3D(0.5f, -0.5f, -0.5f), QVector3D(0.5f, -0.5f, 0.5f), QVector3D(0.5f, 0.5f, 0.5f),   QVector3D(-0.5f, -0.5f, -0.5f),
+                     QVector3D(0.5f, -0.5f, -0.5f),  QVector3D(0.5f, -0.5f, 0.5f),  QVector3D(0.5f, -0.5f, 0.5f), QVector3D(-0.5f, -0.5f, 0.5f), QVector3D(-0.5f, -0.5f, -0.5f),
+                     QVector3D(-0.5f, 0.5f, -0.5f),  QVector3D(0.5f, 0.5f, -0.5f),  QVector3D(0.5f, 0.5f, 0.5f),  QVector3D(0.5f, 0.5f, 0.5f),   QVector3D(-0.5f, 0.5f, 0.5f),
+                     QVector3D(-0.5f, 0.5f, -0.5f)};
+
+        mNormals = {QVector3D(0.0f, 0.0f, -1.0f), QVector3D(0.0f, 0.0f, -1.0f), QVector3D(0.0f, 0.0f, -1.0f), QVector3D(0.0f, 0.0f, -1.0f), QVector3D(0.0f, 0.0f, -1.0f),
+                    QVector3D(0.0f, 0.0f, -1.0f), QVector3D(0.0f, 0.0f, 1.0f),  QVector3D(0.0f, 0.0f, 1.0f),  QVector3D(0.0f, 0.0f, 1.0f),  QVector3D(0.0f, 0.0f, 1.0f),
+                    QVector3D(0.0f, 0.0f, 1.0f),  QVector3D(0.0f, 0.0f, 1.0f),  QVector3D(-1.0f, 0.0f, 0.0f), QVector3D(-1.0f, 0.0f, 0.0f), QVector3D(-1.0f, 0.0f, 0.0f),
+                    QVector3D(-1.0f, 0.0f, 0.0f), QVector3D(-1.0f, 0.0f, 0.0f), QVector3D(-1.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f, 0.0f),  QVector3D(1.0f, 0.0f, 0.0f),
+                    QVector3D(1.0f, 0.0f, 0.0f),  QVector3D(1.0f, 0.0f, 0.0f),  QVector3D(1.0f, 0.0f, 0.0f),  QVector3D(1.0f, 0.0f, 0.0f),  QVector3D(0.0f, -1.0f, 0.0f),
+                    QVector3D(0.0f, -1.0f, 0.0f), QVector3D(0.0f, -1.0f, 0.0f), QVector3D(0.0f, -1.0f, 0.0f), QVector3D(0.0f, -1.0f, 0.0f), QVector3D(0.0f, -1.0f, 0.0f),
+                    QVector3D(0.0f, 1.0f, 0.0f),  QVector3D(0.0f, 1.0f, 0.0f),  QVector3D(0.0f, 1.0f, 0.0f),  QVector3D(0.0f, 1.0f, 0.0f),  QVector3D(0.0f, 1.0f, 0.0f),
+                    QVector3D(0.0f, 1.0f, 0.0f)};
+    }
 
     initializeOpenGLFunctions();
+
     mVertexArray.create();
     mVertexArray.bind();
 
@@ -39,6 +75,7 @@ void BasicObjectData::create()
                           nullptr              // Offset
     );
     mNormalBuffer.release();
+
     mVertexArray.release();
 }
 
@@ -55,4 +92,9 @@ void BasicObjectData::release()
 int BasicObjectData::getVertexCount()
 {
     return mVertices.size();
+}
+
+BasicObject::Type BasicObjectData::type()
+{
+    return mType;
 }

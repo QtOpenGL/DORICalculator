@@ -1,6 +1,8 @@
 #ifndef BASICOBJECTDATA_H
 #define BASICOBJECTDATA_H
 
+#include "BasicObject.h"
+
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
@@ -9,14 +11,14 @@
 class BasicObjectData : protected QOpenGLFunctions
 {
 public:
-    BasicObjectData();
+    BasicObjectData(BasicObject::Type type);
 
-    virtual void create();
-    virtual void bind();
-    virtual void release();
-    virtual int getVertexCount();
+    BasicObject::Type type();
 
-    virtual void createVertexData() = 0;
+    void create();
+    void bind();
+    void release();
+    int getVertexCount();
 
 protected:
     QOpenGLVertexArrayObject mVertexArray;
@@ -24,6 +26,7 @@ protected:
     QOpenGLBuffer mNormalBuffer;
     QVector<QVector3D> mVertices;
     QVector<QVector3D> mNormals;
+    BasicObject::Type mType;
 };
 
 #endif // BASICOBJECTDATA_H

@@ -23,9 +23,7 @@ SOURCES += \
     OpenGL/Light.cpp \
     OpenGL/Node/BasicObject.cpp \
     OpenGL/Node/BasicObjectData.cpp \
-    OpenGL/Node/CuboidData.cpp \
     OpenGL/Node/Node.cpp \
-    OpenGL/Node/PlaneData.cpp \
     OpenGL/OpenGLWindow3D.cpp \
     OpenGL/Renderer/BasicObjectRenderer.cpp
 
@@ -44,9 +42,7 @@ HEADERS += \
     OpenGL/Light.h \
     OpenGL/Node/BasicObject.h \
     OpenGL/Node/BasicObjectData.h \
-    OpenGL/Node/CuboidData.h \
     OpenGL/Node/Node.h \
-    OpenGL/Node/PlaneData.h \
     OpenGL/OpenGLWindow3D.h \
     OpenGL/Renderer/BasicObjectRenderer.h
 
