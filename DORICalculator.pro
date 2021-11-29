@@ -29,7 +29,8 @@ SOURCES += \
     OpenGL/OpenGLWindow3D.cpp \
     OpenGL/Renderer/BasicObjectRenderer.cpp \
     OpenGL/Renderer/ModelRenderer.cpp \
-    OpenGL/Renderer/Renderer.cpp
+    OpenGL/Renderer/Renderer.cpp \
+    OpenGL/SceneManager.cpp
 
 HEADERS += \
     Core/Constants.h \
@@ -52,7 +53,8 @@ HEADERS += \
     OpenGL/OpenGLWindow3D.h \
     OpenGL/Renderer/BasicObjectRenderer.h \
     OpenGL/Renderer/ModelRenderer.h \
-    OpenGL/Renderer/Renderer.h
+    OpenGL/Renderer/Renderer.h \
+    OpenGL/SceneManager.h
 
 
 # Default rules for deployment.
