@@ -14,21 +14,9 @@ bool ModelRenderer::init()
 
     mShader->bindAttributeLocation("vertex", 0);
     mShader->bindAttributeLocation("normal", 1);
+
     mShader->bind();
-
-    mShader->bindAttributeLocation("vertex", 0);
-    mShader->bindAttributeLocation("normal", 1);
-
-    ModelData *data = new ModelData("Suzanne");
-
-    if (!data->loadDataFromFile("Resources/Models/Suzanne.obj")) {
-        qWarning() << QString("Could not load model data for '%1'.").arg(data->name());
-        return false;
-    }
-
-    data->create();
-
-    mModels.insert(data->name(), data);
+    mModelColorLocation = mShader->uniformLocation("modelColor");
     mShader->release();
 
     mInit = true;
@@ -55,6 +43,11 @@ void ModelRenderer::render(QVector<Node *> nodes, const Camera *camera, const Li
         if (model) {
             mShader->setUniformValue(mModelMatrixLocation, model->transformationMatrix());
 
+            if (model->colored())
+                mShader->setUniformValue(mModelColorLocation, model->color());
+            else
+                mShader->setUniformValue(mModelColorLocation, QVector3D(0, 0, 0));
+
             ModelData *data = mModels.value(model->name(), nullptr);
             if (data) {
                 data->bind();
@@ -65,4 +58,48 @@ void ModelRenderer::render(QVector<Node *> nodes, const Camera *camera, const Li
     }
 
     mShader->release();
+}
+
+QStringList ModelRenderer::getModelNames()
+{
+    return mModels.keys();
+}
+
+QString ModelRenderer::getModelNameFromFilename(QString filename)
+{
+    int index = filename.lastIndexOf(".");
+    filename.remove(index, filename.length() - index);
+
+    index = filename.lastIndexOf("/");
+    filename.remove(0, index + 1);
+
+    return filename;
+}
+
+ModelData *ModelRenderer::loadModel(QString path)
+{
+    QString modelName = getModelNameFromFilename(path);
+
+    // Check if the model is already in the models map
+    {
+        ModelData *data = mModels.value(modelName, nullptr);
+        if (data) {
+            qInfo() << modelName << "is already loaded.";
+            return data;
+        }
+    }
+
+    // Create new model data
+    ModelData *data = new ModelData(modelName);
+
+    if (!data->loadDataFromFile(path)) {
+        qWarning() << QString("Could not load model data for '%1'.").arg(data->name());
+        delete data;
+        return nullptr;
+    }
+
+    data->create();
+    mModels.insert(data->name(), data);
+
+    return data;
 }

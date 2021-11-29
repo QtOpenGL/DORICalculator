@@ -16,6 +16,9 @@ public:
 
     virtual void rotate(const QQuaternion &deltaRotation);
 
+    virtual void scale(float x, float y, float z);
+    virtual void scale(float factor);
+
 protected:
     QMatrix4x4 mTransformationMatrix;
     QVector3D mPosition;

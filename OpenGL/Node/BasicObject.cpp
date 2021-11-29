@@ -15,16 +15,6 @@ void BasicObject::setColor(float r, float g, float b)
     mColor = QVector3D(r, g, b);
 }
 
-void BasicObject::scale(float x, float y, float z)
-{
-    mTransformationMatrix.scale(x, y, z);
-}
-
-void BasicObject::scale(float factor)
-{
-    mTransformationMatrix.scale(factor);
-}
-
 BasicObject::Type BasicObject::type() const
 {
     return mType;

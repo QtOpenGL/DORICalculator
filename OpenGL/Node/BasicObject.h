@@ -13,9 +13,6 @@ public:
     virtual const QVector3D &color() const;
     virtual void setColor(float r, float g, float b);
 
-    virtual void scale(float x, float y, float z);
-    virtual void scale(float factor);
-
     Type type() const;
     void setType(Type newType);
 

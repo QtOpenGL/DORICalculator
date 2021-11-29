@@ -20,7 +20,7 @@ void main()
     vec3 normal = normalize(vertexNormal);
     vec3 lightDirection = normalize(lightPosition - vertexPosition);
     float diffuseStrength = clamp(dot(normal,lightDirection), 0.0, 1.0);
-    vec3 diffuseColor = lightPower * diffuseStrength * lightColor / pow(distance(lightPosition, vertexPosition), 2);
+    vec3 diffuseColor = lightPower * diffuseStrength * lightColor;
 
     // Specular
     vec3 reflectDirection = reflect(-lightDirection, normal);

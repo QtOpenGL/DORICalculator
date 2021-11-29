@@ -9,6 +9,7 @@ ModelData::ModelData(QString name)
 
 void ModelData::create()
 {
+    qInfo() << "Creating model data for" << mName;
     initializeOpenGLFunctions();
 
     mVertexArray.create();
@@ -40,7 +41,7 @@ void ModelData::create()
     glVertexAttribPointer(1,
                           3,                 // Size
                           GL_FLOAT,          // Type
-                          GL_FALSE,          // Normalized?
+                          GL_TRUE,           // Normalized?
                           sizeof(QVector3D), // Stride
                           nullptr            // Offset
     );
@@ -75,6 +76,8 @@ bool ModelData::loadDataFromFile(QString filename)
     QVector<QVector3D> tempVertices;
     QVector<QVector3D> tempNormals;
     QVector<QVector2D> tempUVs;
+
+    qInfo() << "Loading" << filename;
 
     if (!filename.isEmpty()) {
         QFile file(filename);

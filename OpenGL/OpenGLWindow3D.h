@@ -19,6 +19,8 @@ public:
     void initializeGL() override;
     void paintGL() override;
     void resizeGL(int w, int h) override;
+    void createBasicObjects();
+    void createModels();
 
 protected:
     virtual void keyPressEvent(QKeyEvent *) override;

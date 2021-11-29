@@ -29,3 +29,13 @@ void Node::rotate(const QQuaternion &deltaRotation)
 {
     mTransformationMatrix.rotate(deltaRotation);
 }
+
+void Node::scale(float x, float y, float z)
+{
+    mTransformationMatrix.scale(x, y, z);
+}
+
+void Node::scale(float factor)
+{
+    mTransformationMatrix.scale(factor);
+}
