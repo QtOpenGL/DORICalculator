@@ -22,8 +22,6 @@ public:
 private:
     QMap<BasicObject::Type, BasicObjectData *> mObjectData;
 
-    int mObjectColorLocation;
-
     bool mInit;
 };
 

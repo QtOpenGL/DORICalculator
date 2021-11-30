@@ -12,16 +12,18 @@ class ModelData : protected QOpenGLFunctions
 {
 public:
     ModelData(QString name);
-    void create();
-    void bind();
-    void release();
-    int getVertexCount();
     bool loadDataFromFile(QString filename);
 
-    const QVector<QVector3D> &vertices() const;
-    const QVector<QVector3D> &normals() const;
-    const QVector<QVector2D> &UVs() const;
-    const QString &name() const;
+    const QVector<QVector2D> &UVs() const { return mUVs; }
+    const QVector<QVector3D> &normals() const { return mNormals; }
+    const QVector<QVector3D> &vertices() const { return mVertices; }
+
+    void create();
+    void release() { mVertexArray.release(); }
+    void bind() { mVertexArray.bind(); }
+
+    int getVertexCount() { return mVertices.size(); }
+    const QString &name() const { return mName; }
 
 private:
     QString mName;

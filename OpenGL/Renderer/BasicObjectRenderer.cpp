@@ -14,8 +14,6 @@ bool BasicObjectRenderer::init()
     mShader->bindAttributeLocation("normal", 1);
     mShader->bind();
 
-    mObjectColorLocation = mShader->uniformLocation("objectColor");
-
     for (BasicObject::Type type : {BasicObject::Cuboid, BasicObject::Plane}) {
         BasicObjectData *data = new BasicObjectData(type);
         data->create();
@@ -45,7 +43,7 @@ void BasicObjectRenderer::render(QVector<Node *> nodes, const Camera *camera, co
     for (const auto &node : nodes) {
         BasicObject *object = dynamic_cast<BasicObject *>(node);
         if (object) {
-            mShader->setUniformValue(mObjectColorLocation, object->color());
+            mShader->setUniformValue(mColorLocation, object->color());
             mShader->setUniformValue(mModelMatrixLocation, object->transformationMatrix());
 
             BasicObjectData *data = mObjectData.value(object->type(), nullptr);

@@ -1,11 +1,16 @@
 #ifndef SCENEMANAGER_H
 #define SCENEMANAGER_H
 
-#include <OpenGL/Renderer/BasicObjectRenderer.h>
-#include <OpenGL/Renderer/ModelRenderer.h>
-
 #include <QMouseEvent>
 #include <QTimer>
+
+class BasicObjectRenderer;
+class ModelRenderer;
+class RegionRenderer;
+class Camera;
+class Light;
+class Node;
+class RegionData;
 
 class SceneManager : public QObject
 {
@@ -30,11 +35,15 @@ private:
 private:
     BasicObjectRenderer *mBasicObjectRenderer;
     ModelRenderer *mModelRenderer;
+    RegionRenderer *mRegionRenderer;
+
     QVector<Node *> mNodes;
+    QVector<RegionData *> mRegions;
 
     Camera *mCamera;
     Light *mLight;
     QTimer mTimer;
+    QTimer mSlowTimer;
 
     QPointF mPreviousMousePosition;
     bool mMousePressed;

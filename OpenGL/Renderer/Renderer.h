@@ -30,6 +30,7 @@ protected:
     int mLightPositionLocation;
     int mLightColorLocation;
     int mLightPowerLocation;
+    int mColorLocation;
 };
 
 #endif // RENDERER_H

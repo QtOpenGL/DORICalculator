@@ -8,20 +8,24 @@ class Node
 public:
     Node();
 
-    virtual const QMatrix4x4 &transformationMatrix() const;
+    const QMatrix4x4 &transformationMatrix() const { return mTransformationMatrix; }
     virtual void setTransformationMatrix(const QMatrix4x4 &newTransformationMatrix);
 
-    virtual const QVector3D &position() const;
+    const QVector3D &position() const { return mPosition; }
     virtual void setPosition(float x, float y, float z);
 
-    virtual void rotate(const QQuaternion &deltaRotation);
+    void rotate(const QQuaternion &deltaRotation) { mTransformationMatrix.rotate(deltaRotation); }
 
-    virtual void scale(float x, float y, float z);
-    virtual void scale(float factor);
+    void scale(float x, float y, float z) { mTransformationMatrix.scale(x, y, z); }
+    void scale(float factor) { mTransformationMatrix.scale(factor); }
+
+    const QVector3D &color() const { return mColor; }
+    void setColor(float r, float g, float b) { mColor = QVector3D(r, g, b); }
 
 protected:
     QMatrix4x4 mTransformationMatrix;
     QVector3D mPosition;
+    QVector3D mColor;
 };
 
 #endif // NODE_H

@@ -78,23 +78,3 @@ void BasicObjectData::create()
 
     mVertexArray.release();
 }
-
-void BasicObjectData::bind()
-{
-    mVertexArray.bind();
-}
-
-void BasicObjectData::release()
-{
-    mVertexArray.release();
-}
-
-int BasicObjectData::getVertexCount()
-{
-    return mVertices.size();
-}
-
-BasicObject::Type BasicObjectData::type()
-{
-    return mType;
-}

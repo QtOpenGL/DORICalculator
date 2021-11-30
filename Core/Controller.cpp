@@ -4,7 +4,7 @@
 #include <GUI/CentralWidget.h>
 #include <GUI/SideViewWidget.h>
 #include <GUI/TopViewWidget.h>
-#include <OpenGL/OpenGLWindow3D.h>
+#include <OpenGL/OpenGLWindow.h>
 
 #include <QDebug>
 #include <QtMath>
@@ -15,11 +15,6 @@ Controller::Controller(QObject *parent)
     , mZoomStepSize(2.0f)
     , mOrigin(368, 368)
 {}
-
-CentralWidget *Controller::centralWidget()
-{
-    return mCentralWidget;
-}
 
 void Controller::calculate()
 {
@@ -226,7 +221,7 @@ void Controller::init()
     mLeftWidget = mCentralWidget->leftWidget();
     mLeftWidget->setParameters(mLeftWidgetParameters);
 
-    mOpenGLWindow3D = new OpenGLWindow3D;
+    mOpenGLWindow = new OpenGLWindow;
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
@@ -275,7 +270,12 @@ void Controller::setOrigin(QPointF newOrigin)
     update();
 }
 
-OpenGLWindow3D *Controller::openGLWindow3D() const
+OpenGLWindow *Controller::openGLWindow() const
 {
-    return mOpenGLWindow3D;
+    return mOpenGLWindow;
+}
+
+CentralWidget *Controller::centralWidget()
+{
+    return mCentralWidget;
 }

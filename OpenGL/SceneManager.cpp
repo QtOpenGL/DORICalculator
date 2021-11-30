@@ -1,6 +1,9 @@
 #include "SceneManager.h"
 
 #include <OpenGL/Node/Model.h>
+#include <OpenGL/Renderer/BasicObjectRenderer.h>
+#include <OpenGL/Renderer/ModelRenderer.h>
+#include <OpenGL/Renderer/RegionRenderer.h>
 
 #include <QDir>
 
@@ -20,13 +23,42 @@ bool SceneManager::init()
     if (!mModelRenderer->init())
         return false;
 
+    mRegionRenderer = new RegionRenderer;
+
+    if (!mRegionRenderer->init())
+        return false;
+
+    for (int i = 0; i < 7; i++) {
+        QVector<QVector3D> fakeVertices;
+        QVector<QVector3D> fakeNormals = QVector<QVector3D>(36, QVector3D(0, 1, 0));
+
+        for (int j = 0; j < 12; ++j) {
+            fakeVertices << i * QVector3D(1, 1, 1);
+            fakeVertices << i * QVector3D(-1, 1, 1);
+            fakeVertices << i * QVector3D(1, 1, -1);
+        }
+
+        mRegions << new RegionData(fakeVertices, fakeNormals);
+        mRegions[i]->create();
+        mRegions[i]->setColor(QVector3D(i * 0.1, 1 - i * 0.1, i * i / 100.0f));
+    }
+
     mCamera = new Camera;
     mLight = new Light;
     mCamera->setPosition(0, 5, 5);
     mLight->setPosition(0, 10, 15);
 
-    createBasicObjects();
-    createModels();
+    //createBasicObjects();
+    //createModels();
+
+    // Create a plane
+    {
+        BasicObject *object = new BasicObject(BasicObject::Plane);
+        object->setPosition(0, 0, 0);
+        object->setColor(1, 1, 1);
+        object->scale(100);
+        mNodes << object;
+    }
 
     // Load Suzanne
     ModelData *data = mModelRenderer->loadModel("Resources/Models/Suzanne.obj");
@@ -34,7 +66,6 @@ bool SceneManager::init()
     if (data) {
         Model *model = new Model(data->name());
         model->setPosition(0, 10, -4);
-        model->setColored(true);
         model->setColor(1, 1, 1);
         mNodes << model;
     }
@@ -46,6 +77,21 @@ bool SceneManager::init()
     });
     mTimer.start(10);
 
+    connect(&mSlowTimer, &QTimer::timeout, this, [=]() {
+        for (int i = 0; i < 7; i++) {
+            QVector<QVector3D> fakeVertices;
+            QVector3D randomTranslation = 4 * QVector3D((float(rand()) / RAND_MAX), 0, (float(rand()) / RAND_MAX));
+            for (int j = 0; j < 12; ++j) {
+                fakeVertices << randomTranslation + i * QVector3D(1, 1, 1);
+                fakeVertices << randomTranslation + i * QVector3D(-1, 1, 1);
+                fakeVertices << randomTranslation + i * QVector3D(1, 1, -1);
+            }
+
+            mRegions[i]->setVertices(fakeVertices);
+        }
+    });
+    mSlowTimer.start(2000);
+
     return true;
 }
 
@@ -53,6 +99,7 @@ void SceneManager::render()
 {
     mBasicObjectRenderer->render(mNodes, mCamera, mLight);
     mModelRenderer->render(mNodes, mCamera, mLight);
+    mRegionRenderer->render(mRegions, mCamera, mLight);
 }
 
 void SceneManager::resize(int w, int h)
@@ -130,14 +177,6 @@ void SceneManager::mouseMoveEvent(QMouseEvent *event)
 void SceneManager::createBasicObjects()
 {
     {
-        BasicObject *object = new BasicObject(BasicObject::Plane);
-        object->setPosition(0, 0, 0);
-        object->setColor(1, 1, 1);
-        object->scale(100);
-        mNodes << object;
-    }
-
-    {
         BasicObject *object = new BasicObject(BasicObject::Cuboid);
         object->setPosition(0, 5, -1);
         object->setColor(1, 0, 0);
@@ -199,7 +238,6 @@ void SceneManager::createModels()
         Model *model = new Model(modelNames[i]);
         model->setPosition(3 * modelNames.size() / 2 - 3 * i, 5, 4);
         model->scale(0.01);
-        model->setColored(true);
         model->setColor(1, 0, 1);
         mNodes << model;
     }

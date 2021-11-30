@@ -42,6 +42,7 @@ bool Renderer::init()
     mAmbientStrengthLocation = mShader->uniformLocation("ambientStrength");
     mCameraPositionLocation = mShader->uniformLocation("cameraPosition");
     mLightPowerLocation = mShader->uniformLocation("lightPower");
+    mColorLocation = mShader->uniformLocation("color");
 
     mShader->release();
 

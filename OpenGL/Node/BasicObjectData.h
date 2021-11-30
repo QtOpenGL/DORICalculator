@@ -13,12 +13,11 @@ class BasicObjectData : protected QOpenGLFunctions
 public:
     BasicObjectData(BasicObject::Type type);
 
-    BasicObject::Type type();
-
     void create();
-    void bind();
-    void release();
-    int getVertexCount();
+    void bind() { mVertexArray.bind(); }
+    void release() { mVertexArray.release(); }
+    int getVertexCount() { return mVertices.size(); }
+    BasicObject::Type type() { return mType; }
 
 protected:
     QOpenGLVertexArrayObject mVertexArray;

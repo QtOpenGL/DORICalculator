@@ -2,7 +2,7 @@
 in vec3 vertexPosition;
 in vec3 vertexNormal;
 
-uniform vec3 modelColor;
+uniform vec3 color;
 uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 cameraPosition;
@@ -27,6 +27,6 @@ void main()
     vec3 viewDirection = normalize(cameraPosition - vertexPosition);
     vec3 specularColor = 0.35 * pow(clamp(dot(viewDirection, reflectDirection), 0.0, 1.0), 8) * lightColor;
 
-    finalColor = (ambientColor + diffuseColor + specularColor) * modelColor;
+    finalColor = (ambientColor + diffuseColor + specularColor) * color;
 
 }

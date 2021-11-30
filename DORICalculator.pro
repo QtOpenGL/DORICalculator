@@ -26,9 +26,11 @@ SOURCES += \
     OpenGL/Node/Model.cpp \
     OpenGL/Node/ModelData.cpp \
     OpenGL/Node/Node.cpp \
-    OpenGL/OpenGLWindow3D.cpp \
+    OpenGL/Node/RegionData.cpp \
+    OpenGL/OpenGLWindow.cpp \
     OpenGL/Renderer/BasicObjectRenderer.cpp \
     OpenGL/Renderer/ModelRenderer.cpp \
+    OpenGL/Renderer/RegionRenderer.cpp \
     OpenGL/Renderer/Renderer.cpp \
     OpenGL/SceneManager.cpp
 
@@ -50,9 +52,11 @@ HEADERS += \
     OpenGL/Node/Model.h \
     OpenGL/Node/ModelData.h \
     OpenGL/Node/Node.h \
-    OpenGL/OpenGLWindow3D.h \
+    OpenGL/Node/RegionData.h \
+    OpenGL/OpenGLWindow.h \
     OpenGL/Renderer/BasicObjectRenderer.h \
     OpenGL/Renderer/ModelRenderer.h \
+    OpenGL/Renderer/RegionRenderer.h \
     OpenGL/Renderer/Renderer.h \
     OpenGL/SceneManager.h
 
@@ -66,7 +70,9 @@ DISTFILES += \
     Shaders/BasicObject/FragmentShader.frag \
     Shaders/BasicObject/VertexShader.vert \
     Shaders/Model/FragmentShader.frag \
-    Shaders/Model/VertexShader.vert
+    Shaders/Model/VertexShader.vert \
+    Shaders/Region/FragmentShader.frag \
+    Shaders/Region/VertexShader.vert
 
 
 

@@ -8,18 +8,10 @@ class Model : public Node
 public:
     Model(QString name);
 
-    const QString &name() const;
-
-    bool colored() const;
-    void setColored(bool newColored);
-
-    const QVector3D &color() const;
-    void setColor(float r, float g, float b);
+    const QString &name() const { return mName; }
 
 private:
     QString mName;
-    QVector3D mColor;
-    bool mColored;
 };
 
 #endif // MODEL_H

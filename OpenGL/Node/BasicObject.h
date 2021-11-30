@@ -10,15 +10,11 @@ public:
 
     BasicObject(Type type);
 
-    virtual const QVector3D &color() const;
-    virtual void setColor(float r, float g, float b);
-
-    Type type() const;
-    void setType(Type newType);
+    Type type() const { return mType; };
+    void setType(Type newType) { mType = newType; };
 
 protected:
     Type mType;
-    QVector3D mColor;
 };
 
 #endif // BASICOBJECT_H

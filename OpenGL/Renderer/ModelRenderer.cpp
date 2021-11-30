@@ -12,13 +12,6 @@ bool ModelRenderer::init()
     if (!Renderer::init())
         return false;
 
-    mShader->bindAttributeLocation("vertex", 0);
-    mShader->bindAttributeLocation("normal", 1);
-
-    mShader->bind();
-    mModelColorLocation = mShader->uniformLocation("modelColor");
-    mShader->release();
-
     mInit = true;
 
     return true;
@@ -30,6 +23,7 @@ void ModelRenderer::render(QVector<Node *> nodes, const Camera *camera, const Li
         return;
 
     mShader->bind();
+
     mShader->setUniformValue(mProjectionMatrixLocation, camera->projectionMatrix());
     mShader->setUniformValue(mViewMatrixLocation, camera->viewMatrix());
     mShader->setUniformValue(mLightColorLocation, light->color());
@@ -41,12 +35,8 @@ void ModelRenderer::render(QVector<Node *> nodes, const Camera *camera, const Li
     for (const auto &node : nodes) {
         Model *model = dynamic_cast<Model *>(node);
         if (model) {
+            mShader->setUniformValue(mColorLocation, model->color());
             mShader->setUniformValue(mModelMatrixLocation, model->transformationMatrix());
-
-            if (model->colored())
-                mShader->setUniformValue(mModelColorLocation, model->color());
-            else
-                mShader->setUniformValue(mModelColorLocation, QVector3D(0, 0, 0));
 
             ModelData *data = mModels.value(model->name(), nullptr);
             if (data) {
@@ -98,7 +88,10 @@ ModelData *ModelRenderer::loadModel(QString path)
         return nullptr;
     }
 
+    mShader->bind();
     data->create();
+    mShader->release();
+
     mModels.insert(data->name(), data);
 
     return data;

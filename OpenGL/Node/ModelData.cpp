@@ -51,26 +51,6 @@ void ModelData::create()
     mVertexArray.release();
 }
 
-void ModelData::release()
-{
-    mVertexArray.release();
-}
-
-void ModelData::bind()
-{
-    mVertexArray.bind();
-}
-
-int ModelData::getVertexCount()
-{
-    return mVertices.size();
-}
-
-const QString &ModelData::name() const
-{
-    return mName;
-}
-
 bool ModelData::loadDataFromFile(QString filename)
 {
     QVector<QVector3D> tempVertices;
@@ -119,19 +99,4 @@ bool ModelData::loadDataFromFile(QString filename)
     }
 
     return true;
-}
-
-const QVector<QVector2D> &ModelData::UVs() const
-{
-    return mUVs;
-}
-
-const QVector<QVector3D> &ModelData::normals() const
-{
-    return mNormals;
-}
-
-const QVector<QVector3D> &ModelData::vertices() const
-{
-    return mVertices;
 }

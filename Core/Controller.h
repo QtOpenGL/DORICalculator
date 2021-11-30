@@ -11,7 +11,7 @@ class SideViewWidget;
 class TopViewWidget;
 class CentralWidget;
 class AxisWidget;
-class OpenGLWindow3D;
+class OpenGLWindow;
 
 class Controller : public QObject
 {
@@ -77,7 +77,7 @@ public:
 
     CentralWidget *centralWidget();
 
-    OpenGLWindow3D *openGLWindow3D() const;
+    OpenGLWindow *openGLWindow() const;
 
 public slots:
     void onDirty();
@@ -104,7 +104,7 @@ private:
     CentralWidget *mCentralWidget;
     AxisWidget *mAxisWidget;
     LeftWidget *mLeftWidget;
-    OpenGLWindow3D *mOpenGLWindow3D;
+    OpenGLWindow *mOpenGLWindow;
 
     const float mZoomStepSize;
 
