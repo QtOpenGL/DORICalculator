@@ -4,13 +4,9 @@
 #include <QMouseEvent>
 #include <QTimer>
 
-class BasicObjectRenderer;
-class ModelRenderer;
-class RegionRenderer;
-class Camera;
-class Light;
-class Node;
-class RegionData;
+#include <OpenGL/Object/Object.h>
+
+#include <OpenGL/Renderer/Renderer.h>
 
 class SceneManager : public QObject
 {
@@ -29,16 +25,10 @@ public slots:
     void mouseMoveEvent(QMouseEvent *);
 
 private:
-    void createBasicObjects();
-    void createModels();
+    Renderer *mRenderer;
+    QVector<Object *> mObjects;
 
-private:
-    BasicObjectRenderer *mBasicObjectRenderer;
-    ModelRenderer *mModelRenderer;
-    RegionRenderer *mRegionRenderer;
-
-    QVector<Node *> mNodes;
-    QVector<RegionData *> mRegions;
+    QVector<RegionData *> mRegionData;
 
     Camera *mCamera;
     Light *mLight;

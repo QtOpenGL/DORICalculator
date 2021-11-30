@@ -4,8 +4,6 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 
-#include <OpenGL/Node/Model.h>
-
 OpenGLWindow::OpenGLWindow() {}
 
 void OpenGLWindow::initializeGL()
@@ -29,32 +27,14 @@ void OpenGLWindow::paintGL()
     mSceneManager->render();
 }
 
-void OpenGLWindow::resizeGL(int w, int h)
-{
-    mSceneManager->resize(w, h);
-}
+void OpenGLWindow::resizeGL(int w, int h) { mSceneManager->resize(w, h); }
 
-void OpenGLWindow::keyPressEvent(QKeyEvent *event)
-{
-    mSceneManager->keyPressEvent(event);
-}
+void OpenGLWindow::keyPressEvent(QKeyEvent *event) { mSceneManager->keyPressEvent(event); }
 
-void OpenGLWindow::keyReleaseEvent(QKeyEvent *event)
-{
-    mSceneManager->keyReleaseEvent(event);
-}
+void OpenGLWindow::keyReleaseEvent(QKeyEvent *event) { mSceneManager->keyReleaseEvent(event); }
 
-void OpenGLWindow::mousePressEvent(QMouseEvent *event)
-{
-    mSceneManager->mousePressEvent(event);
-}
+void OpenGLWindow::mousePressEvent(QMouseEvent *event) { mSceneManager->mousePressEvent(event); }
 
-void OpenGLWindow::mouseReleaseEvent(QMouseEvent *event)
-{
-    mSceneManager->mouseReleaseEvent(event);
-}
+void OpenGLWindow::mouseReleaseEvent(QMouseEvent *event) { mSceneManager->mouseReleaseEvent(event); }
 
-void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
-{
-    mSceneManager->mouseMoveEvent(event);
-}
+void OpenGLWindow::mouseMoveEvent(QMouseEvent *event) { mSceneManager->mouseMoveEvent(event); }

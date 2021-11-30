@@ -20,17 +20,14 @@ SOURCES += \
     GUI/TopViewWidget.cpp \
     Main.cpp \
     OpenGL/Camera.cpp \
+    OpenGL/Data/ModelData.cpp \
+    OpenGL/Data/ObjectData.cpp \
+    OpenGL/Data/RegionData.cpp \
     OpenGL/Light.cpp \
-    OpenGL/Node/BasicObject.cpp \
-    OpenGL/Node/BasicObjectData.cpp \
-    OpenGL/Node/Model.cpp \
-    OpenGL/Node/ModelData.cpp \
-    OpenGL/Node/Node.cpp \
-    OpenGL/Node/RegionData.cpp \
+    OpenGL/Object/Model.cpp \
+    OpenGL/Object/Object.cpp \
+    OpenGL/Object/Region.cpp \
     OpenGL/OpenGLWindow.cpp \
-    OpenGL/Renderer/BasicObjectRenderer.cpp \
-    OpenGL/Renderer/ModelRenderer.cpp \
-    OpenGL/Renderer/RegionRenderer.cpp \
     OpenGL/Renderer/Renderer.cpp \
     OpenGL/SceneManager.cpp
 
@@ -46,17 +43,14 @@ HEADERS += \
     GUI/SideViewWidget.h \
     GUI/TopViewWidget.h \
     OpenGL/Camera.h \
+    OpenGL/Data/ModelData.h \
+    OpenGL/Data/ObjectData.h \
+    OpenGL/Data/RegionData.h \
     OpenGL/Light.h \
-    OpenGL/Node/BasicObject.h \
-    OpenGL/Node/BasicObjectData.h \
-    OpenGL/Node/Model.h \
-    OpenGL/Node/ModelData.h \
-    OpenGL/Node/Node.h \
-    OpenGL/Node/RegionData.h \
+    OpenGL/Object/Model.h \
+    OpenGL/Object/Object.h \
+    OpenGL/Object/Region.h \
     OpenGL/OpenGLWindow.h \
-    OpenGL/Renderer/BasicObjectRenderer.h \
-    OpenGL/Renderer/ModelRenderer.h \
-    OpenGL/Renderer/RegionRenderer.h \
     OpenGL/Renderer/Renderer.h \
     OpenGL/SceneManager.h
 
@@ -67,12 +61,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    Shaders/BasicObject/FragmentShader.frag \
-    Shaders/BasicObject/VertexShader.vert \
-    Shaders/Model/FragmentShader.frag \
-    Shaders/Model/VertexShader.vert \
-    Shaders/Region/FragmentShader.frag \
-    Shaders/Region/VertexShader.vert
+    Shaders/FragmentShader.frag \
+    Shaders/VertexShader.vert
+
 
 
 

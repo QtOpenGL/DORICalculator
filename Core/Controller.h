@@ -75,6 +75,18 @@ public:
         Region regions[NUMBER_OF_REGIONS];
     };
 
+    struct Region3D
+    {
+        QVector<QVector3D> vertices;
+        QVector<QVector3D> normals;
+        QVector3D color;
+    };
+
+    struct OpenGLWindowParameters
+    {
+        Region3D regions[NUMBER_OF_REGIONS];
+    };
+
     CentralWidget *centralWidget();
 
     OpenGLWindow *openGLWindow() const;
@@ -86,8 +98,11 @@ public slots:
     void init();
 
 private:
-    void calculate();
     void update();
+    void updateSideViewWidgetParameters();
+    void updateTopViewWidgetParameters();
+    void updateLeftWidgetParameters();
+    void updateOpenGLWindowParameters();
 
     void setMeterToPixelRatio(float newMeterToPixelRatio);
     void setOrigin(QPointF newOrigin);
@@ -98,6 +113,7 @@ private:
     SideViewWidgetParameters *mSideViewWidgetParameters;
     TopViewWidgetParamaters *mTopViewWidgetParameters;
     Logic::Parameters *mLeftWidgetParameters;
+    OpenGLWindowParameters *mOpenGLWindowParameters;
 
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;

@@ -1,11 +1,10 @@
 #include "RegionData.h"
 
-RegionData::RegionData(const QVector<QVector3D> &vertices, const QVector<QVector3D> &normals)
-    : mVertices(vertices)
-    , mNormals(normals)
-{}
+RegionData::RegionData() {}
 
-void RegionData::create()
+RegionData::~RegionData() {}
+
+bool RegionData::create()
 {
     initializeOpenGLFunctions();
 
@@ -15,7 +14,7 @@ void RegionData::create()
     mVertexBuffer.create();
     mVertexBuffer.bind();
     mVertexBuffer.setUsagePattern(QOpenGLBuffer::UsagePattern::DynamicDraw);
-    mVertexBuffer.allocate(getVertexCount() * sizeof(QVector3D));
+    mVertexBuffer.allocate(42 * sizeof(QVector3D)); // Each region has at most 7 faces or 14 triangles or 42 vertices
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,
@@ -30,7 +29,7 @@ void RegionData::create()
     mNormalBuffer.create();
     mNormalBuffer.bind();
     mNormalBuffer.setUsagePattern(QOpenGLBuffer::UsagePattern::DynamicDraw);
-    mNormalBuffer.allocate(getVertexCount() * sizeof(QVector3D));
+    mNormalBuffer.allocate(42 * sizeof(QVector3D));
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1,
@@ -43,6 +42,8 @@ void RegionData::create()
     mNormalBuffer.release();
 
     mVertexArray.release();
+
+    return true;
 }
 
 void RegionData::update()
