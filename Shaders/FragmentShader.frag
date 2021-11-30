@@ -28,5 +28,4 @@ void main()
     vec3 specularColor = 0.35 * pow(clamp(dot(viewDirection, reflectDirection), 0.0, 1.0), 8) * lightColor;
 
     finalColor = (ambientColor + diffuseColor + specularColor) * objectColor;
-
 }

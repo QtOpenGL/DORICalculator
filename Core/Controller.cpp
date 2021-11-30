@@ -1,5 +1,6 @@
 #include "Controller.h"
 
+#include <Core/Constants.h>
 #include <Core/Enums.h>
 #include <GUI/CentralWidget.h>
 #include <GUI/SideViewWidget.h>
@@ -27,6 +28,7 @@ void Controller::update()
     mSideViewWidget->refresh();
     mTopViewWidget->refresh();
     mLeftWidget->refresh();
+    mOpenGLWindow->refresh();
 }
 
 void Controller::updateTopViewWidgetParameters()
@@ -84,12 +86,79 @@ void Controller::updateTopViewWidgetParameters()
     }
 }
 
-void Controller::updateLeftWidgetParameters()
+void Controller::updateLeftWidgetParameters() { *mLeftWidgetParameters = *mLogicParameters; }
+
+void Controller::updateOpenGLWindowParameters()
 {
-    *mLeftWidgetParameters = *mLogicParameters;
+    for (int i = 0; i < NUMBER_OF_REGIONS; i++) {
+        mOpenGLWindowParameters->regions[i].vertices = createVerticesForOpenGLWindow(mLogicParameters->regions[i]);
+        mOpenGLWindowParameters->regions[i].normals = createNormalsForOpenGLWindow(mOpenGLWindowParameters->regions[i].vertices);
+        mOpenGLWindowParameters->regions[i].color = QVector3D(REGION_COLORS[i].red() / 255.0f, REGION_COLORS[i].green() / 255.0f, REGION_COLORS[i].blue() / 255.0f);
+        mOpenGLWindowParameters->regions[i].visible = isVisible(mOpenGLWindowParameters->regions[i]);
+    }
 }
 
-void Controller::updateOpenGLWindowParameters() {}
+bool Controller::isVisible(const Region3D &region)
+{
+    for (int i = 0; i < region.vertices.size(); i++) {
+        if (region.vertices[i].y() >= 0)
+            return true;
+    }
+
+    return false;
+}
+
+QVector<QVector3D> Controller::createVerticesForOpenGLWindow(const Logic::Region &region)
+{
+    QVector<QVector3D> vertices;
+
+    for (int i = 0; i < 3; i++) {
+        vertices << QVector3D(region.topVertices[i].x(), region.topVertices[i].z(), -region.topVertices[i].y());
+    }
+
+    for (int i = 2; i < 5; i++) {
+        vertices << QVector3D(region.topVertices[i % 4].x(), region.topVertices[i % 4].z(), -region.topVertices[i % 4].y());
+    }
+
+    for (int i = 0; i < 4; i++) {
+        vertices << QVector3D(region.topVertices[i].x(), region.topVertices[i].z(), -region.topVertices[i].y());
+        vertices << QVector3D(region.bottomVertices[i].x(), region.bottomVertices[i].z(), -region.bottomVertices[i].y());
+        vertices << QVector3D(region.bottomVertices[(i + 1) % 4].x(), region.bottomVertices[(i + 1) % 4].z(), -region.bottomVertices[(i + 1) % 4].y());
+        vertices << QVector3D(region.bottomVertices[(i + 1) % 4].x(), region.bottomVertices[(i + 1) % 4].z(), -region.bottomVertices[(i + 1) % 4].y());
+        vertices << QVector3D(region.topVertices[(i + 1) % 4].x(), region.topVertices[(i + 1) % 4].z(), -region.topVertices[(i + 1) % 4].y());
+        vertices << QVector3D(region.topVertices[i % 4].x(), region.topVertices[i % 4].z(), -region.topVertices[i % 4].y());
+    }
+
+    for (int i = 0; i < 3; i++) {
+        vertices << QVector3D(region.bottomVertices[i].x(), region.bottomVertices[i].z(), -region.bottomVertices[i].y());
+    }
+
+    for (int i = 2; i < 5; i++) {
+        vertices << QVector3D(region.bottomVertices[i % 4].x(), region.bottomVertices[i % 4].z(), -region.bottomVertices[i % 4].y());
+    }
+
+    return vertices;
+}
+
+QVector<QVector3D> Controller::createNormalsForOpenGLWindow(const QVector<QVector3D> &vertices)
+{
+    QVector<QVector3D> normals;
+
+    for (int i = 1; i < vertices.size(); i += 3) {
+        QVector3D u = vertices[i - 1] - vertices[i];
+        QVector3D v = vertices[i + 1] - vertices[i];
+        u.normalize();
+        v.normalize();
+
+        QVector3D vxu = QVector3D::crossProduct(v, u);
+        vxu.normalize();
+        normals << vxu;
+        normals << vxu;
+        normals << vxu;
+    }
+
+    return normals;
+}
 
 void Controller::updateSideViewWidgetParameters()
 {
@@ -181,10 +250,7 @@ void Controller::onZoom(int i)
     }
 }
 
-void Controller::onPan(int x, int y)
-{
-    setOrigin(QPointF(mOrigin.x() + x, mOrigin.y() + y));
-}
+void Controller::onPan(int x, int y) { setOrigin(QPointF(mOrigin.x() + x, mOrigin.y() + y)); }
 
 void Controller::init()
 {
@@ -224,8 +290,9 @@ void Controller::init()
     mLeftWidget->setParameters(mLeftWidgetParameters);
 
     mOpenGLWindowParameters = new OpenGLWindowParameters;
-
     mOpenGLWindow = new OpenGLWindow;
+    mOpenGLWindow->setParameters(mOpenGLWindowParameters);
+    mOpenGLWindow->init();
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
@@ -274,12 +341,6 @@ void Controller::setOrigin(QPointF newOrigin)
     update();
 }
 
-OpenGLWindow *Controller::openGLWindow() const
-{
-    return mOpenGLWindow;
-}
+OpenGLWindow *Controller::openGLWindow() const { return mOpenGLWindow; }
 
-CentralWidget *Controller::centralWidget()
-{
-    return mCentralWidget;
-}
+CentralWidget *Controller::centralWidget() { return mCentralWidget; }

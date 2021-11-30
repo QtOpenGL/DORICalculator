@@ -80,6 +80,8 @@ public:
         QVector<QVector3D> vertices;
         QVector<QVector3D> normals;
         QVector3D color;
+        bool visible;
+        QVector<QVector2D> groundIntersections;
     };
 
     struct OpenGLWindowParameters
@@ -103,6 +105,10 @@ private:
     void updateTopViewWidgetParameters();
     void updateLeftWidgetParameters();
     void updateOpenGLWindowParameters();
+    bool isVisible(const Region3D &region);
+
+    QVector<QVector3D> createVerticesForOpenGLWindow(const Logic::Region &region);
+    QVector<QVector3D> createNormalsForOpenGLWindow(const QVector<QVector3D> &vertices);
 
     void setMeterToPixelRatio(float newMeterToPixelRatio);
     void setOrigin(QPointF newOrigin);

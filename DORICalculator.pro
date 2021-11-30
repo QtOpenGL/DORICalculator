@@ -28,8 +28,7 @@ SOURCES += \
     OpenGL/Object/Object.cpp \
     OpenGL/Object/Region.cpp \
     OpenGL/OpenGLWindow.cpp \
-    OpenGL/Renderer/Renderer.cpp \
-    OpenGL/SceneManager.cpp
+    OpenGL/Renderer/Renderer.cpp
 
 HEADERS += \
     Core/Constants.h \
@@ -51,8 +50,7 @@ HEADERS += \
     OpenGL/Object/Object.h \
     OpenGL/Object/Region.h \
     OpenGL/OpenGLWindow.h \
-    OpenGL/Renderer/Renderer.h \
-    OpenGL/SceneManager.h
+    OpenGL/Renderer/Renderer.h
 
 
 # Default rules for deployment.

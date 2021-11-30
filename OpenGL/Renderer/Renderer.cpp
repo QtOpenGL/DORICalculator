@@ -89,6 +89,9 @@ void Renderer::render(QVector<Object *> objects, const Camera *camera, const Lig
         }
 
         if (region) {
+            if (!region->visible())
+                continue;
+
             data = region->data();
         }
 

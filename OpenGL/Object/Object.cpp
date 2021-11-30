@@ -33,3 +33,5 @@ void Object::scale(float factor) { mTransformationMatrix.scale(factor); }
 const QVector3D &Object::color() const { return mColor; }
 
 void Object::setColor(float r, float g, float b) { mColor = QVector3D(r, g, b); }
+
+void Object::setColor(const QVector3D &newColor) { mColor = newColor; }

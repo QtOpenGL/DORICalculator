@@ -13,8 +13,12 @@ public:
     RegionData *data() const;
     void setData(RegionData *newData);
 
+    bool visible() const;
+    void setVisible(bool newVisible);
+
 private:
     RegionData *mData; // Each region has its own data
+    bool mVisible;
 };
 
 #endif // REGION_H

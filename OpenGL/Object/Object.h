@@ -22,6 +22,7 @@ public:
 
     const QVector3D &color() const;
     void setColor(float r, float g, float b);
+    void setColor(const QVector3D &newColor);
 
 protected:
     QMatrix4x4 mTransformationMatrix;
