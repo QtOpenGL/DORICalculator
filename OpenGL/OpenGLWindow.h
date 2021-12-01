@@ -2,9 +2,9 @@
 #define OPENGLWINDOW_H
 
 #include <Core/Controller.h>
-#include <OpenGL/Object/Model.h>
-#include <OpenGL/Object/Region.h>
-#include <OpenGL/Renderer/Renderer.h>
+#include <OpenGL/Data/RegionData.h>
+#include <OpenGL/Object/Object.h>
+#include <OpenGL/Renderer/ObjectRenderer.h>
 
 #include <QOpenGLFunctions>
 #include <QOpenGLWindow>
@@ -20,7 +20,6 @@ public:
     void paintGL() override;
     void resizeGL(int w, int h) override;
     void refresh();
-    void init();
 
     Controller::OpenGLWindowParameters *parameters() const;
     void setParameters(Controller::OpenGLWindowParameters *newParameters);
@@ -34,15 +33,14 @@ protected:
 
 private:
     Controller::OpenGLWindowParameters *mParameters;
-    Renderer *mRenderer;
+    ObjectRenderer *mObjectRenderer;
     QVector<Object *> mObjects;
 
-    Region mRegions[7];
+    RegionData mRegions[7];
 
     Camera *mCamera;
     Light *mLight;
     QTimer mTimer;
-    QTimer mSlowTimer;
 
     QPointF mPreviousMousePosition;
     bool mMousePressed;

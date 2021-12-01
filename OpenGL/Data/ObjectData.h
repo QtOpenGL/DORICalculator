@@ -1,36 +1,38 @@
 #ifndef OBJECTDATA_H
 #define OBJECTDATA_H
 
+#include <OpenGL/Object/Object.h>
+
+#include <QFile>
 #include <QOpenGLBuffer>
+#include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
 #include <QVector3D>
 #include <QVector>
 
-class ObjectData
+class ObjectData : protected QOpenGLFunctions
 {
 public:
-    ObjectData();
-    virtual ~ObjectData();
+    ObjectData(Object::Type type);
 
-    virtual bool create() = 0;
-    virtual void update() = 0;
-    virtual void bind();
-    virtual void release();
+    bool create();
+    void bind();
+    void release();
 
-    virtual QVector<QVector3D> vertices() const;
-    virtual void setVertices(const QVector<QVector3D> newVertices);
+    int getVertexCount();
 
-    virtual QVector<QVector3D> normals() const;
-    virtual void setNormals(const QVector<QVector3D> newNormals);
+private:
+    QFile getModelFile();
+    bool loadData();
 
-    virtual int getVertexCount();
-
-protected:
+private:
+    Object::Type mType;
     QOpenGLVertexArrayObject mVertexArray;
     QOpenGLBuffer mVertexBuffer;
     QOpenGLBuffer mNormalBuffer;
     QVector<QVector3D> mVertices;
     QVector<QVector3D> mNormals;
+    QVector<QVector2D> mUVs;
 };
 
 #endif // OBJECTDATA_H

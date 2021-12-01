@@ -92,10 +92,7 @@ QPointF SideViewWidget::mapFrom3d(float distance, float height)
     return QPointF(x, y);
 }
 
-QPointF SideViewWidget::mapFrom3d(Eigen::Vector3f vector)
-{
-    return mapFrom3d(vector.x(), vector.z());
-}
+QPointF SideViewWidget::mapFrom3d(Eigen::Vector3f vector) { return mapFrom3d(vector.x(), vector.z()); }
 
 Eigen::Vector3f SideViewWidget::mapFrom2d(float x, float y)
 {
@@ -124,7 +121,7 @@ void SideViewWidget::paintEvent(QPaintEvent *)
     // Regions
     {
         painter.setRenderHint(QPainter::Antialiasing, true);
-        for (int i = 0; i < NUMBER_OF_REGIONS; i++) {
+        for (int i = 0; i < 7; i++) {
             if (mParameters->regions[i].visible) {
                 QPainterPath path;
                 path.addPolygon(mParameters->regions[i].region);
@@ -304,25 +301,13 @@ void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)
     update();
 }
 
-void SideViewWidget::wheelEvent(QWheelEvent *event)
-{
-    emit zoom(event->angleDelta().y());
-}
+void SideViewWidget::wheelEvent(QWheelEvent *event) { emit zoom(event->angleDelta().y()); }
 
-void SideViewWidget::setMeterToPixelRatio(float newMeterToPixelRatio)
-{
-    mMeterToPixelRatio = newMeterToPixelRatio;
-}
+void SideViewWidget::setMeterToPixelRatio(float newMeterToPixelRatio) { mMeterToPixelRatio = newMeterToPixelRatio; }
 
-void SideViewWidget::setOrigin(QPointF newOrigin)
-{
-    mOrigin = newOrigin;
-}
+void SideViewWidget::setOrigin(QPointF newOrigin) { mOrigin = newOrigin; }
 
-void SideViewWidget::setParameters(Controller::SideViewWidgetParameters *newParameters)
-{
-    mParameters = newParameters;
-}
+void SideViewWidget::setParameters(Controller::SideViewWidgetParameters *newParameters) { mParameters = newParameters; }
 
 void SideViewWidget::updateHandles()
 {

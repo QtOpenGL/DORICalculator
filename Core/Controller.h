@@ -62,7 +62,7 @@ public:
         Target target;
         Ground ground;
         LowerBoundary lowerBoundary;
-        Region regions[NUMBER_OF_REGIONS];
+        Region regions[7];
         QPointF bisectorIntersection;
         QPointF oppositeBisectorIntersection;
     };
@@ -73,21 +73,26 @@ public:
         Target target;
         Ground ground;
         LowerBoundary lowerBoundary;
-        Region regions[NUMBER_OF_REGIONS];
+        Region regions[7];
     };
 
-    struct Region3D
+    struct OpenGLWindowRegion
     {
+        QVector<QVector3D> edgeVertices;
         QVector<QVector3D> vertices;
-        QVector<QVector3D> normals;
         QVector3D color;
         bool visible;
-        QVector<QVector3D> groundIntersections;
+    };
+
+    struct OpenGLWindowFrustum
+    {
+        QVector<QVector3D> edgeVertices;
     };
 
     struct OpenGLWindowParameters
     {
-        Region3D regions[NUMBER_OF_REGIONS];
+        OpenGLWindowRegion regions[7];
+        OpenGLWindowFrustum frustum;
     };
 
     CentralWidget *centralWidget();
@@ -106,7 +111,7 @@ private:
     void updateTopViewWidgetParameters();
     void updateLeftWidgetParameters();
     void updateOpenGLWindowParameters();
-    bool isVisible(const Region3D &region);
+    bool isVisible(const OpenGLWindowRegion &region);
     QVector<QVector3D> convertToOpenGLConvention(const QVector<Eigen::Vector3f> &vectors);
 
     QVector<QVector3D> createVerticesForOpenGLWindow(const Logic::Region &region);

@@ -4,5 +4,4 @@
 enum VertexNames { V0, V1, V2, V3 };
 enum EdgeNames { E0, E1, E2, E3 };
 enum RegionNames { STRONG_IDENTIFICATION, IDENTIFICATION, RECOGNITION, OBSERVATION, DETECTION, MONITORING, DEAD_ZONE };
-constexpr int NUMBER_OF_REGIONS = 7;
 #endif // ENUMS_H

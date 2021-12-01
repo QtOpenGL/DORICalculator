@@ -20,15 +20,12 @@ SOURCES += \
     GUI/TopViewWidget.cpp \
     Main.cpp \
     OpenGL/Camera.cpp \
-    OpenGL/Data/ModelData.cpp \
     OpenGL/Data/ObjectData.cpp \
     OpenGL/Data/RegionData.cpp \
     OpenGL/Light.cpp \
-    OpenGL/Object/Model.cpp \
     OpenGL/Object/Object.cpp \
-    OpenGL/Object/Region.cpp \
     OpenGL/OpenGLWindow.cpp \
-    OpenGL/Renderer/Renderer.cpp
+    OpenGL/Renderer/ObjectRenderer.cpp
 
 HEADERS += \
     Core/Constants.h \
@@ -42,15 +39,12 @@ HEADERS += \
     GUI/SideViewWidget.h \
     GUI/TopViewWidget.h \
     OpenGL/Camera.h \
-    OpenGL/Data/ModelData.h \
     OpenGL/Data/ObjectData.h \
     OpenGL/Data/RegionData.h \
     OpenGL/Light.h \
-    OpenGL/Object/Model.h \
     OpenGL/Object/Object.h \
-    OpenGL/Object/Region.h \
     OpenGL/OpenGLWindow.h \
-    OpenGL/Renderer/Renderer.h
+    OpenGL/Renderer/ObjectRenderer.h
 
 
 # Default rules for deployment.

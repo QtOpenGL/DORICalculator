@@ -1,11 +1,12 @@
 #include "Object.h"
 
-Object::Object()
-    : mPosition(0, 0, 0)
+Object::Object(Type type)
+    : mType(type)
+    , mPosition(0, 0, 0)
     , mColor(1, 1, 1)
 {}
 
-Object::~Object() { mTransformationMatrix.setToIdentity(); }
+Object::Type Object::type() const { return mType; }
 
 const QMatrix4x4 &Object::transformationMatrix() const { return mTransformationMatrix; }
 

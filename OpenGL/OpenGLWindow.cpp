@@ -14,90 +14,44 @@ void OpenGLWindow::initializeGL()
     glClearColor(0, 0, 0, 1);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
+    //    glDisable(GL_CULL_FACE);
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    mRenderer = new Renderer;
-    mRenderer->init();
-
-    //    for (int i = 0; i < 7; i++) {
-    //        QVector<QVector3D> fakeVertices;
-    //        QVector<QVector3D> fakeNormals = QVector<QVector3D>(36, QVector3D(0, 1, 0));
-
-    //        for (int j = 0; j < 12; ++j) {
-    //            fakeVertices << i * QVector3D(1, 1, 1);
-    //            fakeVertices << i * QVector3D(-1, 1, 1);
-    //            fakeVertices << i * QVector3D(1, 1, -1);
-    //        }
-
-    //        Region *region = new Region;
-    //        RegionData *data = new RegionData;
-
-    //        data->setVertices(fakeVertices);
-    //        data->setNormals(fakeNormals);
-
-    //        if (data->create()) {
-    //            region->setData(data);
-
-    //            mRegionData << data;
-    //            mObjects << region;
-
-    //            region->setColor(i * 0.1, 1 - i * 0.1, i * i / 100.0f);
-
-    //        } else {
-    //            delete data;
-    //            delete region;
-    //        }
-    //    }
+    mObjectRenderer = new ObjectRenderer;
+    mObjectRenderer->init();
 
     for (int i = 0; i < 7; i++) {
-        mRegions[i].data()->create();
+        mRegions[i].create();
     }
 
-    Model *plane = new Model(Model::Type::Plane);
+    Object *plane = new Object(Object::Type::Plane);
     plane->setPosition(0, -0.01, 0);
     plane->setColor(1, 1, 1);
     plane->scale(10);
     mObjects << plane;
 
     for (int i = 0; i < 10; i++) {
-        Model *cube = new Model(Model::Type::Cube);
+        Object *cube = new Object(Object::Type::Cube);
         cube->setPosition(10 * i, 1, -5);
         cube->setColor(1, 1, 1);
         cube->scale(0.01);
         mObjects << cube;
     }
 
-    //    Model *suzanne = new Model(Model::Type::Suzanne);
-    //    suzanne->setPosition(-10, 10, 10);
-    //    suzanne->setColor(1, 0, 1);
-    //    mObjects << suzanne;
+    Object *suzanne = new Object(Object::Type::Suzanne);
+    suzanne->setPosition(10, 10, 10);
+    suzanne->setColor(1, 0, 1);
+    mObjects << suzanne;
 
     mCamera = new Camera;
     mLight = new Light;
-    mCamera->setPosition(0, 50, 0);
+    mCamera->setPosition(0, 20, 20);
     mLight->setPosition(2, 50, 2);
     mLight->setColor(1.0f, 1.0f, 1.0f);
 
-    connect(&mTimer, &QTimer::timeout, this, [=]() {
-        mCamera->update();
-        QQuaternion dr = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), 0.5);
-        //mObjects.last()->rotate(dr);
-    });
+    connect(&mTimer, &QTimer::timeout, this, [=]() { mCamera->update(); });
     mTimer.start(10);
-
-    connect(&mSlowTimer, &QTimer::timeout, this, [=]() {
-        //        for (int i = 0; i < 7; i++) {
-        //            QVector<QVector3D> fakeVertices;
-        //            QVector3D randomTranslation = 4 * QVector3D((float(rand()) / RAND_MAX), 0, (float(rand()) / RAND_MAX));
-        //            for (int j = 0; j < 12; ++j) {
-        //                fakeVertices << randomTranslation + i * QVector3D(1, 1, 1);
-        //                fakeVertices << randomTranslation + i * QVector3D(-1, 1, 1);
-        //                fakeVertices << randomTranslation + i * QVector3D(1, 1, -1);
-        //            }
-
-        //            mRegionData[i]->setVertices(fakeVertices);
-        //        }
-    });
-    mSlowTimer.start(2000);
 
     connect(this, SIGNAL(frameSwapped()), this, SLOT(update()));
 
@@ -109,40 +63,24 @@ void OpenGLWindow::paintGL()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    mRenderer->render(mObjects, mCamera, mLight);
+    mObjectRenderer->render(mObjects, mCamera, mLight);
+    //    mRenderer->render(mRegions, mCamera, mLight);
 }
 
 void OpenGLWindow::resizeGL(int w, int h)
 {
     QMatrix4x4 projection;
     projection.setToIdentity();
-    projection.perspective(45.0f, float(w) / float(h), 0.1f, 10000.0f);
+    projection.perspective(60.0f, float(w) / float(h), 0.1f, 10000.0f);
     mCamera->setProjectionMatrix(projection);
 }
 
 void OpenGLWindow::refresh()
 {
     for (int i = 0; i < 7; i++) {
-        mRegions[i].data()->setVertices(mParameters->regions[i].vertices);
-        mRegions[i].data()->setNormals(mParameters->regions[i].normals);
+        mRegions[i].setVertices(mParameters->regions[i].vertices);
         mRegions[i].setColor(mParameters->regions[i].color);
         mRegions[i].setVisible(mParameters->regions[i].visible);
-    }
-
-    //    for (int i = 0; i < 7; i++) {
-    //        mRegions[i].data()->setVertices(mParameters->regions[i].groundIntersections);
-    //        mRegions[i].data()->setNormals(mParameters->regions[i].normals);
-    //        mRegions[i].setColor(mParameters->regions[i].color);
-    //        mRegions[i].setVisible(mParameters->regions[i].visible);
-    //    }
-}
-
-void OpenGLWindow::init()
-{
-    for (int i = 0; i < 7; i++) {
-        RegionData *data = new RegionData;
-        mRegions[i].setData(data);
-        mObjects << &mRegions[i];
     }
 }
 
@@ -186,9 +124,9 @@ void OpenGLWindow::keyReleaseEvent(QKeyEvent *event)
         mCamera->setMovementSpeed(1.0f);
 }
 
-void OpenGLWindow::mousePressEvent(QMouseEvent *event) { mMousePressed = true; }
+void OpenGLWindow::mousePressEvent(QMouseEvent *) { mMousePressed = true; }
 
-void OpenGLWindow::mouseReleaseEvent(QMouseEvent *event)
+void OpenGLWindow::mouseReleaseEvent(QMouseEvent *)
 {
     mMousePressed = false;
     mCamera->rotate(Camera::MouseControl::PAN, 0);

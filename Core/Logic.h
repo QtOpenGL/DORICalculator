@@ -58,7 +58,7 @@ public:
         Camera camera;
         Entity target;
         Entity lowerBoundary;
-        Region regions[NUMBER_OF_REGIONS];
+        Region regions[7];
     };
 
 public:

@@ -72,7 +72,7 @@ void Controller::updateTopViewWidgetParameters()
 
     QPolygonF roi = lowerBoundaryRoi.intersected(targetRoi);
 
-    for (int i = 0; i < NUMBER_OF_REGIONS; ++i) {
+    for (int i = 0; i < 7; ++i) {
         Eigen::Hyperplane<float, 3> plane(Eigen::Vector3f(0, 0, 1).normalized(), -mLogicParameters->lowerBoundary.height);
         QVector<Eigen::Vector3f> intersections = mLogic.findIntersection(mLogicParameters->regions[i], plane);
 
@@ -91,19 +91,15 @@ void Controller::updateLeftWidgetParameters() { *mLeftWidgetParameters = *mLogic
 
 void Controller::updateOpenGLWindowParameters()
 {
-    for (int i = 0; i < NUMBER_OF_REGIONS; i++) {
-        mOpenGLWindowParameters->regions[i].vertices = createVerticesForOpenGLWindow(mLogicParameters->regions[i]);
-        mOpenGLWindowParameters->regions[i].normals = createNormalsForOpenGLWindow(mOpenGLWindowParameters->regions[i].vertices);
+    for (int i = 0; i < 7; i++) {
+        QVector<Eigen::Vector3f> vertices = mLogic.findIntersection(mLogicParameters->regions[i], mGround);
+        mOpenGLWindowParameters->regions[i].vertices = convertToOpenGLConvention(vertices);
         mOpenGLWindowParameters->regions[i].color = QVector3D(REGION_COLORS[i].red() / 255.0f, REGION_COLORS[i].green() / 255.0f, REGION_COLORS[i].blue() / 255.0f);
         mOpenGLWindowParameters->regions[i].visible = isVisible(mOpenGLWindowParameters->regions[i]);
-
-        QVector<Eigen::Vector3f> intersections = mLogic.findIntersection(mLogicParameters->regions[i], mGround);
-        mOpenGLWindowParameters->regions[i].groundIntersections = convertToOpenGLConvention(intersections);
-        //mOpenGLWindowParameters->regions[i].normals = createNormalsForOpenGLWindow(mOpenGLWindowParameters->regions[i].groundIntersections);
     }
 }
 
-bool Controller::isVisible(const Region3D &region)
+bool Controller::isVisible(const OpenGLWindowRegion &region)
 {
     for (int i = 0; i < region.vertices.size(); i++) {
         if (region.vertices[i].y() >= 0)
@@ -209,7 +205,7 @@ void Controller::updateSideViewWidgetParameters()
     roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height));
     roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->target.height));
 
-    for (int i = 0; i < NUMBER_OF_REGIONS; ++i) {
+    for (int i = 0; i < 7; ++i) {
         QPolygonF region;
 
         region.append(mSideViewWidget->mapFrom3d(mLogicParameters->regions[i].bottomVertices[0]));
@@ -311,7 +307,6 @@ void Controller::init()
     mOpenGLWindowParameters = new OpenGLWindowParameters;
     mOpenGLWindow = new OpenGLWindow;
     mOpenGLWindow->setParameters(mOpenGLWindowParameters);
-    mOpenGLWindow->init();
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);

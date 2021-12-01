@@ -11,15 +11,9 @@ Logic::Logic()
     : mGround(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), 0))
 {}
 
-Logic::Parameters *Logic::parameters() const
-{
-    return mParameters;
-}
+Logic::Parameters *Logic::parameters() const { return mParameters; }
 
-void Logic::setParameters(Logic::Parameters *newParameters)
-{
-    mParameters = newParameters;
-}
+void Logic::setParameters(Logic::Parameters *newParameters) { mParameters = newParameters; }
 
 void Logic::calculate()
 {
@@ -131,11 +125,11 @@ void Logic::calculate()
         lowerBoundary.height = lowerBoundaryHeight;
     }
 
-    Region regions[NUMBER_OF_REGIONS];
+    Region regions[7];
     const Eigen::AngleAxis<float> rotation = Eigen::AngleAxis<float>(-tiltAngleRadians, Eigen::Vector3f(0, -1, 0));
     const Eigen::Vector3f normalAfterRotation = rotation * Eigen::Vector3f(-1, 0, 0);
 
-    for (int i = 0; i < NUMBER_OF_REGIONS; i++) {
+    for (int i = 0; i < 7; i++) {
         float limit = 0.5 * (sensorWidth / REGION_PPMS[i]) / tan(halfHorizontalFovRadians);
 
         if (limit < zNear)
@@ -168,7 +162,7 @@ void Logic::calculate()
     mParameters->lowerBoundary = lowerBoundary;
     mParameters->camera.tiltAngle = tiltAngle;
 
-    std::copy(regions, regions + NUMBER_OF_REGIONS, mParameters->regions);
+    std::copy(regions, regions + 7, mParameters->regions);
 }
 
 QVector<Eigen::Vector3f> Logic::findIntersection(const Region &region, const Eigen::Hyperplane<float, 3> &plane)

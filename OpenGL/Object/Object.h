@@ -2,12 +2,17 @@
 #define OBJECT_H
 
 #include <QMatrix4x4>
+#include <QQuaternion>
+#include <QString>
 
 class Object
 {
 public:
-    Object();
-    virtual ~Object();
+    enum Type { Capsule, Cone, Cube, Cylinder, Dome, Plane, Pyramid, Sphere, Suzanne, Tetrahedron, Torus, TorusKnot };
+
+    Object(Type type);
+
+    Type type() const;
 
     const QMatrix4x4 &transformationMatrix() const;
     virtual void setTransformationMatrix(const QMatrix4x4 &newTransformationMatrix);
@@ -25,6 +30,7 @@ public:
     void setColor(const QVector3D &newColor);
 
 protected:
+    Type mType;
     QMatrix4x4 mTransformationMatrix;
     QVector3D mPosition;
     QVector3D mColor;
