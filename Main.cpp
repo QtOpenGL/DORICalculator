@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     centralWidget->showMaximized();
 
     OpenGLWindow *opengl = controller->openGLWindow();
-    opengl->setTitle("DORI Calculator - OpenGLWindow3D");
+    opengl->setTitle("DORI Calculator - OpenGLWindow");
     opengl->showMaximized();
 
     return app.exec();

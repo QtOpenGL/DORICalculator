@@ -15,6 +15,7 @@ Controller::Controller(QObject *parent)
     , mLogic(Logic::getInstance())
     , mZoomStepSize(2.0f)
     , mOrigin(368, 368)
+    , mGround(Eigen::Vector3f(0, 0, 1), 0)
 {}
 
 void Controller::update()
@@ -95,6 +96,10 @@ void Controller::updateOpenGLWindowParameters()
         mOpenGLWindowParameters->regions[i].normals = createNormalsForOpenGLWindow(mOpenGLWindowParameters->regions[i].vertices);
         mOpenGLWindowParameters->regions[i].color = QVector3D(REGION_COLORS[i].red() / 255.0f, REGION_COLORS[i].green() / 255.0f, REGION_COLORS[i].blue() / 255.0f);
         mOpenGLWindowParameters->regions[i].visible = isVisible(mOpenGLWindowParameters->regions[i]);
+
+        QVector<Eigen::Vector3f> intersections = mLogic.findIntersection(mLogicParameters->regions[i], mGround);
+        mOpenGLWindowParameters->regions[i].groundIntersections = convertToOpenGLConvention(intersections);
+        //mOpenGLWindowParameters->regions[i].normals = createNormalsForOpenGLWindow(mOpenGLWindowParameters->regions[i].groundIntersections);
     }
 }
 
@@ -106,6 +111,20 @@ bool Controller::isVisible(const Region3D &region)
     }
 
     return false;
+}
+
+QVector<QVector3D> Controller::convertToOpenGLConvention(const QVector<Eigen::Vector3f> &vectors)
+{
+    QVector<QVector3D> result;
+    int size = vectors.size();
+
+    for (int i = 1; i < size; i += 2) {
+        result << QVector3D(vectors[i - 1].x(), vectors[i - 1].z(), -vectors[i - 1].y());
+        result << QVector3D(vectors[i].x(), vectors[i].z(), -vectors[i].y());
+        result << QVector3D(vectors[(i + 1) % size].x(), vectors[(i + 1) % size].z(), -vectors[(i + 1) % size].y());
+    }
+
+    return result;
 }
 
 QVector<QVector3D> Controller::createVerticesForOpenGLWindow(const Logic::Region &region)

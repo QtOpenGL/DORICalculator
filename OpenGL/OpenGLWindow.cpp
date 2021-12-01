@@ -53,14 +53,23 @@ void OpenGLWindow::initializeGL()
     }
 
     Model *plane = new Model(Model::Type::Plane);
-    plane->setPosition(0, 0, 0);
+    plane->setPosition(0, -0.01, 0);
     plane->setColor(1, 1, 1);
+    plane->scale(10);
     mObjects << plane;
 
-    Model *suzanne = new Model(Model::Type::Suzanne);
-    suzanne->setPosition(-10, 10, 10);
-    suzanne->setColor(1, 0, 1);
-    mObjects << suzanne;
+    for (int i = 0; i < 10; i++) {
+        Model *cube = new Model(Model::Type::Cube);
+        cube->setPosition(10 * i, 1, -5);
+        cube->setColor(1, 1, 1);
+        cube->scale(0.01);
+        mObjects << cube;
+    }
+
+    //    Model *suzanne = new Model(Model::Type::Suzanne);
+    //    suzanne->setPosition(-10, 10, 10);
+    //    suzanne->setColor(1, 0, 1);
+    //    mObjects << suzanne;
 
     mCamera = new Camera;
     mLight = new Light;
@@ -119,6 +128,13 @@ void OpenGLWindow::refresh()
         mRegions[i].setColor(mParameters->regions[i].color);
         mRegions[i].setVisible(mParameters->regions[i].visible);
     }
+
+    //    for (int i = 0; i < 7; i++) {
+    //        mRegions[i].data()->setVertices(mParameters->regions[i].groundIntersections);
+    //        mRegions[i].data()->setNormals(mParameters->regions[i].normals);
+    //        mRegions[i].setColor(mParameters->regions[i].color);
+    //        mRegions[i].setVisible(mParameters->regions[i].visible);
+    //    }
 }
 
 void OpenGLWindow::init()

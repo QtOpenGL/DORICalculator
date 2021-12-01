@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include "Logic.h"
+#include <Dependencies/Eigen/src/Geometry/Hyperplane.h>
 #include <GUI/LeftWidget.h>
 #include <QObject>
 #include <QPolygonF>
@@ -81,7 +82,7 @@ public:
         QVector<QVector3D> normals;
         QVector3D color;
         bool visible;
-        QVector<QVector2D> groundIntersections;
+        QVector<QVector3D> groundIntersections;
     };
 
     struct OpenGLWindowParameters
@@ -106,6 +107,7 @@ private:
     void updateLeftWidgetParameters();
     void updateOpenGLWindowParameters();
     bool isVisible(const Region3D &region);
+    QVector<QVector3D> convertToOpenGLConvention(const QVector<Eigen::Vector3f> &vectors);
 
     QVector<QVector3D> createVerticesForOpenGLWindow(const Logic::Region &region);
     QVector<QVector3D> createNormalsForOpenGLWindow(const QVector<QVector3D> &vertices);
@@ -132,6 +134,7 @@ private:
 
     float mMeterToPixelRatio;
     QPointF mOrigin;
+    Eigen::Hyperplane<float, 3> mGround;
 };
 
 #endif // CONTROLLER_H
