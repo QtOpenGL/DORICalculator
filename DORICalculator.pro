@@ -25,13 +25,15 @@ SOURCES += \
     OpenGL/Light.cpp \
     OpenGL/Object/Object.cpp \
     OpenGL/OpenGLWindow.cpp \
-    OpenGL/Renderer/ObjectRenderer.cpp
+    OpenGL/Renderer/ObjectRenderer.cpp \
+    OpenGL/Renderer/RegionRenderer.cpp
 
 HEADERS += \
     Core/Constants.h \
     Core/Controller.h \
     Core/Enums.h \
     Core/Logic.h \
+    Core/Typedefs.h \
     GUI/AxisWidget.h \
     GUI/CentralWidget.h \
     GUI/Handle.h \
@@ -44,7 +46,8 @@ HEADERS += \
     OpenGL/Light.h \
     OpenGL/Object/Object.h \
     OpenGL/OpenGLWindow.h \
-    OpenGL/Renderer/ObjectRenderer.h
+    OpenGL/Renderer/ObjectRenderer.h \
+    OpenGL/Renderer/RegionRenderer.h
 
 
 # Default rules for deployment.
@@ -53,10 +56,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    Shaders/FragmentShader.frag \
-    Shaders/VertexShader.vert
-
-
-
+    Shaders/Line/FragmentShader.frag \
+    Shaders/Line/VertexShader.vert \
+    Shaders/Object/FragmentShader.frag \
+    Shaders/Object/VertexShader.vert \
+    Shaders/Region/FragmentShader.frag \
+    Shaders/Region/VertexShader.vert
 
 

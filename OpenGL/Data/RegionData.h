@@ -21,9 +21,6 @@ public:
     const QVector<QVector3D> &vertices() const;
     void setVertices(const QVector<QVector3D> &newVertices);
 
-    const QVector3D &color() const;
-    void setColor(const QVector3D &newColor);
-
     bool visible() const;
     void setVisible(bool newVisible);
 
@@ -31,7 +28,6 @@ private:
     QOpenGLVertexArrayObject mVertexArray;
     QOpenGLBuffer mVertexBuffer;
     QVector<QVector3D> mVertices;
-    QVector3D mColor;
     bool mVisible;
 };
 

@@ -21,12 +21,15 @@ void OpenGLWindow::initializeGL()
     mObjectRenderer = new ObjectRenderer;
     mObjectRenderer->init();
 
+    mRegionRenderer = new RegionRenderer;
+    mRegionRenderer->init();
+
     for (int i = 0; i < 7; i++) {
-        mRegions[i].create();
+        mRegionData[i].create();
     }
 
     Object *plane = new Object(Object::Type::Plane);
-    plane->setPosition(0, -0.01, 0);
+    plane->setPosition(0, -0.1, 0);
     plane->setColor(1, 1, 1);
     plane->scale(10);
     mObjects << plane;
@@ -64,7 +67,7 @@ void OpenGLWindow::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     mObjectRenderer->render(mObjects, mCamera, mLight);
-    //    mRenderer->render(mRegions, mCamera, mLight);
+    mRegionRenderer->render(mRegionData, mCamera, mLight);
 }
 
 void OpenGLWindow::resizeGL(int w, int h)
@@ -78,9 +81,8 @@ void OpenGLWindow::resizeGL(int w, int h)
 void OpenGLWindow::refresh()
 {
     for (int i = 0; i < 7; i++) {
-        mRegions[i].setVertices(mParameters->regions[i].vertices);
-        mRegions[i].setColor(mParameters->regions[i].color);
-        mRegions[i].setVisible(mParameters->regions[i].visible);
+        mRegionData[i].setVertices(mParameters->regions[i].vertices);
+        mRegionData[i].setVisible(mParameters->regions[i].visible);
     }
 }
 

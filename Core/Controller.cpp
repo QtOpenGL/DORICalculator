@@ -94,7 +94,6 @@ void Controller::updateOpenGLWindowParameters()
     for (int i = 0; i < 7; i++) {
         QVector<Eigen::Vector3f> vertices = mLogic.findIntersection(mLogicParameters->regions[i], mGround);
         mOpenGLWindowParameters->regions[i].vertices = convertToOpenGLConvention(vertices);
-        mOpenGLWindowParameters->regions[i].color = QVector3D(REGION_COLORS[i].red() / 255.0f, REGION_COLORS[i].green() / 255.0f, REGION_COLORS[i].blue() / 255.0f);
         mOpenGLWindowParameters->regions[i].visible = isVisible(mOpenGLWindowParameters->regions[i]);
     }
 }

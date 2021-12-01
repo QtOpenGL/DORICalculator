@@ -5,6 +5,7 @@
 #include <OpenGL/Data/RegionData.h>
 #include <OpenGL/Object/Object.h>
 #include <OpenGL/Renderer/ObjectRenderer.h>
+#include <OpenGL/Renderer/RegionRenderer.h>
 
 #include <QOpenGLFunctions>
 #include <QOpenGLWindow>
@@ -34,9 +35,10 @@ protected:
 private:
     Controller::OpenGLWindowParameters *mParameters;
     ObjectRenderer *mObjectRenderer;
+    RegionRenderer *mRegionRenderer;
     QVector<Object *> mObjects;
 
-    RegionData mRegions[7];
+    RegionData mRegionData[7];
 
     Camera *mCamera;
     Light *mLight;

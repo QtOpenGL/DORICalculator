@@ -1,31 +1,27 @@
-#ifndef OBJECTRENDERER_H
-#define OBJECTRENDERER_H
+#ifndef REGIONRENDERER_H
+#define REGIONRENDERER_H
 
 #include <Core/Typedefs.h>
 #include <OpenGL/Camera.h>
-#include <OpenGL/Data/ObjectData.h>
+#include <OpenGL/Data/RegionData.h>
 #include <OpenGL/Light.h>
 
-#include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 
-class ObjectRenderer : protected QOpenGLFunctions
+class RegionRenderer : protected QOpenGLFunctions
 {
 public:
-    ObjectRenderer();
+    RegionRenderer();
 
     bool init();
-    void render(QVector<Object *> objects, const Camera *camera, const Light *light);
+    void render(RegionData regionData[7], const Camera *camera, const Light *light);
 
 protected:
     const QString mVertexShaderPath;
     const QString mFragmentShaderPath;
 
-    QMap<Object::Type, ObjectData *> mObjectData;
-
     QOpenGLShaderProgram *mShader;
 
-    Location mModelMatrix;
     Location mViewMatrix;
     Location mProjectionMatrix;
     Location mAmbientStrength;
@@ -33,9 +29,9 @@ protected:
     Location mLightPosition;
     Location mLightColor;
     Location mLightPower;
-    Location mObjectColor;
+    Location mRegionColor;
 
     bool mInit;
 };
 
-#endif // OBJECTRENDERER_H
+#endif // REGIONRENDERER_H

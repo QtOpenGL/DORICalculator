@@ -80,7 +80,6 @@ public:
     {
         QVector<QVector3D> edgeVertices;
         QVector<QVector3D> vertices;
-        QVector3D color;
         bool visible;
     };
 

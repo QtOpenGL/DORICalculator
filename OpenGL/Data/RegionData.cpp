@@ -1,8 +1,6 @@
 #include "RegionData.h"
 
-RegionData::RegionData()
-    : mColor(1, 1, 1)
-{}
+RegionData::RegionData() {}
 
 bool RegionData::create()
 {
@@ -42,10 +40,6 @@ int RegionData::getVertexCount() { return mVertices.size(); }
 const QVector<QVector3D> &RegionData::vertices() const { return mVertices; }
 
 void RegionData::setVertices(const QVector<QVector3D> &newVertices) { mVertices = newVertices; }
-
-const QVector3D &RegionData::color() const { return mColor; }
-
-void RegionData::setColor(const QVector3D &newColor) { mColor = newColor; }
 
 bool RegionData::visible() const { return mVisible; }
 
