@@ -1,23 +1,27 @@
 #include "CentralWidget.h"
+#include <QStackedLayout>
 #include <QVBoxLayout>
 
 CentralWidget::CentralWidget(QWidget *parent)
     : QWidget(parent)
+{}
+
+void CentralWidget::init()
 {
     QHBoxLayout *mainLayout = new QHBoxLayout;
     QVBoxLayout *viewLayout = new QVBoxLayout;
-    // SideViewWidget
+    QVBoxLayout *leftLayout = new QVBoxLayout;
+
+    // SideViewWidget and AxisWidget
     {
         mSideViewTitle = new QLabel("SideViewWidget");
         mSideViewTitle->setAlignment(Qt::AlignLeft);
         viewLayout->addWidget(mSideViewTitle);
 
         QGridLayout *layout = new QGridLayout;
-        mAxisWidget = new AxisWidget;
         mAxisWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         layout->addWidget(mAxisWidget, 0, 0);
 
-        mSideViewWidget = new SideViewWidget;
         mSideViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         layout->addWidget(mSideViewWidget, 0, 0);
 
@@ -30,24 +34,41 @@ CentralWidget::CentralWidget(QWidget *parent)
         mTopViewTitle->setAlignment(Qt::AlignLeft);
         viewLayout->addWidget(mTopViewTitle);
 
-        mTopViewWidget = new TopViewWidget;
         mTopViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         viewLayout->addWidget(mTopViewWidget);
     }
 
+    // LeftWidget
     {
-        mLeftWidget = new LeftWidget;
-        mainLayout->addWidget(mLeftWidget);
+        leftLayout->addWidget(mLeftWidget);
+        mLeftWidget->setFixedWidth(300);
     }
 
+    // OpenGLWidget
+
+    {
+        QHBoxLayout *layout = new QHBoxLayout;
+        layout->addWidget(mOpenGLWidget);
+
+        mOpenGLWidgetContainer = new QGroupBox;
+        mOpenGLWidgetContainer->setTitle("3D View");
+        mOpenGLWidgetContainer->setLayout(layout);
+
+        leftLayout->addWidget(mOpenGLWidgetContainer);
+        mOpenGLWidgetContainer->setFixedWidth(300);
+    }
+
+    mainLayout->addLayout(leftLayout);
     mainLayout->addLayout(viewLayout);
     setLayout(mainLayout);
 }
 
-SideViewWidget *CentralWidget::sideViewWidget() const { return mSideViewWidget; }
+void CentralWidget::setSideViewWidget(SideViewWidget *newSideViewWidget) { mSideViewWidget = newSideViewWidget; }
 
-TopViewWidget *CentralWidget::topViewWidget() const { return mTopViewWidget; }
+void CentralWidget::setTopViewWidget(TopViewWidget *newTopViewWidget) { mTopViewWidget = newTopViewWidget; }
 
-AxisWidget *CentralWidget::axisWidget() const { return mAxisWidget; }
+void CentralWidget::setAxisWidget(AxisWidget *newAxisWidget) { mAxisWidget = newAxisWidget; }
 
-LeftWidget *CentralWidget::leftWidget() const { return mLeftWidget; }
+void CentralWidget::setLeftWidget(LeftWidget *newLeftWidget) { mLeftWidget = newLeftWidget; }
+
+void CentralWidget::setOpenGLWidget(OpenGLWidget *newOpenGLWidget) { mOpenGLWidget = newOpenGLWidget; }

@@ -2,17 +2,19 @@
 #define CONTROLLER_H
 
 #include "Logic.h"
+#include "Typedefs.h"
 #include <Dependencies/Eigen/src/Geometry/Hyperplane.h>
-#include <GUI/LeftWidget.h>
+
 #include <QObject>
 #include <QPolygonF>
 #include <QVector2D>
 
+class CentralWidget;
 class SideViewWidget;
 class TopViewWidget;
-class CentralWidget;
+class LeftWidget;
 class AxisWidget;
-class OpenGLWindow;
+class OpenGLWidget;
 
 class Controller : public QObject
 {
@@ -76,28 +78,25 @@ public:
         Region regions[7];
     };
 
-    struct OpenGLWindowRegion
+    struct OpenGLWidgetRegion
     {
         QVector<QVector3D> vertices;
         bool intersectsGround;
     };
 
-    struct OpenGLWindowParameters
+    struct OpenGLWidgetParameters
     {
-        OpenGLWindowRegion regions[7];
+        OpenGLWidgetRegion regions[7];
         QVector<QVector3D> frustumEdgeVertices;
         float cameraHeight;
         float tiltAngle;
     };
 
-    CentralWidget *centralWidget();
-
-    OpenGLWindow *openGLWindow() const;
-
 public slots:
     void onDirty();
     void onZoom(int);
     void onPan(int x, int y);
+    void showMaximized();
 
 private:
     void update();
@@ -105,7 +104,7 @@ private:
     void updateTopViewWidgetParameters();
     void updateLeftWidgetParameters();
     void updateOpenGLWindowParameters();
-    bool intersectsGround(const OpenGLWindowRegion &region);
+    bool intersectsGround(const OpenGLWidgetRegion &region);
     QVector<QVector3D> convertToOpenGLConvention(const QVector<Eigen::Vector3f> &vectors);
 
     QVector<QVector3D> createFrustumEdgeVerticesForOpenGLWindow(const Logic::Frustum &frustum);
@@ -115,20 +114,20 @@ private:
     void setMeterToPixelRatio(float newMeterToPixelRatio);
     void setOrigin(QPointF newOrigin);
 
-    Logic &mLogic;
+    Logic *mLogic;
 
     Logic::Parameters *mLogicParameters;
     SideViewWidgetParameters *mSideViewWidgetParameters;
     TopViewWidgetParameters *mTopViewWidgetParameters;
-    Logic::Parameters *mLeftWidgetParameters;
-    OpenGLWindowParameters *mOpenGLWindowParameters;
+    LeftWidgetParameters *mLeftWidgetParameters;
+    OpenGLWidgetParameters *mOpenGLWidgetParameters;
 
+    CentralWidget *mCentralWidget;
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;
-    CentralWidget *mCentralWidget;
     AxisWidget *mAxisWidget;
     LeftWidget *mLeftWidget;
-    OpenGLWindow *mOpenGLWindow;
+    OpenGLWidget *mOpenGLWidget;
 
     const float mZoomStepSize;
 

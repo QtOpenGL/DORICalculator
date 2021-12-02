@@ -11,8 +11,6 @@ Logic::Logic()
     : mGround(Eigen::Hyperplane<float, 3>(Eigen::Vector3f(0, 0, 1), 0))
 {}
 
-Logic::Parameters *Logic::parameters() const { return mParameters; }
-
 void Logic::setParameters(Logic::Parameters *newParameters) { mParameters = newParameters; }
 
 void Logic::calculate()
@@ -367,10 +365,4 @@ QVector<Eigen::Vector3f> Logic::translate(const QVector<Eigen::Vector3f> &points
     for (const auto &point : points)
         result << (point + translation);
     return result;
-}
-
-Logic &Logic::getInstance()
-{
-    static Logic instance;
-    return instance;
 }

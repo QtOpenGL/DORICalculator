@@ -61,8 +61,7 @@ public:
         Region regions[7];
     };
 
-public:
-    static Logic &getInstance();
+    Logic();
     void calculate();
     QVector<Eigen::Vector3f> findIntersection(const Region &region, const Eigen::Hyperplane<float, 3> &plane);
 
@@ -71,22 +70,24 @@ public:
     float validateTargetHeight(float newTargetHeight);
     float validateCameraHeight(float newCameraHeight);
 
-    Parameters *parameters() const;
     void setParameters(Parameters *newParameters);
 
 private:
-    QVector<Eigen::Vector3f> findIntersection(const Eigen::Vector3f &start, const Eigen::Vector3f &end, const Eigen::Hyperplane<float, 3> &plane);
-    QVector<Eigen::Vector3f> sortClockwiseOrder(const QVector<Eigen::Vector3f> &points, const Eigen::Vector3f &planeNormal);
+    QVector<Eigen::Vector3f> findIntersection(const Eigen::Vector3f &start,
+                                              const Eigen::Vector3f &end,
+                                              const Eigen::Hyperplane<float, 3> &plane);
+    QVector<Eigen::Vector3f> sortClockwiseOrder(const QVector<Eigen::Vector3f> &points,
+                                                const Eigen::Vector3f &planeNormal);
     Eigen::Vector3f findMeanCenter(const QVector<Eigen::Vector3f> &points);
     QVector<Eigen::Vector3f> translate(const QVector<Eigen::Vector3f> &points, const Eigen::Vector3f &translation);
-
-private:
-    Logic();
 
     const Eigen::Hyperplane<float, 3> mGround;
     Parameters *mParameters;
 
-    inline float f(double x, double c, double k, float aspectRatio) { return k * cos(x - c) + k * tan(x) * sin(x - c) - aspectRatio * tan(x); }
+    inline float f(double x, double c, double k, float aspectRatio)
+    {
+        return k * cos(x - c) + k * tan(x) * sin(x - c) - aspectRatio * tan(x);
+    }
 };
 
 #endif // LOGIC_H

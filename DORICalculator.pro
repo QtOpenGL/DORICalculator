@@ -1,4 +1,4 @@
-QT       += core gui opengl
+QT       += core gui opengl openglwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -24,7 +24,7 @@ SOURCES += \
     OpenGL/Data/RegionData.cpp \
     OpenGL/Light.cpp \
     OpenGL/Object/Object.cpp \
-    OpenGL/OpenGLWindow.cpp \
+    OpenGL/OpenGLWidget.cpp \
     OpenGL/Renderer/LineRenderer.cpp \
     OpenGL/Renderer/ObjectRenderer.cpp \
     OpenGL/Renderer/RegionRenderer.cpp
@@ -46,7 +46,7 @@ HEADERS += \
     OpenGL/Data/RegionData.h \
     OpenGL/Light.h \
     OpenGL/Object/Object.h \
-    OpenGL/OpenGLWindow.h \
+    OpenGL/OpenGLWidget.h \
     OpenGL/Renderer/LineRenderer.h \
     OpenGL/Renderer/ObjectRenderer.h \
     OpenGL/Renderer/RegionRenderer.h

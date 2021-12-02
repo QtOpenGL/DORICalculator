@@ -11,6 +11,7 @@
 #include <QWidget>
 
 #include <Core/Controller.h>
+#include <OpenGL/OpenGLWidget.h>
 
 class CentralWidget : public QWidget
 {
@@ -18,16 +19,21 @@ class CentralWidget : public QWidget
 public:
     explicit CentralWidget(QWidget *parent = nullptr);
 
-    SideViewWidget *sideViewWidget() const;
-    TopViewWidget *topViewWidget() const;
-    AxisWidget *axisWidget() const;
-    LeftWidget *leftWidget() const;
+    void init();
+
+    void setSideViewWidget(SideViewWidget *newSideViewWidget);
+    void setTopViewWidget(TopViewWidget *newTopViewWidget);
+    void setAxisWidget(AxisWidget *newAxisWidget);
+    void setLeftWidget(LeftWidget *newLeftWidget);
+    void setOpenGLWidget(OpenGLWidget *newOpenGLWidget);
 
 private:
     SideViewWidget *mSideViewWidget;
     TopViewWidget *mTopViewWidget;
     AxisWidget *mAxisWidget;
     LeftWidget *mLeftWidget;
+    OpenGLWidget *mOpenGLWidget;
+    QGroupBox *mOpenGLWidgetContainer;
 
     QLabel *mSideViewTitle;
     QLabel *mTopViewTitle;

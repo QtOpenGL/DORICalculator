@@ -2,6 +2,7 @@
 #define LEFTWIDGET_H
 
 #include <Core/Logic.h>
+#include <Core/Typedefs.h>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -47,7 +48,7 @@ private:
     QLabel *mLabelCursorX;
     QLabel *mLabelCursorY;
 
-    Logic::Parameters *mParameters;
+    LeftWidgetParameters *mParameters;
 };
 
 #endif // LEFTWIDGET_H
