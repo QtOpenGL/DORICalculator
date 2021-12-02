@@ -17,7 +17,6 @@ class CentralWidget : public QWidget
     Q_OBJECT
 public:
     explicit CentralWidget(QWidget *parent = nullptr);
-    void init();
 
     SideViewWidget *sideViewWidget() const;
     TopViewWidget *topViewWidget() const;

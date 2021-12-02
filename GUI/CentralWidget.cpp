@@ -3,9 +3,6 @@
 
 CentralWidget::CentralWidget(QWidget *parent)
     : QWidget(parent)
-{}
-
-void CentralWidget::init()
 {
     QHBoxLayout *mainLayout = new QHBoxLayout;
     QVBoxLayout *viewLayout = new QVBoxLayout;
@@ -47,22 +44,10 @@ void CentralWidget::init()
     setLayout(mainLayout);
 }
 
-SideViewWidget *CentralWidget::sideViewWidget() const
-{
-    return mSideViewWidget;
-}
+SideViewWidget *CentralWidget::sideViewWidget() const { return mSideViewWidget; }
 
-TopViewWidget *CentralWidget::topViewWidget() const
-{
-    return mTopViewWidget;
-}
+TopViewWidget *CentralWidget::topViewWidget() const { return mTopViewWidget; }
 
-AxisWidget *CentralWidget::axisWidget() const
-{
-    return mAxisWidget;
-}
+AxisWidget *CentralWidget::axisWidget() const { return mAxisWidget; }
 
-LeftWidget *CentralWidget::leftWidget() const
-{
-    return mLeftWidget;
-}
+LeftWidget *CentralWidget::leftWidget() const { return mLeftWidget; }

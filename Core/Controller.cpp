@@ -16,7 +16,63 @@ Controller::Controller(QObject *parent)
     , mZoomStepSize(2.0f)
     , mOrigin(368, 368)
     , mGround(Eigen::Vector3f(0, 0, 1), 0)
-{}
+{
+    mLogicParameters = new Logic::Parameters;
+    mLogicParameters->camera.height = 5;
+    mLogicParameters->target.height = 2;
+    mLogicParameters->target.distance = 5;
+    mLogicParameters->lowerBoundary.height = 0;
+    mLogicParameters->lowerBoundary.distance = 0;
+
+    mLogicParameters->frustum.zNear = 0.1;
+    mLogicParameters->frustum.zFar = 1000;
+
+    mLogicParameters->camera.sensor.width = 1920.0f;
+    mLogicParameters->camera.sensor.height = 1080.0f;
+    mLogicParameters->camera.sensor.aspectRatio = 1920.0f / 1080.0f;
+    mLogicParameters->target.fovWidth = 10;
+
+    mLogic.setParameters(mLogicParameters);
+    mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(10);
+
+    mCentralWidget = new CentralWidget;
+
+    mSideViewWidget = mCentralWidget->sideViewWidget();
+    mSideViewWidgetParameters = new SideViewWidgetParameters;
+    mSideViewWidget->setParameters(mSideViewWidgetParameters);
+
+    mTopViewWidget = mCentralWidget->topViewWidget();
+    mTopViewWidgetParameters = new TopViewWidgetParameters;
+    mTopViewWidget->setParameters(mTopViewWidgetParameters);
+
+    mAxisWidget = mCentralWidget->axisWidget();
+
+    mLeftWidget = mCentralWidget->leftWidget();
+    mLeftWidgetParameters = new Logic::Parameters;
+    mLeftWidget->setParameters(mLeftWidgetParameters);
+
+    mOpenGLWindowParameters = new OpenGLWindowParameters;
+    mOpenGLWindow = new OpenGLWindow;
+    mOpenGLWindow->setParameters(mOpenGLWindowParameters);
+
+    // Connections
+    connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
+    connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
+    connect(mSideViewWidget, &SideViewWidget::pan, this, &Controller::onPan);
+    connect(mSideViewWidget, &SideViewWidget::cursorPositionChanged, mLeftWidget, &LeftWidget::onCursorPositionChanged);
+
+    connect(mTopViewWidget, &TopViewWidget::dirty, this, &Controller::onDirty);
+    connect(mTopViewWidget, &TopViewWidget::zoom, this, &Controller::onZoom);
+    connect(mTopViewWidget, &TopViewWidget::pan, this, &Controller::onPan);
+    connect(mTopViewWidget, &TopViewWidget::cursorPositionChanged, mLeftWidget, &LeftWidget::onCursorPositionChanged);
+
+    connect(mLeftWidget, &LeftWidget::dirty, this, &Controller::onDirty);
+
+    setMeterToPixelRatio(8);
+    setOrigin(mOrigin);
+
+    update();
+}
 
 void Controller::update()
 {
@@ -326,66 +382,6 @@ void Controller::onZoom(int i)
 }
 
 void Controller::onPan(int x, int y) { setOrigin(QPointF(mOrigin.x() + x, mOrigin.y() + y)); }
-
-void Controller::init()
-{
-    mLogicParameters = new Logic::Parameters;
-    mLogicParameters->camera.height = 5;
-    mLogicParameters->target.height = 2;
-    mLogicParameters->target.distance = 5;
-    mLogicParameters->lowerBoundary.height = 0;
-    mLogicParameters->lowerBoundary.distance = 0;
-
-    mLogicParameters->frustum.zNear = 0.1;
-    mLogicParameters->frustum.zFar = 1000;
-
-    mLogicParameters->camera.sensor.width = 1920.0f;
-    mLogicParameters->camera.sensor.height = 1080.0f;
-    mLogicParameters->camera.sensor.aspectRatio = 1920.0f / 1080.0f;
-    mLogicParameters->target.fovWidth = 10;
-
-    mLogic.setParameters(mLogicParameters);
-    mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(10);
-
-    mCentralWidget = new CentralWidget;
-    mCentralWidget->init();
-
-    mSideViewWidget = mCentralWidget->sideViewWidget();
-    mSideViewWidgetParameters = new SideViewWidgetParameters;
-    mSideViewWidget->setParameters(mSideViewWidgetParameters);
-
-    mTopViewWidget = mCentralWidget->topViewWidget();
-    mTopViewWidgetParameters = new TopViewWidgetParameters;
-    mTopViewWidget->setParameters(mTopViewWidgetParameters);
-
-    mAxisWidget = mCentralWidget->axisWidget();
-
-    mLeftWidget = mCentralWidget->leftWidget();
-    mLeftWidgetParameters = new Logic::Parameters;
-    mLeftWidget->setParameters(mLeftWidgetParameters);
-
-    mOpenGLWindowParameters = new OpenGLWindowParameters;
-    mOpenGLWindow = new OpenGLWindow;
-    mOpenGLWindow->setParameters(mOpenGLWindowParameters);
-
-    // Connections
-    connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
-    connect(mSideViewWidget, &SideViewWidget::zoom, this, &Controller::onZoom);
-    connect(mSideViewWidget, &SideViewWidget::pan, this, &Controller::onPan);
-    connect(mSideViewWidget, &SideViewWidget::cursorPositionChanged, mLeftWidget, &LeftWidget::onCursorPositionChanged);
-
-    connect(mTopViewWidget, &TopViewWidget::dirty, this, &Controller::onDirty);
-    connect(mTopViewWidget, &TopViewWidget::zoom, this, &Controller::onZoom);
-    connect(mTopViewWidget, &TopViewWidget::pan, this, &Controller::onPan);
-    connect(mTopViewWidget, &TopViewWidget::cursorPositionChanged, mLeftWidget, &LeftWidget::onCursorPositionChanged);
-
-    connect(mLeftWidget, &LeftWidget::dirty, this, &Controller::onDirty);
-
-    setMeterToPixelRatio(8);
-    setOrigin(mOrigin);
-
-    update();
-}
 
 void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
 {

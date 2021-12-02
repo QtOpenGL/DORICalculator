@@ -98,7 +98,6 @@ public slots:
     void onDirty();
     void onZoom(int);
     void onPan(int x, int y);
-    void init();
 
 private:
     void update();
