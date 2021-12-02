@@ -42,6 +42,8 @@ private:
     QVector<Object *> mObjects;
     RegionData mRegionData[7];
 
+    Object *mCameraObject;
+
     Camera *mCamera;
     Light *mLight;
     QTimer mTimer;

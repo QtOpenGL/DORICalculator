@@ -8,17 +8,33 @@
 class Object
 {
 public:
-    enum Type { Capsule, Cone, Cube, Cylinder, Dome, Plane, Pyramid, Sphere, Suzanne, Tetrahedron, Torus, TorusKnot };
+    enum Type {
+        Camera,
+        Capsule,
+        Cone,
+        Cube,
+        Cylinder,
+        Dome,
+        Plane,
+        Pyramid,
+        Sphere,
+        Suzanne,
+        Tetrahedron,
+        Torus,
+        TorusKnot
+    };
 
     Object(Type type);
 
     Type type() const;
 
     const QMatrix4x4 &transformationMatrix() const;
-    virtual void setTransformationMatrix(const QMatrix4x4 &newTransformationMatrix);
+    void setTransformationMatrix(const QMatrix4x4 &newTransformationMatrix);
 
     const QVector3D &position() const;
-    virtual void setPosition(float x, float y, float z);
+    void setPosition(const QVector3D &newPosition);
+    void setPosition(float x, float y, float z);
+    void setRotation(const QQuaternion &quat);
 
     void rotate(const QQuaternion &deltaRotation);
 

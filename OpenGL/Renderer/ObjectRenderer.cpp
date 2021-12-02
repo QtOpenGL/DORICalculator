@@ -48,7 +48,7 @@ bool ObjectRenderer::init()
     mObjectColor = mShader->uniformLocation("objectColor");
 
     // Load models
-    for (int i = Object::Capsule; i != Object::TorusKnot; i++) {
+    for (int i = 0; i != Object::TorusKnot; i++) {
         Object::Type type = static_cast<Object::Type>(i);
         ObjectData *data = new ObjectData(type);
         data->create();

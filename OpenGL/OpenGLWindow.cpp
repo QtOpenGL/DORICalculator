@@ -6,7 +6,37 @@
 
 OpenGLWindow::OpenGLWindow()
     : mInit(false)
-{}
+{
+    Object *plane = new Object(Object::Type::Plane);
+    plane->setPosition(0, -0.1, 0);
+    plane->setColor(1, 1, 1);
+    plane->scale(10);
+    mObjects << plane;
+
+    //    for (int i = 0; i < 10; i++) {
+    //        Object *cube = new Object(Object::Type::Cube);
+    //        cube->setPosition(10 * i, 1, -5);
+    //        cube->setColor(1, 1, 1);
+    //        cube->scale(0.01);
+    //        mObjects << cube;
+    //    }
+
+    //    Object *suzanne = new Object(Object::Type::Suzanne);
+    //    suzanne->setPosition(10, 10, 10);
+    //    suzanne->setColor(1, 0, 1);
+    //    mObjects << suzanne;
+
+    mCameraObject = new Object(Object::Type::Camera);
+    mCameraObject->setPosition(-10, 0, 0);
+    mCameraObject->setColor(1, 1, 1);
+    mObjects << mCameraObject;
+
+    mCamera = new Camera;
+    mLight = new Light;
+    mCamera->setPosition(0, 20, 20);
+    mLight->setPosition(2, 50, 2);
+    mLight->setColor(1.0f, 1.0f, 1.0f);
+}
 
 void OpenGLWindow::initializeGL()
 {
@@ -31,31 +61,6 @@ void OpenGLWindow::initializeGL()
     for (int i = 0; i < 7; i++) {
         mRegionData[i].create();
     }
-
-    Object *plane = new Object(Object::Type::Plane);
-    plane->setPosition(0, -0.1, 0);
-    plane->setColor(1, 1, 1);
-    plane->scale(10);
-    mObjects << plane;
-
-    //    for (int i = 0; i < 10; i++) {
-    //        Object *cube = new Object(Object::Type::Cube);
-    //        cube->setPosition(10 * i, 1, -5);
-    //        cube->setColor(1, 1, 1);
-    //        cube->scale(0.01);
-    //        mObjects << cube;
-    //    }
-
-    //    Object *suzanne = new Object(Object::Type::Suzanne);
-    //    suzanne->setPosition(10, 10, 10);
-    //    suzanne->setColor(1, 0, 1);
-    //    mObjects << suzanne;
-
-    mCamera = new Camera;
-    mLight = new Light;
-    mCamera->setPosition(0, 20, 20);
-    mLight->setPosition(2, 50, 2);
-    mLight->setColor(1.0f, 1.0f, 1.0f);
 
     connect(&mTimer, &QTimer::timeout, this, [=]() { mCamera->update(); });
     mTimer.start(10);
@@ -89,6 +94,13 @@ void OpenGLWindow::refresh()
         mRegionData[i].setVertices(mParameters->regions[i].vertices);
         mRegionData[i].setIntersectsGround(mParameters->regions[i].intersectsGround);
     }
+
+    QQuaternion quat = QQuaternion::fromAxisAndAngle(QVector3D(0, 0, -1), mParameters->tiltAngle);
+    mCameraObject->setRotation(quat);
+
+    QVector3D cameraForward = quat * QVector3D(1, 0, 0);
+    QVector3D position = QVector3D(0, mParameters->cameraHeight, 0) - 0.5 * cameraForward;
+    mCameraObject->setPosition(position);
 }
 
 void OpenGLWindow::keyPressEvent(QKeyEvent *event)

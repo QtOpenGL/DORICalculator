@@ -86,6 +86,8 @@ public:
     {
         OpenGLWindowRegion regions[7];
         QVector<QVector3D> frustumEdgeVertices;
+        float cameraHeight;
+        float tiltAngle;
     };
 
     CentralWidget *centralWidget();

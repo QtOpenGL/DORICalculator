@@ -81,12 +81,16 @@ bool ObjectData::loadData()
                 tempVertices << QVector3D(lineList[1].toFloat(), lineList[2].toFloat(), lineList[3].toFloat());
             } else if (fileLine.startsWith("f ")) {
                 QStringList lineList = fileLine.split(" ");
-
                 for (int i = 1; i <= 3; i++) {
                     QStringList arg = lineList[i].split("/");
-                    mVertices << tempVertices[arg[0].toInt() - 1];
-                    mUVs << tempUVs[arg[1].toInt() - 1];
-                    mNormals << tempNormals[arg[2].toInt() - 1];
+                    if (arg.size() == 2) {
+                        mVertices << tempVertices[arg[0].toInt() - 1];
+                        mNormals << tempNormals[arg[1].toInt() - 1];
+                    } else if (arg.size() == 3) {
+                        mVertices << tempVertices[arg[0].toInt() - 1];
+                        mUVs << tempUVs[arg[1].toInt() - 1];
+                        mNormals << tempNormals[arg[2].toInt() - 1];
+                    }
                 }
 
             } else if (fileLine.startsWith("mtllib ")) {
@@ -105,6 +109,7 @@ bool ObjectData::loadData()
 QFile ObjectData::getModelFile()
 {
     switch (mType) {
+    case Object::Camera: return QFile("Resources/Models/Camera.obj");
     case Object::Capsule: return QFile("Resources/Models/Capsule.obj");
     case Object::Cone: return QFile("Resources/Models/Cone.obj");
     case Object::Cube: return QFile("Resources/Models/Cube.obj");

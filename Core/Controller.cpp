@@ -104,6 +104,8 @@ void Controller::updateOpenGLWindowParameters()
     }
 
     mOpenGLWindowParameters->frustumEdgeVertices = createFrustumEdgeVerticesForOpenGLWindow(mLogicParameters->frustum);
+    mOpenGLWindowParameters->cameraHeight = mLogicParameters->camera.height;
+    mOpenGLWindowParameters->tiltAngle = mLogicParameters->camera.tiltAngle;
 }
 
 bool Controller::intersectsGround(const OpenGLWindowRegion &region)
