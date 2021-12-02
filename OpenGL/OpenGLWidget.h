@@ -1,5 +1,5 @@
-#ifndef OPENGLWINDOW_H
-#define OPENGLWINDOW_H
+#ifndef OPENGLWIDGET_H
+#define OPENGLWIDGET_H
 
 #include <Core/Controller.h>
 #include <OpenGL/Data/RegionData.h>
@@ -9,22 +9,22 @@
 #include <OpenGL/Renderer/RegionRenderer.h>
 
 #include <QOpenGLFunctions>
+#include <QOpenGLWidget>
 #include <QOpenGLWindow>
 #include <QTimer>
 #include <QWidget>
 
-class OpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
+class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    explicit OpenGLWindow();
+    explicit OpenGLWidget(QWidget *parent = nullptr);
     void initializeGL() override;
     void paintGL() override;
     void resizeGL(int w, int h) override;
     void refresh();
 
-    Controller::OpenGLWindowParameters *parameters() const;
-    void setParameters(Controller::OpenGLWindowParameters *newParameters);
+    void setParameters(Controller::OpenGLWidgetParameters *newParameters);
 
 protected:
     virtual void keyPressEvent(QKeyEvent *) override;
@@ -34,7 +34,7 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *) override;
 
 private:
-    Controller::OpenGLWindowParameters *mParameters;
+    Controller::OpenGLWidgetParameters *mParameters;
     ObjectRenderer *mObjectRenderer;
     RegionRenderer *mRegionRenderer;
     LineRenderer *mLineRenderer;
@@ -53,4 +53,4 @@ private:
     bool mInit;
 };
 
-#endif // OPENGLWINDOW_H
+#endif // OPENGLWIDGET_H

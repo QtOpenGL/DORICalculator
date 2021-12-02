@@ -3,16 +3,16 @@
 #include <Core/Constants.h>
 #include <Core/Enums.h>
 #include <GUI/CentralWidget.h>
+#include <GUI/LeftWidget.h>
 #include <GUI/SideViewWidget.h>
 #include <GUI/TopViewWidget.h>
-#include <OpenGL/OpenGLWindow.h>
+#include <OpenGL/OpenGLWidget.h>
 
 #include <QDebug>
 #include <QtMath>
 
 Controller::Controller(QObject *parent)
     : QObject(parent)
-    , mLogic(Logic::getInstance())
     , mZoomStepSize(2.0f)
     , mOrigin(368, 368)
     , mGround(Eigen::Vector3f(0, 0, 1), 0)
@@ -32,28 +32,34 @@ Controller::Controller(QObject *parent)
     mLogicParameters->camera.sensor.aspectRatio = 1920.0f / 1080.0f;
     mLogicParameters->target.fovWidth = 10;
 
-    mLogic.setParameters(mLogicParameters);
-    mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(10);
+    mLogic = new Logic;
+    mLogic->setParameters(mLogicParameters);
+    mLogicParameters->frustum.horizontalFov = mLogic->calculateHorizontalFovForGivenFovWidth(10);
 
+    mSideViewWidget = new SideViewWidget;
+    mTopViewWidget = new TopViewWidget;
+    mLeftWidget = new LeftWidget;
+    mAxisWidget = new AxisWidget;
+    mOpenGLWidget = new OpenGLWidget;
     mCentralWidget = new CentralWidget;
 
-    mSideViewWidget = mCentralWidget->sideViewWidget();
+    mCentralWidget->setSideViewWidget(mSideViewWidget);
+    mCentralWidget->setTopViewWidget(mTopViewWidget);
+    mCentralWidget->setLeftWidget(mLeftWidget);
+    mCentralWidget->setAxisWidget(mAxisWidget);
+    mCentralWidget->setOpenGLWidget(mOpenGLWidget);
+
     mSideViewWidgetParameters = new SideViewWidgetParameters;
     mSideViewWidget->setParameters(mSideViewWidgetParameters);
 
-    mTopViewWidget = mCentralWidget->topViewWidget();
     mTopViewWidgetParameters = new TopViewWidgetParameters;
     mTopViewWidget->setParameters(mTopViewWidgetParameters);
 
-    mAxisWidget = mCentralWidget->axisWidget();
+    mOpenGLWidgetParameters = new OpenGLWidgetParameters;
+    mOpenGLWidget->setParameters(mOpenGLWidgetParameters);
 
-    mLeftWidget = mCentralWidget->leftWidget();
-    mLeftWidgetParameters = new Logic::Parameters;
+    mLeftWidgetParameters = new LeftWidgetParameters;
     mLeftWidget->setParameters(mLeftWidgetParameters);
-
-    mOpenGLWindowParameters = new OpenGLWindowParameters;
-    mOpenGLWindow = new OpenGLWindow;
-    mOpenGLWindow->setParameters(mOpenGLWindowParameters);
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
@@ -68,6 +74,8 @@ Controller::Controller(QObject *parent)
 
     connect(mLeftWidget, &LeftWidget::dirty, this, &Controller::onDirty);
 
+    mCentralWidget->init();
+
     setMeterToPixelRatio(8);
     setOrigin(mOrigin);
 
@@ -76,7 +84,7 @@ Controller::Controller(QObject *parent)
 
 void Controller::update()
 {
-    mLogic.calculate();
+    mLogic->calculate();
     updateSideViewWidgetParameters();
     updateTopViewWidgetParameters();
     updateLeftWidgetParameters();
@@ -85,7 +93,7 @@ void Controller::update()
     mSideViewWidget->refresh();
     mTopViewWidget->refresh();
     mLeftWidget->refresh();
-    mOpenGLWindow->refresh();
+    mOpenGLWidget->refresh();
 }
 
 void Controller::updateTopViewWidgetParameters()
@@ -136,7 +144,7 @@ void Controller::updateTopViewWidgetParameters()
     for (int i = 0; i < 7; ++i) {
         Eigen::Hyperplane<float, 3> plane(Eigen::Vector3f(0, 0, 1).normalized(),
                                           -mLogicParameters->lowerBoundary.height);
-        QVector<Eigen::Vector3f> intersections = mLogic.findIntersection(mLogicParameters->regions[i], plane);
+        QVector<Eigen::Vector3f> intersections = mLogic->findIntersection(mLogicParameters->regions[i], plane);
 
         QPolygonF region;
         for (int i = 0; i < intersections.size(); ++i) {
@@ -154,17 +162,17 @@ void Controller::updateLeftWidgetParameters() { *mLeftWidgetParameters = *mLogic
 void Controller::updateOpenGLWindowParameters()
 {
     for (int i = 0; i < 7; i++) {
-        QVector<Eigen::Vector3f> vertices = mLogic.findIntersection(mLogicParameters->regions[i], mGround);
-        mOpenGLWindowParameters->regions[i].vertices = convertToOpenGLConvention(vertices);
-        mOpenGLWindowParameters->regions[i].intersectsGround = intersectsGround(mOpenGLWindowParameters->regions[i]);
+        QVector<Eigen::Vector3f> vertices = mLogic->findIntersection(mLogicParameters->regions[i], mGround);
+        mOpenGLWidgetParameters->regions[i].vertices = convertToOpenGLConvention(vertices);
+        mOpenGLWidgetParameters->regions[i].intersectsGround = intersectsGround(mOpenGLWidgetParameters->regions[i]);
     }
 
-    mOpenGLWindowParameters->frustumEdgeVertices = createFrustumEdgeVerticesForOpenGLWindow(mLogicParameters->frustum);
-    mOpenGLWindowParameters->cameraHeight = mLogicParameters->camera.height;
-    mOpenGLWindowParameters->tiltAngle = mLogicParameters->camera.tiltAngle;
+    mOpenGLWidgetParameters->frustumEdgeVertices = createFrustumEdgeVerticesForOpenGLWindow(mLogicParameters->frustum);
+    mOpenGLWidgetParameters->cameraHeight = mLogicParameters->camera.height;
+    mOpenGLWidgetParameters->tiltAngle = mLogicParameters->camera.tiltAngle;
 }
 
-bool Controller::intersectsGround(const OpenGLWindowRegion &region)
+bool Controller::intersectsGround(const OpenGLWidgetRegion &region)
 {
     for (int i = 0; i < region.vertices.size(); i++) {
         if (region.vertices[i].y() >= 0)
@@ -337,19 +345,19 @@ void Controller::onDirty()
 {
     QObject *sender = QObject::sender();
     if (sender == mSideViewWidget) {
-        mLogicParameters->target.height = mLogic.validateTargetHeight(mSideViewWidgetParameters->target.height);
-        mLogicParameters->target.distance = mLogic.validateTargetDistance(mSideViewWidgetParameters->target.distance);
-        mLogicParameters->camera.height = mLogic.validateCameraHeight(mSideViewWidgetParameters->camera.height);
+        mLogicParameters->target.height = mLogic->validateTargetHeight(mSideViewWidgetParameters->target.height);
+        mLogicParameters->target.distance = mLogic->validateTargetDistance(mSideViewWidgetParameters->target.distance);
+        mLogicParameters->camera.height = mLogic->validateCameraHeight(mSideViewWidgetParameters->camera.height);
         mLogicParameters->lowerBoundary.height = mSideViewWidgetParameters->lowerBoundary.height;
 
     } else if (sender == mTopViewWidget) {
-        mLogicParameters->target.distance = mLogic.validateTargetDistance(mTopViewWidgetParameters->target.distance);
-        mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(
+        mLogicParameters->target.distance = mLogic->validateTargetDistance(mTopViewWidgetParameters->target.distance);
+        mLogicParameters->frustum.horizontalFov = mLogic->calculateHorizontalFovForGivenFovWidth(
             mTopViewWidgetParameters->target.fovWidth);
         mLogicParameters->target.fovWidth = mTopViewWidgetParameters->target.fovWidth;
 
     } else if (sender == mLeftWidget) {
-        mLogicParameters->camera.height = mLogic.validateCameraHeight(mLeftWidgetParameters->camera.height);
+        mLogicParameters->camera.height = mLogic->validateCameraHeight(mLeftWidgetParameters->camera.height);
         mLogicParameters->camera.sensor.width = mLeftWidgetParameters->camera.sensor.width;
         mLogicParameters->camera.sensor.height = mLeftWidgetParameters->camera.sensor.height;
 
@@ -363,7 +371,7 @@ void Controller::onDirty()
         mLogicParameters->lowerBoundary.distance = mLeftWidgetParameters->lowerBoundary.distance;
 
         if (!qFuzzyCompare(mLogicParameters->target.fovWidth, mLeftWidgetParameters->target.fovWidth))
-            mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(
+            mLogicParameters->frustum.horizontalFov = mLogic->calculateHorizontalFovForGivenFovWidth(
                 mLeftWidgetParameters->target.fovWidth);
         else
             mLogicParameters->frustum.horizontalFov = mLeftWidgetParameters->frustum.horizontalFov;
@@ -382,6 +390,8 @@ void Controller::onZoom(int i)
 }
 
 void Controller::onPan(int x, int y) { setOrigin(QPointF(mOrigin.x() + x, mOrigin.y() + y)); }
+
+void Controller::showMaximized() { mCentralWidget->showMaximized(); }
 
 void Controller::setMeterToPixelRatio(float newMeterToPixelRatio)
 {
@@ -406,11 +416,6 @@ void Controller::setOrigin(QPointF newOrigin)
     mSideViewWidget->setOrigin(newOrigin);
     mAxisWidget->setOrigin(newOrigin);
     mTopViewWidget->setOrigin(newOrigin);
-
     mAxisWidget->refresh();
     update();
 }
-
-OpenGLWindow *Controller::openGLWindow() const { return mOpenGLWindow; }
-
-CentralWidget *Controller::centralWidget() { return mCentralWidget; }

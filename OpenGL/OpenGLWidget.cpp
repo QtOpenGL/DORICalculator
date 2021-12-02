@@ -1,14 +1,17 @@
-#include "OpenGLWindow.h"
+#include "OpenGLWidget.h"
 
 #include <QDir>
 #include <QKeyEvent>
 #include <QMouseEvent>
 
-OpenGLWindow::OpenGLWindow()
-    : mInit(false)
+OpenGLWidget::OpenGLWidget(QWidget *parent)
+    : QOpenGLWidget(parent)
+    , mMousePressed(false)
+    , mInit(false)
+
 {
     Object *plane = new Object(Object::Type::Plane);
-    plane->setPosition(0, -0.1, 0);
+    plane->setPosition(0, -0.25, 0);
     plane->setColor(1, 1, 1);
     plane->scale(10);
     mObjects << plane;
@@ -32,13 +35,19 @@ OpenGLWindow::OpenGLWindow()
     mObjects << mCameraObject;
 
     mCamera = new Camera;
+    mCamera->setPosition(-15, 25, 25);
+    mCamera->rotate(Camera::MouseControl::PAN, 45);
+    mCamera->rotate(Camera::MouseControl::TILT, -30);
+
     mLight = new Light;
-    mCamera->setPosition(0, 20, 20);
     mLight->setPosition(2, 50, 2);
     mLight->setColor(1.0f, 1.0f, 1.0f);
+
+    setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
 }
 
-void OpenGLWindow::initializeGL()
+void OpenGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
     glClearColor(0, 0, 0, 1);
@@ -71,7 +80,7 @@ void OpenGLWindow::initializeGL()
     mInit = true;
 }
 
-void OpenGLWindow::paintGL()
+void OpenGLWidget::paintGL()
 {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -81,7 +90,7 @@ void OpenGLWindow::paintGL()
     mLineRenderer->render(mParameters->frustumEdgeVertices, mCamera);
 }
 
-void OpenGLWindow::resizeGL(int w, int h)
+void OpenGLWidget::resizeGL(int w, int h)
 {
     QMatrix4x4 projection;
     projection.setToIdentity();
@@ -89,7 +98,7 @@ void OpenGLWindow::resizeGL(int w, int h)
     mCamera->setProjectionMatrix(projection);
 }
 
-void OpenGLWindow::refresh()
+void OpenGLWidget::refresh()
 {
     for (int i = 0; i < 7; i++) {
         mRegionData[i].setVertices(mParameters->regions[i].vertices);
@@ -104,7 +113,7 @@ void OpenGLWindow::refresh()
     mCameraObject->setPosition(position);
 }
 
-void OpenGLWindow::keyPressEvent(QKeyEvent *event)
+void OpenGLWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_W)
         mCamera->move(Camera::KeyboardControl::FORWARD, 0.025f);
@@ -124,7 +133,7 @@ void OpenGLWindow::keyPressEvent(QKeyEvent *event)
         mCamera->setMovementSpeed(0.25f);
 }
 
-void OpenGLWindow::keyReleaseEvent(QKeyEvent *event)
+void OpenGLWidget::keyReleaseEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_W)
         mCamera->move(Camera::KeyboardControl::FORWARD, 0);
@@ -144,16 +153,16 @@ void OpenGLWindow::keyReleaseEvent(QKeyEvent *event)
         mCamera->setMovementSpeed(1.0f);
 }
 
-void OpenGLWindow::mousePressEvent(QMouseEvent *) { mMousePressed = true; }
+void OpenGLWidget::mousePressEvent(QMouseEvent *) { mMousePressed = true; }
 
-void OpenGLWindow::mouseReleaseEvent(QMouseEvent *)
+void OpenGLWidget::mouseReleaseEvent(QMouseEvent *)
 {
     mMousePressed = false;
     mCamera->rotate(Camera::MouseControl::PAN, 0);
     mCamera->rotate(Camera::MouseControl::TILT, 0);
 }
 
-void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
+void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (mMousePressed) {
         float panAmount = event->pos().x() - mPreviousMousePosition.x();
@@ -165,6 +174,4 @@ void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
     mPreviousMousePosition = event->pos();
 }
 
-Controller::OpenGLWindowParameters *OpenGLWindow::parameters() const { return mParameters; }
-
-void OpenGLWindow::setParameters(Controller::OpenGLWindowParameters *newParameters) { mParameters = newParameters; }
+void OpenGLWidget::setParameters(Controller::OpenGLWidgetParameters *newParameters) { mParameters = newParameters; }

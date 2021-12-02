@@ -1,6 +1,6 @@
 #include <Core/Controller.h>
 #include <GUI/CentralWidget.h>
-#include <OpenGL/OpenGLWindow.h>
+#include <OpenGL/OpenGLWidget.h>
 
 #include <QApplication>
 #include <QFile>
@@ -49,14 +49,7 @@ int main(int argc, char *argv[])
 
     // Initialize
     Controller *controller = new Controller;
-
-    OpenGLWindow *opengl = controller->openGLWindow();
-    opengl->setTitle("DORI Calculator - OpenGLWindow");
-    opengl->showMaximized();
-
-    CentralWidget *centralWidget = controller->centralWidget();
-    centralWidget->setWindowTitle("DORI Calculator");
-    centralWidget->showMaximized();
+    controller->showMaximized();
 
     return app.exec();
 }

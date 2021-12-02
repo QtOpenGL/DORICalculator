@@ -169,9 +169,7 @@ LeftWidget::LeftWidget(QWidget *parent)
     mainLayout->addWidget(mTargetGroupBox);
     mainLayout->addWidget(mLowerBoundaryGroupBox);
     mainLayout->addWidget(mCursorPositionGroupBox);
-    mainLayout->addSpacerItem(new QSpacerItem(-1, -1, QSizePolicy::Expanding, QSizePolicy::Expanding));
     setLayout(mainLayout);
-    setFixedWidth(275);
 }
 
 void LeftWidget::refresh()
@@ -194,15 +192,9 @@ void LeftWidget::refresh()
     mLineEditLowerBoundaryDistance->setText(QString("%1").arg(mParameters->lowerBoundary.distance, 0, 'f', 2));
 }
 
-Logic::Parameters *LeftWidget::parameters() const
-{
-    return mParameters;
-}
+Logic::Parameters *LeftWidget::parameters() const { return mParameters; }
 
-void LeftWidget::setParameters(Logic::Parameters *newParameters)
-{
-    mParameters = newParameters;
-}
+void LeftWidget::setParameters(Logic::Parameters *newParameters) { mParameters = newParameters; }
 
 void LeftWidget::onCursorPositionChanged(QPointF position)
 {
