@@ -21,14 +21,14 @@ public:
     const QVector<QVector3D> &vertices() const;
     void setVertices(const QVector<QVector3D> &newVertices);
 
-    bool visible() const;
-    void setVisible(bool newVisible);
+    bool intersectsGround() const;
+    void setIntersectsGround(bool newIntersectsGround);
 
 private:
     QOpenGLVertexArrayObject mVertexArray;
     QOpenGLBuffer mVertexBuffer;
     QVector<QVector3D> mVertices;
-    bool mVisible;
+    bool mIntersectsGround;
 };
 
 #endif // REGIONDATA_H

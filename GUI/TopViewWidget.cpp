@@ -73,7 +73,7 @@ TopViewWidget::TopViewWidget(QWidget *parent)
     setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 }
 
-void TopViewWidget::setParameters(Controller::TopViewWidgetParamaters *newParameters) { mParameters = newParameters; }
+void TopViewWidget::setParameters(Controller::TopViewWidgetParameters *newParameters) { mParameters = newParameters; }
 
 void TopViewWidget::refresh()
 {

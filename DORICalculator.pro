@@ -25,6 +25,7 @@ SOURCES += \
     OpenGL/Light.cpp \
     OpenGL/Object/Object.cpp \
     OpenGL/OpenGLWindow.cpp \
+    OpenGL/Renderer/LineRenderer.cpp \
     OpenGL/Renderer/ObjectRenderer.cpp \
     OpenGL/Renderer/RegionRenderer.cpp
 
@@ -46,6 +47,7 @@ HEADERS += \
     OpenGL/Light.h \
     OpenGL/Object/Object.h \
     OpenGL/OpenGLWindow.h \
+    OpenGL/Renderer/LineRenderer.h \
     OpenGL/Renderer/ObjectRenderer.h \
     OpenGL/Renderer/RegionRenderer.h
 

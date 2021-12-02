@@ -12,7 +12,7 @@ bool RegionData::create()
     mVertexBuffer.create();
     mVertexBuffer.bind();
     mVertexBuffer.setUsagePattern(QOpenGLBuffer::UsagePattern::DynamicDraw);
-    mVertexBuffer.allocate(42 * sizeof(QVector3D)); // Each region has at most 7 faces or 14 triangles or 42 vertices
+    mVertexBuffer.allocate(100 * sizeof(QVector3D));
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,
@@ -41,9 +41,9 @@ const QVector<QVector3D> &RegionData::vertices() const { return mVertices; }
 
 void RegionData::setVertices(const QVector<QVector3D> &newVertices) { mVertices = newVertices; }
 
-bool RegionData::visible() const { return mVisible; }
+bool RegionData::intersectsGround() const { return mIntersectsGround; }
 
-void RegionData::setVisible(bool newVisible) { mVisible = newVisible; }
+void RegionData::setIntersectsGround(bool newIntersectsGround) { mIntersectsGround = newIntersectsGround; }
 
 void RegionData::bind() { mVertexArray.bind(); }
 

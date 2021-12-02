@@ -42,17 +42,22 @@ void Controller::updateTopViewWidgetParameters()
     mTopViewWidgetParameters->camera.verticalFov = mLogicParameters->frustum.verticalFov;
 
     for (int i = 0; i < 4; ++i) {
-        mTopViewWidgetParameters->ground.intersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);
-        mTopViewWidgetParameters->target.intersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
-        mTopViewWidgetParameters->lowerBoundary.intersections[i] = mTopViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
+        mTopViewWidgetParameters->ground.intersections[i] = mTopViewWidget->mapFrom3d(
+            mLogicParameters->frustum.bottomVertices[i]);
+        mTopViewWidgetParameters->target.intersections[i] = mTopViewWidget->mapFrom3d(
+            mLogicParameters->target.intersections[i]);
+        mTopViewWidgetParameters->lowerBoundary.intersections[i] = mTopViewWidget->mapFrom3d(
+            mLogicParameters->lowerBoundary.intersections[i]);
     }
 
     QPolygonF targetRoi;
 
     if (abs(mLogicParameters->camera.height - mLogicParameters->target.height) < 0.0001f) {
-        targetRoi.append(mTopViewWidget->mapFrom3d(mTopViewWidgetParameters->target.distance, 0.5f * mTopViewWidgetParameters->target.fovWidth));
+        targetRoi.append(mTopViewWidget->mapFrom3d(mTopViewWidgetParameters->target.distance,
+                                                   0.5f * mTopViewWidgetParameters->target.fovWidth));
         targetRoi.append(mTopViewWidget->mapFrom3d(0, 0));
-        targetRoi.append(mTopViewWidget->mapFrom3d(mTopViewWidgetParameters->target.distance, -0.5f * mTopViewWidgetParameters->target.fovWidth));
+        targetRoi.append(mTopViewWidget->mapFrom3d(mTopViewWidgetParameters->target.distance,
+                                                   -0.5f * mTopViewWidgetParameters->target.fovWidth));
     } else if (mLogicParameters->camera.height < mLogicParameters->target.height) {
         targetRoi.append(mTopViewWidget->mapFrom3d(0, 0));
         targetRoi.append(mTopViewWidgetParameters->target.intersections[0]);
@@ -73,7 +78,8 @@ void Controller::updateTopViewWidgetParameters()
     QPolygonF roi = lowerBoundaryRoi.intersected(targetRoi);
 
     for (int i = 0; i < 7; ++i) {
-        Eigen::Hyperplane<float, 3> plane(Eigen::Vector3f(0, 0, 1).normalized(), -mLogicParameters->lowerBoundary.height);
+        Eigen::Hyperplane<float, 3> plane(Eigen::Vector3f(0, 0, 1).normalized(),
+                                          -mLogicParameters->lowerBoundary.height);
         QVector<Eigen::Vector3f> intersections = mLogic.findIntersection(mLogicParameters->regions[i], plane);
 
         QPolygonF region;
@@ -94,11 +100,13 @@ void Controller::updateOpenGLWindowParameters()
     for (int i = 0; i < 7; i++) {
         QVector<Eigen::Vector3f> vertices = mLogic.findIntersection(mLogicParameters->regions[i], mGround);
         mOpenGLWindowParameters->regions[i].vertices = convertToOpenGLConvention(vertices);
-        mOpenGLWindowParameters->regions[i].visible = isVisible(mOpenGLWindowParameters->regions[i]);
+        mOpenGLWindowParameters->regions[i].intersectsGround = intersectsGround(mOpenGLWindowParameters->regions[i]);
     }
+
+    mOpenGLWindowParameters->frustumEdgeVertices = createFrustumEdgeVerticesForOpenGLWindow(mLogicParameters->frustum);
 }
 
-bool Controller::isVisible(const OpenGLWindowRegion &region)
+bool Controller::intersectsGround(const OpenGLWindowRegion &region)
 {
     for (int i = 0; i < region.vertices.size(); i++) {
         if (region.vertices[i].y() >= 0)
@@ -122,6 +130,35 @@ QVector<QVector3D> Controller::convertToOpenGLConvention(const QVector<Eigen::Ve
     return result;
 }
 
+QVector<QVector3D> Controller::createFrustumEdgeVerticesForOpenGLWindow(const Logic::Frustum &frustum)
+{
+    QVector<QVector3D> result;
+
+    for (int i = 0; i < 4; i++) {
+        result << QVector3D(frustum.topVertices[i].x(), frustum.topVertices[i].z(), -frustum.topVertices[i].y());
+        result << QVector3D(frustum.topVertices[(i + 1) % 4].x(),
+                            frustum.topVertices[(i + 1) % 4].z(),
+                            -frustum.topVertices[(i + 1) % 4].y());
+    }
+
+    for (int i = 0; i < 4; i++) {
+        result << QVector3D(frustum.topVertices[i].x(), frustum.topVertices[i].z(), -frustum.topVertices[i].y());
+        result << QVector3D(frustum.bottomVertices[i].x(),
+                            frustum.bottomVertices[i].z(),
+                            -frustum.bottomVertices[i].y());
+    }
+
+    for (int i = 0; i < 4; i++) {
+        result << QVector3D(frustum.bottomVertices[i].x(),
+                            frustum.bottomVertices[i].z(),
+                            -frustum.bottomVertices[i].y());
+        result << QVector3D(frustum.bottomVertices[(i + 1) % 4].x(),
+                            frustum.bottomVertices[(i + 1) % 4].z(),
+                            -frustum.bottomVertices[(i + 1) % 4].y());
+    }
+    return result;
+}
+
 QVector<QVector3D> Controller::createVerticesForOpenGLWindow(const Logic::Region &region)
 {
     QVector<QVector3D> vertices;
@@ -131,16 +168,26 @@ QVector<QVector3D> Controller::createVerticesForOpenGLWindow(const Logic::Region
     }
 
     for (int i = 2; i < 5; i++) {
-        vertices << QVector3D(region.topVertices[i % 4].x(), region.topVertices[i % 4].z(), -region.topVertices[i % 4].y());
+        vertices << QVector3D(region.topVertices[i % 4].x(),
+                              region.topVertices[i % 4].z(),
+                              -region.topVertices[i % 4].y());
     }
 
     for (int i = 0; i < 4; i++) {
         vertices << QVector3D(region.topVertices[i].x(), region.topVertices[i].z(), -region.topVertices[i].y());
         vertices << QVector3D(region.bottomVertices[i].x(), region.bottomVertices[i].z(), -region.bottomVertices[i].y());
-        vertices << QVector3D(region.bottomVertices[(i + 1) % 4].x(), region.bottomVertices[(i + 1) % 4].z(), -region.bottomVertices[(i + 1) % 4].y());
-        vertices << QVector3D(region.bottomVertices[(i + 1) % 4].x(), region.bottomVertices[(i + 1) % 4].z(), -region.bottomVertices[(i + 1) % 4].y());
-        vertices << QVector3D(region.topVertices[(i + 1) % 4].x(), region.topVertices[(i + 1) % 4].z(), -region.topVertices[(i + 1) % 4].y());
-        vertices << QVector3D(region.topVertices[i % 4].x(), region.topVertices[i % 4].z(), -region.topVertices[i % 4].y());
+        vertices << QVector3D(region.bottomVertices[(i + 1) % 4].x(),
+                              region.bottomVertices[(i + 1) % 4].z(),
+                              -region.bottomVertices[(i + 1) % 4].y());
+        vertices << QVector3D(region.bottomVertices[(i + 1) % 4].x(),
+                              region.bottomVertices[(i + 1) % 4].z(),
+                              -region.bottomVertices[(i + 1) % 4].y());
+        vertices << QVector3D(region.topVertices[(i + 1) % 4].x(),
+                              region.topVertices[(i + 1) % 4].z(),
+                              -region.topVertices[(i + 1) % 4].y());
+        vertices << QVector3D(region.topVertices[i % 4].x(),
+                              region.topVertices[i % 4].z(),
+                              -region.topVertices[i % 4].y());
     }
 
     for (int i = 0; i < 3; i++) {
@@ -148,7 +195,9 @@ QVector<QVector3D> Controller::createVerticesForOpenGLWindow(const Logic::Region
     }
 
     for (int i = 2; i < 5; i++) {
-        vertices << QVector3D(region.bottomVertices[i % 4].x(), region.bottomVertices[i % 4].z(), -region.bottomVertices[i % 4].y());
+        vertices << QVector3D(region.bottomVertices[i % 4].x(),
+                              region.bottomVertices[i % 4].z(),
+                              -region.bottomVertices[i % 4].y());
     }
 
     return vertices;
@@ -183,25 +232,33 @@ void Controller::updateSideViewWidgetParameters()
     mSideViewWidgetParameters->camera.position = mSideViewWidget->mapFrom3d(0, mLogicParameters->camera.height);
     mSideViewWidgetParameters->target.height = mLogicParameters->target.height;
     mSideViewWidgetParameters->target.distance = mLogicParameters->target.distance;
-    mSideViewWidgetParameters->target.position = mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->target.height);
+    mSideViewWidgetParameters->target.position = mSideViewWidget->mapFrom3d(mLogicParameters->target.distance,
+                                                                            mLogicParameters->target.height);
     mSideViewWidgetParameters->lowerBoundary.height = mLogicParameters->lowerBoundary.height;
     mSideViewWidgetParameters->lowerBoundary.distance = mLogicParameters->lowerBoundary.distance;
-    mSideViewWidgetParameters->lowerBoundary.position = mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height);
+    mSideViewWidgetParameters->lowerBoundary.position
+        = mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height);
 
     for (int i = 0; i < 4; ++i) {
-        mSideViewWidgetParameters->ground.intersections[i] = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bottomVertices[i]);
-        mSideViewWidgetParameters->target.intersections[i] = mSideViewWidget->mapFrom3d(mLogicParameters->target.intersections[i]);
-        mSideViewWidgetParameters->lowerBoundary.intersections[i] = mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.intersections[i]);
+        mSideViewWidgetParameters->ground.intersections[i] = mSideViewWidget->mapFrom3d(
+            mLogicParameters->frustum.bottomVertices[i]);
+        mSideViewWidgetParameters->target.intersections[i] = mSideViewWidget->mapFrom3d(
+            mLogicParameters->target.intersections[i]);
+        mSideViewWidgetParameters->lowerBoundary.intersections[i] = mSideViewWidget->mapFrom3d(
+            mLogicParameters->lowerBoundary.intersections[i]);
     }
 
-    mSideViewWidgetParameters->bisectorIntersection = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.oppositeBisectorRay);
-    mSideViewWidgetParameters->oppositeBisectorIntersection = mSideViewWidget->mapFrom3d(mLogicParameters->frustum.bisectorRay);
+    mSideViewWidgetParameters->bisectorIntersection = mSideViewWidget->mapFrom3d(
+        mLogicParameters->frustum.oppositeBisectorRay);
+    mSideViewWidgetParameters->oppositeBisectorIntersection = mSideViewWidget->mapFrom3d(
+        mLogicParameters->frustum.bisectorRay);
 
     QPolygonF roi;
 
     roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->target.height));
     roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->target.distance, mLogicParameters->lowerBoundary.height));
-    roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height));
+    roi.append(
+        mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->lowerBoundary.height));
     roi.append(mSideViewWidget->mapFrom3d(mLogicParameters->lowerBoundary.distance, mLogicParameters->target.height));
 
     for (int i = 0; i < 7; ++i) {
@@ -229,7 +286,8 @@ void Controller::onDirty()
 
     } else if (sender == mTopViewWidget) {
         mLogicParameters->target.distance = mLogic.validateTargetDistance(mTopViewWidgetParameters->target.distance);
-        mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mTopViewWidgetParameters->target.fovWidth);
+        mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(
+            mTopViewWidgetParameters->target.fovWidth);
         mLogicParameters->target.fovWidth = mTopViewWidgetParameters->target.fovWidth;
 
     } else if (sender == mLeftWidget) {
@@ -247,7 +305,8 @@ void Controller::onDirty()
         mLogicParameters->lowerBoundary.distance = mLeftWidgetParameters->lowerBoundary.distance;
 
         if (!qFuzzyCompare(mLogicParameters->target.fovWidth, mLeftWidgetParameters->target.fovWidth))
-            mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(mLeftWidgetParameters->target.fovWidth);
+            mLogicParameters->frustum.horizontalFov = mLogic.calculateHorizontalFovForGivenFovWidth(
+                mLeftWidgetParameters->target.fovWidth);
         else
             mLogicParameters->frustum.horizontalFov = mLeftWidgetParameters->frustum.horizontalFov;
     }
@@ -294,7 +353,7 @@ void Controller::init()
     mSideViewWidget->setParameters(mSideViewWidgetParameters);
 
     mTopViewWidget = mCentralWidget->topViewWidget();
-    mTopViewWidgetParameters = new TopViewWidgetParamaters;
+    mTopViewWidgetParameters = new TopViewWidgetParameters;
     mTopViewWidget->setParameters(mTopViewWidgetParameters);
 
     mAxisWidget = mCentralWidget->axisWidget();

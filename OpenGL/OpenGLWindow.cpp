@@ -17,12 +17,16 @@ void OpenGLWindow::initializeGL()
     //    glDisable(GL_CULL_FACE);
     //    glEnable(GL_BLEND);
     //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_LINE_SMOOTH);
 
     mObjectRenderer = new ObjectRenderer;
     mObjectRenderer->init();
 
     mRegionRenderer = new RegionRenderer;
     mRegionRenderer->init();
+
+    mLineRenderer = new LineRenderer;
+    mLineRenderer->init();
 
     for (int i = 0; i < 7; i++) {
         mRegionData[i].create();
@@ -34,18 +38,18 @@ void OpenGLWindow::initializeGL()
     plane->scale(10);
     mObjects << plane;
 
-    for (int i = 0; i < 10; i++) {
-        Object *cube = new Object(Object::Type::Cube);
-        cube->setPosition(10 * i, 1, -5);
-        cube->setColor(1, 1, 1);
-        cube->scale(0.01);
-        mObjects << cube;
-    }
+    //    for (int i = 0; i < 10; i++) {
+    //        Object *cube = new Object(Object::Type::Cube);
+    //        cube->setPosition(10 * i, 1, -5);
+    //        cube->setColor(1, 1, 1);
+    //        cube->scale(0.01);
+    //        mObjects << cube;
+    //    }
 
-    Object *suzanne = new Object(Object::Type::Suzanne);
-    suzanne->setPosition(10, 10, 10);
-    suzanne->setColor(1, 0, 1);
-    mObjects << suzanne;
+    //    Object *suzanne = new Object(Object::Type::Suzanne);
+    //    suzanne->setPosition(10, 10, 10);
+    //    suzanne->setColor(1, 0, 1);
+    //    mObjects << suzanne;
 
     mCamera = new Camera;
     mLight = new Light;
@@ -68,6 +72,7 @@ void OpenGLWindow::paintGL()
 
     mObjectRenderer->render(mObjects, mCamera, mLight);
     mRegionRenderer->render(mRegionData, mCamera, mLight);
+    mLineRenderer->render(mParameters->frustumEdgeVertices, mCamera);
 }
 
 void OpenGLWindow::resizeGL(int w, int h)
@@ -82,7 +87,7 @@ void OpenGLWindow::refresh()
 {
     for (int i = 0; i < 7; i++) {
         mRegionData[i].setVertices(mParameters->regions[i].vertices);
-        mRegionData[i].setVisible(mParameters->regions[i].visible);
+        mRegionData[i].setIntersectsGround(mParameters->regions[i].intersectsGround);
     }
 }
 

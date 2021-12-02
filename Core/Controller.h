@@ -67,7 +67,7 @@ public:
         QPointF oppositeBisectorIntersection;
     };
 
-    struct TopViewWidgetParamaters
+    struct TopViewWidgetParameters
     {
         Camera camera;
         Target target;
@@ -78,20 +78,14 @@ public:
 
     struct OpenGLWindowRegion
     {
-        QVector<QVector3D> edgeVertices;
         QVector<QVector3D> vertices;
-        bool visible;
-    };
-
-    struct OpenGLWindowFrustum
-    {
-        QVector<QVector3D> edgeVertices;
+        bool intersectsGround;
     };
 
     struct OpenGLWindowParameters
     {
         OpenGLWindowRegion regions[7];
-        OpenGLWindowFrustum frustum;
+        QVector<QVector3D> frustumEdgeVertices;
     };
 
     CentralWidget *centralWidget();
@@ -110,9 +104,10 @@ private:
     void updateTopViewWidgetParameters();
     void updateLeftWidgetParameters();
     void updateOpenGLWindowParameters();
-    bool isVisible(const OpenGLWindowRegion &region);
+    bool intersectsGround(const OpenGLWindowRegion &region);
     QVector<QVector3D> convertToOpenGLConvention(const QVector<Eigen::Vector3f> &vectors);
 
+    QVector<QVector3D> createFrustumEdgeVerticesForOpenGLWindow(const Logic::Frustum &frustum);
     QVector<QVector3D> createVerticesForOpenGLWindow(const Logic::Region &region);
     QVector<QVector3D> createNormalsForOpenGLWindow(const QVector<QVector3D> &vertices);
 
@@ -123,7 +118,7 @@ private:
 
     Logic::Parameters *mLogicParameters;
     SideViewWidgetParameters *mSideViewWidgetParameters;
-    TopViewWidgetParamaters *mTopViewWidgetParameters;
+    TopViewWidgetParameters *mTopViewWidgetParameters;
     Logic::Parameters *mLeftWidgetParameters;
     OpenGLWindowParameters *mOpenGLWindowParameters;
 

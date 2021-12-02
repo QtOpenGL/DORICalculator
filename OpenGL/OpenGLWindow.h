@@ -4,6 +4,7 @@
 #include <Core/Controller.h>
 #include <OpenGL/Data/RegionData.h>
 #include <OpenGL/Object/Object.h>
+#include <OpenGL/Renderer/LineRenderer.h>
 #include <OpenGL/Renderer/ObjectRenderer.h>
 #include <OpenGL/Renderer/RegionRenderer.h>
 
@@ -36,8 +37,9 @@ private:
     Controller::OpenGLWindowParameters *mParameters;
     ObjectRenderer *mObjectRenderer;
     RegionRenderer *mRegionRenderer;
-    QVector<Object *> mObjects;
+    LineRenderer *mLineRenderer;
 
+    QVector<Object *> mObjects;
     RegionData mRegionData[7];
 
     Camera *mCamera;

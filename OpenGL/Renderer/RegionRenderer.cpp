@@ -67,12 +67,16 @@ void RegionRenderer::render(RegionData regionData[7], const Camera *camera, cons
     mShader->setUniformValue(mLightPower, light->lightPower());
 
     for (int i = 0; i < 7; ++i) {
-        mShader->setUniformValue(mRegionColor, QVector3D(REGION_COLORS[i].red() / 255.0f, REGION_COLORS[i].green() / 255.0f, REGION_COLORS[i].blue() / 255.0f));
-
-        regionData[i].bind();
-        regionData[i].update();
-        glDrawArrays(GL_TRIANGLES, 0, regionData[i].getVertexCount());
-        regionData[i].release();
+        if (regionData[i].intersectsGround()) {
+            mShader->setUniformValue(mRegionColor,
+                                     QVector3D(REGION_COLORS[i].red() / 255.0f,
+                                               REGION_COLORS[i].green() / 255.0f,
+                                               REGION_COLORS[i].blue() / 255.0f));
+            regionData[i].bind();
+            regionData[i].update();
+            glDrawArrays(GL_TRIANGLES, 0, regionData[i].getVertexCount());
+            regionData[i].release();
+        }
     }
 
     mShader->release();
