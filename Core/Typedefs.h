@@ -4,6 +4,5 @@
 #include <Core/Logic.h>
 
 typedef int Location;
-typedef Logic::Parameters LeftWidgetParameters;
 
 #endif // TYPEDEFS_H

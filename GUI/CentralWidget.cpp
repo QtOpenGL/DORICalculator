@@ -1,6 +1,9 @@
 #include "CentralWidget.h"
-#include <QStackedLayout>
-#include <QVBoxLayout>
+
+#include <QGridLayout>
+
+#include <Core/Controller.h>
+#include <OpenGL/OpenGLWidget.h>
 
 CentralWidget::CentralWidget(QWidget *parent)
     : QWidget(parent)
@@ -8,67 +11,58 @@ CentralWidget::CentralWidget(QWidget *parent)
 
 void CentralWidget::init()
 {
-    QHBoxLayout *mainLayout = new QHBoxLayout;
-    QVBoxLayout *viewLayout = new QVBoxLayout;
-    QVBoxLayout *leftLayout = new QVBoxLayout;
+    QGridLayout *mainLayout = new QGridLayout;
+    mainLayout->setColumnStretch(0, 1);
+    mainLayout->setColumnStretch(1, 6);
 
-    // SideViewWidget and AxisWidget
-    {
-        mSideViewTitle = new QLabel("SideViewWidget");
-        mSideViewTitle->setAlignment(Qt::AlignLeft);
-        viewLayout->addWidget(mSideViewTitle);
+    QGridLayout *layout = new QGridLayout;
+    layout->addWidget(mAxisWidget, 0, 0);
+    layout->addWidget(mSideViewWidget, 0, 0);
 
-        QGridLayout *layout = new QGridLayout;
-        mAxisWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        layout->addWidget(mAxisWidget, 0, 0);
+    mainLayout->addLayout(layout, 0, 1, 2, 1);
 
-        mSideViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        layout->addWidget(mSideViewWidget, 0, 0);
+    mainLayout->addWidget(mTopViewWidget, 2, 1, 3, 1);
 
-        viewLayout->addLayout(layout);
-    }
+    mainLayout->addWidget(mCameraWidget, 0, 0);
+    mainLayout->addWidget(mTargetWidget, 1, 0);
+    mainLayout->addWidget(mLowerBoundaryWidget, 2, 0);
+    mainLayout->addWidget(mCursorPositionWidget, 3, 0);
+    mainLayout->addItem(new QSpacerItem(-1, -1, QSizePolicy::Ignored, QSizePolicy::Expanding), 4, 0);
 
-    // TopViewWidget
-    {
-        mTopViewTitle = new QLabel("TopViewWidget");
-        mTopViewTitle->setAlignment(Qt::AlignLeft);
-        viewLayout->addWidget(mTopViewTitle);
-
-        mTopViewWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        viewLayout->addWidget(mTopViewWidget);
-    }
-
-    // LeftWidget
-    {
-        leftLayout->addWidget(mLeftWidget);
-        mLeftWidget->setFixedWidth(300);
-    }
-
-    // OpenGLWidget
-
-    {
-        QHBoxLayout *layout = new QHBoxLayout;
-        layout->addWidget(mOpenGLWidget);
-
-        mOpenGLWidgetContainer = new QGroupBox;
-        mOpenGLWidgetContainer->setTitle("3D View");
-        mOpenGLWidgetContainer->setLayout(layout);
-
-        leftLayout->addWidget(mOpenGLWidgetContainer);
-        mOpenGLWidgetContainer->setFixedWidth(300);
-    }
-
-    mainLayout->addLayout(leftLayout);
-    mainLayout->addLayout(viewLayout);
     setLayout(mainLayout);
 }
 
-void CentralWidget::setSideViewWidget(SideViewWidget *newSideViewWidget) { mSideViewWidget = newSideViewWidget; }
+void CentralWidget::setSideViewWidget(SideViewWidget *newSideViewWidget)
+{
+    mSideViewWidget = newSideViewWidget;
+}
 
-void CentralWidget::setTopViewWidget(TopViewWidget *newTopViewWidget) { mTopViewWidget = newTopViewWidget; }
+void CentralWidget::setTopViewWidget(TopViewWidget *newTopViewWidget)
+{
+    mTopViewWidget = newTopViewWidget;
+}
 
-void CentralWidget::setAxisWidget(AxisWidget *newAxisWidget) { mAxisWidget = newAxisWidget; }
+void CentralWidget::setAxisWidget(AxisWidget *newAxisWidget)
+{
+    mAxisWidget = newAxisWidget;
+}
 
-void CentralWidget::setLeftWidget(LeftWidget *newLeftWidget) { mLeftWidget = newLeftWidget; }
+void CentralWidget::setCameraWidget(CameraWidget *newCameraWidget)
+{
+    mCameraWidget = newCameraWidget;
+}
 
-void CentralWidget::setOpenGLWidget(OpenGLWidget *newOpenGLWidget) { mOpenGLWidget = newOpenGLWidget; }
+void CentralWidget::setTargetWidget(TargetWidget *newTargetWidget)
+{
+    mTargetWidget = newTargetWidget;
+}
+
+void CentralWidget::setLowerBoundaryWidget(LowerBoundaryWidget *newLowerBoundaryWidget)
+{
+    mLowerBoundaryWidget = newLowerBoundaryWidget;
+}
+
+void CentralWidget::setCursorPositionWidget(CursorPositionWidget *newCursorPositionWidget)
+{
+    mCursorPositionWidget = newCursorPositionWidget;
+}

@@ -13,10 +13,13 @@ SOURCES += \
     Core/Controller.cpp \
     Core/Logic.cpp \
     GUI/AxisWidget.cpp \
+    GUI/CameraWidget.cpp \
     GUI/CentralWidget.cpp \
+    GUI/CursorPositionWidget.cpp \
     GUI/Handle.cpp \
-    GUI/LeftWidget.cpp \
+    GUI/LowerBoundaryWidget.cpp \
     GUI/SideViewWidget.cpp \
+    GUI/TargetWidget.cpp \
     GUI/TopViewWidget.cpp \
     Main.cpp \
     OpenGL/Camera.cpp \
@@ -36,10 +39,13 @@ HEADERS += \
     Core/Logic.h \
     Core/Typedefs.h \
     GUI/AxisWidget.h \
+    GUI/CameraWidget.h \
     GUI/CentralWidget.h \
+    GUI/CursorPositionWidget.h \
     GUI/Handle.h \
-    GUI/LeftWidget.h \
+    GUI/LowerBoundaryWidget.h \
     GUI/SideViewWidget.h \
+    GUI/TargetWidget.h \
     GUI/TopViewWidget.h \
     OpenGL/Camera.h \
     OpenGL/Data/ObjectData.h \

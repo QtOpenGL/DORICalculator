@@ -1,6 +1,6 @@
 QLineEdit {
 	border: 1px solid #888888;
-	border-radius: 4px;
+	border-radius: 0px;
 	padding: 4px;
 }
 

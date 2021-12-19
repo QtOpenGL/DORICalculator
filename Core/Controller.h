@@ -10,17 +10,21 @@
 #include <QVector2D>
 
 class CentralWidget;
+class CameraWidget;
+class CursorPositionWidget;
+class TargetWidget;
+class LowerBoundaryWidget;
+class OpenGLWidget;
 class SideViewWidget;
 class TopViewWidget;
-class LeftWidget;
 class AxisWidget;
-class OpenGLWidget;
 
 class Controller : public QObject
 {
     Q_OBJECT
 public:
     explicit Controller(QObject *parent = nullptr);
+
     struct Camera
     {
         float height;
@@ -92,21 +96,23 @@ public:
         float tiltAngle;
     };
 
+    CentralWidget *centralWidget() const;
+
+    OpenGLWidget *openGLWidget() const;
+
 public slots:
     void onDirty();
     void onZoom(int);
     void onPan(int x, int y);
-    void showMaximized();
 
 private:
     void update();
     void updateSideViewWidgetParameters();
     void updateTopViewWidgetParameters();
-    void updateLeftWidgetParameters();
     void updateOpenGLWindowParameters();
+
     bool intersectsGround(const OpenGLWidgetRegion &region);
     QVector<QVector3D> convertToOpenGLConvention(const QVector<Eigen::Vector3f> &vectors);
-
     QVector<QVector3D> createFrustumEdgeVerticesForOpenGLWindow(const Logic::Frustum &frustum);
     QVector<QVector3D> createVerticesForOpenGLWindow(const Logic::Region &region);
     QVector<QVector3D> createNormalsForOpenGLWindow(const QVector<QVector3D> &vertices);
@@ -119,14 +125,18 @@ private:
     Logic::Parameters *mLogicParameters;
     SideViewWidgetParameters *mSideViewWidgetParameters;
     TopViewWidgetParameters *mTopViewWidgetParameters;
-    LeftWidgetParameters *mLeftWidgetParameters;
     OpenGLWidgetParameters *mOpenGLWidgetParameters;
 
     CentralWidget *mCentralWidget;
+    CameraWidget *mCameraWidget;
+    TargetWidget *mTargetWidget;
+    LowerBoundaryWidget *mLowerBoundaryWidget;
+    CursorPositionWidget *mCursorPositionWidget;
+
     SideViewWidget *mSideViewWidget;
-    TopViewWidget *mTopViewWidget;
     AxisWidget *mAxisWidget;
-    LeftWidget *mLeftWidget;
+    TopViewWidget *mTopViewWidget;
+
     OpenGLWidget *mOpenGLWidget;
 
     const float mZoomStepSize;

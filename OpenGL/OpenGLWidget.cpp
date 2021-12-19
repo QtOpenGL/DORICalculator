@@ -153,7 +153,10 @@ void OpenGLWidget::keyReleaseEvent(QKeyEvent *event)
         mCamera->setMovementSpeed(1.0f);
 }
 
-void OpenGLWidget::mousePressEvent(QMouseEvent *) { mMousePressed = true; }
+void OpenGLWidget::mousePressEvent(QMouseEvent *)
+{
+    mMousePressed = true;
+}
 
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent *)
 {
@@ -174,4 +177,17 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
     mPreviousMousePosition = event->pos();
 }
 
-void OpenGLWidget::setParameters(Controller::OpenGLWidgetParameters *newParameters) { mParameters = newParameters; }
+void OpenGLWidget::setParameters(Controller::OpenGLWidgetParameters *newParameters)
+{
+    mParameters = newParameters;
+}
+
+QSize OpenGLWidget::minimumSizeHint() const
+{
+    return QSize(50, 50);
+}
+
+QSize OpenGLWidget::sizeHint() const
+{
+    return QSize(750, 750);
+}

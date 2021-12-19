@@ -12,9 +12,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    QApplication::setStyle(QStyleFactory::create("Windows"));
+
     // Resources
     QFile file("Resources/StyleSheet.qss");
-
     if (file.open(QFile::ReadOnly)) {
         QString styleSheet = QLatin1String(file.readAll());
         qApp->setStyleSheet(styleSheet);
@@ -49,7 +50,8 @@ int main(int argc, char *argv[])
 
     // Initialize
     Controller *controller = new Controller;
-    controller->showMaximized();
+    controller->centralWidget()->showMaximized();
+    controller->openGLWidget()->showNormal();
 
     return app.exec();
 }
