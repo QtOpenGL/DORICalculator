@@ -73,7 +73,10 @@ TopViewWidget::TopViewWidget(QWidget *parent)
     setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 }
 
-void TopViewWidget::setParameters(Controller::TopViewWidgetParameters *newParameters) { mParameters = newParameters; }
+void TopViewWidget::setParameters(Controller::TopViewWidgetParameters *newParameters)
+{
+    mParameters = newParameters;
+}
 
 void TopViewWidget::refresh()
 {
@@ -81,11 +84,20 @@ void TopViewWidget::refresh()
     update();
 }
 
-QPointF TopViewWidget::mapFrom3d(float x, float y) { return QPointF(mOrigin.x() + x * mMeterToPixelRatio, mOrigin.y() - y * mMeterToPixelRatio); }
+QPointF TopViewWidget::mapFrom3d(float x, float y)
+{
+    return QPointF(mOrigin.x() + x * mMeterToPixelRatio, mOrigin.y() - y * mMeterToPixelRatio);
+}
 
-QPointF TopViewWidget::mapFrom3d(Eigen::Vector3f vector) { return mapFrom3d(vector.x(), vector.y()); }
+QPointF TopViewWidget::mapFrom3d(Eigen::Vector3f vector)
+{
+    return mapFrom3d(vector.x(), vector.y());
+}
 
-Eigen::Vector3f TopViewWidget::mapFrom2d(QPointF point) { return mapFrom2d(point.x(), point.y()); }
+Eigen::Vector3f TopViewWidget::mapFrom2d(QPointF point)
+{
+    return mapFrom2d(point.x(), point.y());
+}
 
 Eigen::Vector3f TopViewWidget::mapFrom2d(float x, float y)
 {
@@ -269,8 +281,17 @@ void TopViewWidget::mouseReleaseEvent(QMouseEvent *event)
     update();
 }
 
-void TopViewWidget::wheelEvent(QWheelEvent *event) { emit zoom(event->angleDelta().y()); }
+void TopViewWidget::wheelEvent(QWheelEvent *event)
+{
+    emit zoom(event->angleDelta().y());
+}
 
-void TopViewWidget::setMeterToPixelRatio(float newMeterToPixelRatio) { mMeterToPixelRatio = newMeterToPixelRatio; }
+void TopViewWidget::setMeterToPixelRatio(float newMeterToPixelRatio)
+{
+    mMeterToPixelRatio = newMeterToPixelRatio;
+}
 
-void TopViewWidget::setOrigin(QPointF newOrigin) { mOrigin = newOrigin; }
+void TopViewWidget::setOrigin(QPointF newOrigin)
+{
+    mOrigin = newOrigin;
+}

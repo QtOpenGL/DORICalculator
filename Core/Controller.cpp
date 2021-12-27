@@ -70,7 +70,6 @@ Controller::Controller(QObject *parent)
     mOpenGLWidget->setParameters(mOpenGLWidgetParameters);
 
     mCameraWidget->setParameters(mLogicParameters);
-
     mTargetWidget->setParameters(mLogicParameters);
     mLowerBoundaryWidget->setParameters(mLogicParameters);
 
@@ -103,10 +102,6 @@ void Controller::update()
     updateSideViewWidgetParameters();
     updateTopViewWidgetParameters();
     updateOpenGLWindowParameters();
-
-    //    *mCameraWidgetParameters = *mLogicParameters;
-    //    *mTargetWidgetParameters = *mLogicParameters;
-    //    *mLowerBoundaryWidgetParameters = *mLogicParameters;
 
     mCameraWidget->refresh();
     mTargetWidget->refresh();

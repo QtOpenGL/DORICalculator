@@ -109,24 +109,46 @@ bool ObjectData::loadData()
 QFile ObjectData::getModelFile()
 {
     switch (mType) {
-    case Object::Camera: return QFile("Resources/Models/Camera.obj");
-    case Object::Capsule: return QFile("Resources/Models/Capsule.obj");
-    case Object::Cone: return QFile("Resources/Models/Cone.obj");
-    case Object::Cube: return QFile("Resources/Models/Cube.obj");
-    case Object::Cylinder: return QFile("Resources/Models/Cylinder.obj");
-    case Object::Dome: return QFile("Resources/Models/Dome.obj");
-    case Object::Plane: return QFile("Resources/Models/Plane.obj");
-    case Object::Pyramid: return QFile("Resources/Models/Pyramid.obj");
-    case Object::Sphere: return QFile("Resources/Models/Sphere.obj");
-    case Object::Suzanne: return QFile("Resources/Models/Suzanne.obj");
-    case Object::Tetrahedron: return QFile("Resources/Models/Tetrahedron.obj");
-    case Object::Torus: return QFile("Resources/Models/Torus.obj");
-    case Object::TorusKnot: return QFile("Resources/Models/TorusKnot.obj");
+    case Object::Camera:
+        return QFile("Resources/Models/Camera.obj");
+    case Object::Capsule:
+        return QFile("Resources/Models/Capsule.obj");
+    case Object::Cone:
+        return QFile("Resources/Models/Cone.obj");
+    case Object::Cube:
+        return QFile("Resources/Models/Cube.obj");
+    case Object::Cylinder:
+        return QFile("Resources/Models/Cylinder.obj");
+    case Object::Dome:
+        return QFile("Resources/Models/Dome.obj");
+    case Object::Plane:
+        return QFile("Resources/Models/Plane.obj");
+    case Object::Pyramid:
+        return QFile("Resources/Models/Pyramid.obj");
+    case Object::Sphere:
+        return QFile("Resources/Models/Sphere.obj");
+    case Object::Suzanne:
+        return QFile("Resources/Models/Suzanne.obj");
+    case Object::Tetrahedron:
+        return QFile("Resources/Models/Tetrahedron.obj");
+    case Object::Torus:
+        return QFile("Resources/Models/Torus.obj");
+    case Object::TorusKnot:
+        return QFile("Resources/Models/TorusKnot.obj");
     }
 }
 
-void ObjectData::bind() { mVertexArray.bind(); }
+void ObjectData::bind()
+{
+    mVertexArray.bind();
+}
 
-void ObjectData::release() { mVertexArray.release(); }
+void ObjectData::release()
+{
+    mVertexArray.release();
+}
 
-int ObjectData::getVertexCount() { return mVertices.count(); }
+int ObjectData::getVertexCount()
+{
+    return mVertices.count();
+}

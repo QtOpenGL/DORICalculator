@@ -6,9 +6,15 @@ Object::Object(Type type)
     , mColor(1, 1, 1)
 {}
 
-Object::Type Object::type() const { return mType; }
+Object::Type Object::type() const
+{
+    return mType;
+}
 
-const QMatrix4x4 &Object::transformationMatrix() const { return mTransformationMatrix; }
+const QMatrix4x4 &Object::transformationMatrix() const
+{
+    return mTransformationMatrix;
+}
 
 void Object::setTransformationMatrix(const QMatrix4x4 &newTransformationMatrix)
 {
@@ -17,7 +23,10 @@ void Object::setTransformationMatrix(const QMatrix4x4 &newTransformationMatrix)
     mPosition = QVector3D(translation.x(), translation.y(), translation.z());
 }
 
-const QVector3D &Object::position() const { return mPosition; }
+const QVector3D &Object::position() const
+{
+    return mPosition;
+}
 
 void Object::setPosition(float x, float y, float z)
 {
@@ -33,17 +42,35 @@ void Object::setRotation(const QQuaternion &quat)
     mTransformationMatrix.setColumn(3, translation);
 }
 
-void Object::rotate(const QQuaternion &deltaRotation) { mTransformationMatrix.rotate(deltaRotation); }
+void Object::rotate(const QQuaternion &deltaRotation)
+{
+    mTransformationMatrix.rotate(deltaRotation);
+}
 
-void Object::scale(float x, float y, float z) { mTransformationMatrix.scale(x, y, z); }
+void Object::scale(float x, float y, float z)
+{
+    mTransformationMatrix.scale(x, y, z);
+}
 
-void Object::scale(float factor) { mTransformationMatrix.scale(factor); }
+void Object::scale(float factor)
+{
+    mTransformationMatrix.scale(factor);
+}
 
-const QVector3D &Object::color() const { return mColor; }
+const QVector3D &Object::color() const
+{
+    return mColor;
+}
 
-void Object::setColor(float r, float g, float b) { mColor = QVector3D(r, g, b); }
+void Object::setColor(float r, float g, float b)
+{
+    mColor = QVector3D(r, g, b);
+}
 
-void Object::setColor(const QVector3D &newColor) { mColor = newColor; }
+void Object::setColor(const QVector3D &newColor)
+{
+    mColor = newColor;
+}
 
 void Object::setPosition(const QVector3D &newPosition)
 {

@@ -92,7 +92,10 @@ QPointF SideViewWidget::mapFrom3d(float distance, float height)
     return QPointF(x, y);
 }
 
-QPointF SideViewWidget::mapFrom3d(Eigen::Vector3f vector) { return mapFrom3d(vector.x(), vector.z()); }
+QPointF SideViewWidget::mapFrom3d(Eigen::Vector3f vector)
+{
+    return mapFrom3d(vector.x(), vector.z());
+}
 
 Eigen::Vector3f SideViewWidget::mapFrom2d(float x, float y)
 {
@@ -148,7 +151,8 @@ void SideViewWidget::paintEvent(QPaintEvent *)
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setPen(QColor(0, 128, 0));
         painter.setFont(mLabelFont);
-        QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8, (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
+        QPointF point = QPointF(mTargetHeightHandle.getCenter().x() + 8,
+                                (mTargetDistanceHandle.getCenter().y() + mTargetHeightHandle.getCenter().y() + mLabelFont.pixelSize()) / 2);
         painter.drawText(point, QString::number(mParameters->target.height, 'f', 2) + " m");
     }
 
@@ -205,7 +209,10 @@ void SideViewWidget::paintEvent(QPaintEvent *)
         if (mParameters->camera.tiltAngle > 0)
             boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75, mCameraHeightHandle.getCenter().y(), 50, 2 * mLabelFont.pixelSize());
         else
-            boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75, mCameraHeightHandle.getCenter().y() - 2 * mLabelFont.pixelSize(), 50, 2 * mLabelFont.pixelSize());
+            boundingBox = QRectF(mCameraHeightHandle.getCenter().x() - 75,
+                                 mCameraHeightHandle.getCenter().y() - 2 * mLabelFont.pixelSize(),
+                                 50,
+                                 2 * mLabelFont.pixelSize());
         painter.drawText(boundingBox, Qt::AlignCenter, label);
     }
 
@@ -301,13 +308,25 @@ void SideViewWidget::mouseReleaseEvent(QMouseEvent *event)
     update();
 }
 
-void SideViewWidget::wheelEvent(QWheelEvent *event) { emit zoom(event->angleDelta().y()); }
+void SideViewWidget::wheelEvent(QWheelEvent *event)
+{
+    emit zoom(event->angleDelta().y());
+}
 
-void SideViewWidget::setMeterToPixelRatio(float newMeterToPixelRatio) { mMeterToPixelRatio = newMeterToPixelRatio; }
+void SideViewWidget::setMeterToPixelRatio(float newMeterToPixelRatio)
+{
+    mMeterToPixelRatio = newMeterToPixelRatio;
+}
 
-void SideViewWidget::setOrigin(QPointF newOrigin) { mOrigin = newOrigin; }
+void SideViewWidget::setOrigin(QPointF newOrigin)
+{
+    mOrigin = newOrigin;
+}
 
-void SideViewWidget::setParameters(Controller::SideViewWidgetParameters *newParameters) { mParameters = newParameters; }
+void SideViewWidget::setParameters(Controller::SideViewWidgetParameters *newParameters)
+{
+    mParameters = newParameters;
+}
 
 void SideViewWidget::updateHandles()
 {

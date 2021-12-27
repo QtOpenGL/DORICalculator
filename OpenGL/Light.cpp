@@ -8,18 +8,42 @@ Light::Light()
 
 {}
 
-const QVector3D &Light::position() const { return mPosition; }
+const QVector3D &Light::position() const
+{
+    return mPosition;
+}
 
-void Light::setPosition(float x, float y, float z) { mPosition = QVector3D(x, y, z); }
+void Light::setPosition(float x, float y, float z)
+{
+    mPosition = QVector3D(x, y, z);
+}
 
-const QVector3D &Light::color() const { return mColor; }
+const QVector3D &Light::color() const
+{
+    return mColor;
+}
 
-void Light::setColor(float r, float g, float b) { mColor = QVector3D(r, g, b); }
+void Light::setColor(float r, float g, float b)
+{
+    mColor = QVector3D(r, g, b);
+}
 
-float Light::ambientStrength() const { return mAmbientStrength; }
+float Light::ambientStrength() const
+{
+    return mAmbientStrength;
+}
 
-void Light::setAmbientStrength(float newAmbientStrength) { mAmbientStrength = newAmbientStrength; }
+void Light::setAmbientStrength(float newAmbientStrength)
+{
+    mAmbientStrength = newAmbientStrength;
+}
 
-float Light::lightPower() const { return mLightPower; }
+float Light::lightPower() const
+{
+    return mLightPower;
+}
 
-void Light::setLightPower(float newLightPower) { mLightPower = newLightPower; }
+void Light::setLightPower(float newLightPower)
+{
+    mLightPower = newLightPower;
+}

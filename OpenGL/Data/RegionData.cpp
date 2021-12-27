@@ -35,16 +35,37 @@ void RegionData::update()
     mVertexBuffer.release();
 }
 
-int RegionData::getVertexCount() { return mVertices.size(); }
+int RegionData::getVertexCount()
+{
+    return mVertices.size();
+}
 
-const QVector<QVector3D> &RegionData::vertices() const { return mVertices; }
+const QVector<QVector3D> &RegionData::vertices() const
+{
+    return mVertices;
+}
 
-void RegionData::setVertices(const QVector<QVector3D> &newVertices) { mVertices = newVertices; }
+void RegionData::setVertices(const QVector<QVector3D> &newVertices)
+{
+    mVertices = newVertices;
+}
 
-bool RegionData::intersectsGround() const { return mIntersectsGround; }
+bool RegionData::intersectsGround() const
+{
+    return mIntersectsGround;
+}
 
-void RegionData::setIntersectsGround(bool newIntersectsGround) { mIntersectsGround = newIntersectsGround; }
+void RegionData::setIntersectsGround(bool newIntersectsGround)
+{
+    mIntersectsGround = newIntersectsGround;
+}
 
-void RegionData::bind() { mVertexArray.bind(); }
+void RegionData::bind()
+{
+    mVertexArray.bind();
+}
 
-void RegionData::release() { mVertexArray.release(); }
+void RegionData::release()
+{
+    mVertexArray.release();
+}
