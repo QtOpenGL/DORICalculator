@@ -176,12 +176,11 @@ void Controller::updateTopViewWidgetParameters()
 void Controller::updateOpenGLWindowParameters()
 {
     for (int i = 0; i < 7; i++) {
-        QVector<Eigen::Vector3f> vertices = mLogic->findIntersection(mLogicParameters->regions[i], mGround);
-        mOpenGLWidgetParameters->regions[i].vertices = convertToOpenGLConvention(vertices);
+        mOpenGLWidgetParameters->regions[i].vertices = createVertices(mLogicParameters->regions[i]);
         mOpenGLWidgetParameters->regions[i].intersectsGround = intersectsGround(mOpenGLWidgetParameters->regions[i]);
     }
 
-    mOpenGLWidgetParameters->frustumEdgeVertices = createFrustumEdgeVerticesForOpenGLWindow(mLogicParameters->frustum);
+    mOpenGLWidgetParameters->frustumEdges = createFrustumEdges(mLogicParameters->frustum);
     mOpenGLWidgetParameters->cameraHeight = mLogicParameters->camera.height;
     mOpenGLWidgetParameters->tiltAngle = mLogicParameters->camera.tiltAngle;
 }
@@ -196,7 +195,7 @@ bool Controller::intersectsGround(const OpenGLWidgetRegion &region)
     return false;
 }
 
-QVector<QVector3D> Controller::convertToOpenGLConvention(const QVector<Eigen::Vector3f> &vectors)
+QVector<QVector3D> Controller::convert(const QVector<Eigen::Vector3f> &vectors)
 {
     QVector<QVector3D> result;
     int size = vectors.size();
@@ -210,7 +209,7 @@ QVector<QVector3D> Controller::convertToOpenGLConvention(const QVector<Eigen::Ve
     return result;
 }
 
-QVector<QVector3D> Controller::createFrustumEdgeVerticesForOpenGLWindow(const Logic::Frustum &frustum)
+QVector<QVector3D> Controller::createFrustumEdges(const Logic::Frustum &frustum)
 {
     QVector<QVector3D> result;
 
@@ -233,7 +232,7 @@ QVector<QVector3D> Controller::createFrustumEdgeVerticesForOpenGLWindow(const Lo
     return result;
 }
 
-QVector<QVector3D> Controller::createVerticesForOpenGLWindow(const Logic::Region &region)
+QVector<QVector3D> Controller::createVertices(const Logic::Region &region)
 {
     QVector<QVector3D> vertices;
 
@@ -265,7 +264,7 @@ QVector<QVector3D> Controller::createVerticesForOpenGLWindow(const Logic::Region
     return vertices;
 }
 
-QVector<QVector3D> Controller::createNormalsForOpenGLWindow(const QVector<QVector3D> &vertices)
+QVector<QVector3D> Controller::createNormals(const QVector<QVector3D> &vertices)
 {
     QVector<QVector3D> normals;
 

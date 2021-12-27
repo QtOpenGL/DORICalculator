@@ -8,21 +8,7 @@
 class Object
 {
 public:
-    enum Type {
-        Camera,
-        Capsule,
-        Cone,
-        Cube,
-        Cylinder,
-        Dome,
-        Plane,
-        Pyramid,
-        Sphere,
-        Suzanne,
-        Tetrahedron,
-        Torus,
-        TorusKnot
-    };
+    enum Type { Camera, Capsule, Cone, Cube, Cylinder, Dome, Plane, Pyramid, Sphere, Suzanne, Tetrahedron, Torus, TorusKnot };
 
     Object(Type type);
 

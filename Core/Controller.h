@@ -92,7 +92,7 @@ public:
     struct OpenGLWidgetParameters
     {
         OpenGLWidgetRegion regions[7];
-        QVector<QVector3D> frustumEdgeVertices;
+        QVector<QVector3D> frustumEdges;
         float cameraHeight;
         float tiltAngle;
     };
@@ -113,10 +113,10 @@ private:
     void updateOpenGLWindowParameters();
 
     bool intersectsGround(const OpenGLWidgetRegion &region);
-    QVector<QVector3D> convertToOpenGLConvention(const QVector<Eigen::Vector3f> &vectors);
-    QVector<QVector3D> createFrustumEdgeVerticesForOpenGLWindow(const Logic::Frustum &frustum);
-    QVector<QVector3D> createVerticesForOpenGLWindow(const Logic::Region &region);
-    QVector<QVector3D> createNormalsForOpenGLWindow(const QVector<QVector3D> &vertices);
+    QVector<QVector3D> convert(const QVector<Eigen::Vector3f> &vectors);
+    QVector<QVector3D> createFrustumEdges(const Logic::Frustum &frustum);
+    QVector<QVector3D> createVertices(const Logic::Region &region);
+    QVector<QVector3D> createNormals(const QVector<QVector3D> &vertices);
 
     void setMeterToPixelRatio(float newMeterToPixelRatio);
     void setOrigin(QPointF newOrigin);

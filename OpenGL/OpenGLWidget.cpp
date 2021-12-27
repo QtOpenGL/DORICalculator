@@ -11,7 +11,7 @@ OpenGLWidget::OpenGLWidget(QWidget *parent)
 
 {
     Object *plane = new Object(Object::Type::Plane);
-    plane->setPosition(0, -0.25, 0);
+    plane->setPosition(0, 0, 0);
     plane->setColor(1, 1, 1);
     plane->scale(10);
     mObjects << plane;
@@ -53,9 +53,7 @@ void OpenGLWidget::initializeGL()
     glClearColor(0, 0, 0, 1);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
-    //    glDisable(GL_CULL_FACE);
-    //    glEnable(GL_BLEND);
-    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glLineWidth(1.5f);
     glEnable(GL_LINE_SMOOTH);
 
@@ -86,8 +84,12 @@ void OpenGLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     mObjectRenderer->render(mObjects, mCamera, mLight);
+    mLineRenderer->render(mParameters->frustumEdges, mCamera);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     mRegionRenderer->render(mRegionData, mCamera, mLight);
-    mLineRenderer->render(mParameters->frustumEdgeVertices, mCamera);
+    glDisable(GL_BLEND);
 }
 
 void OpenGLWidget::resizeGL(int w, int h)

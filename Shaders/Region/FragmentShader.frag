@@ -8,7 +8,7 @@ uniform vec3 cameraPosition;
 uniform float ambientStrength;
 uniform float lightPower;
 
-out vec3 finalColor;
+out vec4 outColor;
 
 vec3 normal = vec3(0, 1, 0);
 
@@ -27,5 +27,6 @@ void main()
     vec3 viewDirection = normalize(cameraPosition - vertexPosition);
     vec3 specularColor = 0.35 * pow(clamp(dot(viewDirection, reflectDirection), 0.0, 1.0), 8) * lightColor;
 
-    finalColor = (ambientColor + diffuseColor + specularColor) * regionColor;
+    vec3 finalColor = (ambientColor + diffuseColor + specularColor) * regionColor;
+    outColor = vec4(finalColor, 0.5);
 }
