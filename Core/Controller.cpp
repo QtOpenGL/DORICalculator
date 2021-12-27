@@ -6,6 +6,7 @@
 #include <GUI/CentralWidget.h>
 #include <GUI/CursorPositionWidget.h>
 #include <GUI/LowerBoundaryWidget.h>
+#include <GUI/RegionInfoWidget.h>
 #include <GUI/SideViewWidget.h>
 #include <GUI/TargetWidget.h>
 #include <GUI/TopViewWidget.h>
@@ -45,6 +46,8 @@ Controller::Controller(QObject *parent)
     mTargetWidget = new TargetWidget;
     mLowerBoundaryWidget = new LowerBoundaryWidget;
     mCursorPositionWidget = new CursorPositionWidget;
+    mRegionInfoWidget = new RegionInfoWidget;
+
     mOpenGLWidget = new OpenGLWidget;
 
     mSideViewWidget = new SideViewWidget;
@@ -55,6 +58,7 @@ Controller::Controller(QObject *parent)
     mCentralWidget->setTargetWidget(mTargetWidget);
     mCentralWidget->setLowerBoundaryWidget(mLowerBoundaryWidget);
     mCentralWidget->setCursorPositionWidget(mCursorPositionWidget);
+    mCentralWidget->setRegionInfoWidget(mRegionInfoWidget);
 
     mCentralWidget->setSideViewWidget(mSideViewWidget);
     mCentralWidget->setAxisWidget(mAxisWidget);
@@ -72,6 +76,7 @@ Controller::Controller(QObject *parent)
     mCameraWidget->setParameters(mLogicParameters);
     mTargetWidget->setParameters(mLogicParameters);
     mLowerBoundaryWidget->setParameters(mLogicParameters);
+    mRegionInfoWidget->setParameters(mLogicParameters);
 
     // Connections
     connect(mSideViewWidget, &SideViewWidget::dirty, this, &Controller::onDirty);
@@ -106,6 +111,7 @@ void Controller::update()
     mCameraWidget->refresh();
     mTargetWidget->refresh();
     mLowerBoundaryWidget->refresh();
+    mRegionInfoWidget->refresh();
 
     mSideViewWidget->refresh();
     mTopViewWidget->refresh();

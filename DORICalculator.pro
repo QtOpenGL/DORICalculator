@@ -18,6 +18,8 @@ SOURCES += \
     GUI/CursorPositionWidget.cpp \
     GUI/Handle.cpp \
     GUI/LowerBoundaryWidget.cpp \
+    GUI/Rectangle.cpp \
+    GUI/RegionInfoWidget.cpp \
     GUI/SideViewWidget.cpp \
     GUI/TargetWidget.cpp \
     GUI/TopViewWidget.cpp \
@@ -44,6 +46,8 @@ HEADERS += \
     GUI/CursorPositionWidget.h \
     GUI/Handle.h \
     GUI/LowerBoundaryWidget.h \
+    GUI/Rectangle.h \
+    GUI/RegionInfoWidget.h \
     GUI/SideViewWidget.h \
     GUI/TargetWidget.h \
     GUI/TopViewWidget.h \

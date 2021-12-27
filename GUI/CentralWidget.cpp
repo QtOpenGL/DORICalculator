@@ -13,21 +13,21 @@ void CentralWidget::init()
 {
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setColumnStretch(0, 1);
-    mainLayout->setColumnStretch(1, 6);
+    mainLayout->setColumnStretch(1, 5);
 
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(mAxisWidget, 0, 0);
     layout->addWidget(mSideViewWidget, 0, 0);
-
     mainLayout->addLayout(layout, 0, 1, 2, 1);
-
-    mainLayout->addWidget(mTopViewWidget, 2, 1, 3, 1);
+    mainLayout->addWidget(mTopViewWidget, 2, 1, 4, 1);
 
     mainLayout->addWidget(mCameraWidget, 0, 0);
     mainLayout->addWidget(mTargetWidget, 1, 0);
     mainLayout->addWidget(mLowerBoundaryWidget, 2, 0);
-    mainLayout->addWidget(mCursorPositionWidget, 3, 0);
-    mainLayout->addItem(new QSpacerItem(-1, -1, QSizePolicy::Ignored, QSizePolicy::Expanding), 4, 0);
+    mainLayout->addWidget(mRegionInfoWidget, 3, 0);
+    mainLayout->addWidget(mCursorPositionWidget, 4, 0);
+
+    mainLayout->addItem(new QSpacerItem(-1, -1, QSizePolicy::Ignored, QSizePolicy::Expanding), 5, 0);
 
     setLayout(mainLayout);
 }
@@ -65,4 +65,9 @@ void CentralWidget::setLowerBoundaryWidget(LowerBoundaryWidget *newLowerBoundary
 void CentralWidget::setCursorPositionWidget(CursorPositionWidget *newCursorPositionWidget)
 {
     mCursorPositionWidget = newCursorPositionWidget;
+}
+
+void CentralWidget::setRegionInfoWidget(RegionInfoWidget *newRegionInfoWidget)
+{
+    mRegionInfoWidget = newRegionInfoWidget;
 }

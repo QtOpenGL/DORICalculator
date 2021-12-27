@@ -18,6 +18,7 @@ class OpenGLWidget;
 class SideViewWidget;
 class TopViewWidget;
 class AxisWidget;
+class RegionInfoWidget;
 
 class Controller : public QObject
 {
@@ -132,6 +133,7 @@ private:
     TargetWidget *mTargetWidget;
     LowerBoundaryWidget *mLowerBoundaryWidget;
     CursorPositionWidget *mCursorPositionWidget;
+    RegionInfoWidget *mRegionInfoWidget;
 
     SideViewWidget *mSideViewWidget;
     AxisWidget *mAxisWidget;

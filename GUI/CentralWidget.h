@@ -4,6 +4,7 @@
 #include "CameraWidget.h"
 #include "CursorPositionWidget.h"
 #include "LowerBoundaryWidget.h"
+#include "RegionInfoWidget.h"
 #include "SideViewWidget.h"
 #include "TargetWidget.h"
 #include "TopViewWidget.h"
@@ -28,12 +29,14 @@ public:
     void setTargetWidget(TargetWidget *newTargetWidget);
     void setLowerBoundaryWidget(LowerBoundaryWidget *newLowerBoundaryWidget);
     void setCursorPositionWidget(CursorPositionWidget *newCursorPositionWidget);
+    void setRegionInfoWidget(RegionInfoWidget *newRegionInfoWidget);
 
 private:
     CameraWidget *mCameraWidget;
     TargetWidget *mTargetWidget;
     LowerBoundaryWidget *mLowerBoundaryWidget;
     CursorPositionWidget *mCursorPositionWidget;
+    RegionInfoWidget *mRegionInfoWidget;
 
     SideViewWidget *mSideViewWidget;
     AxisWidget *mAxisWidget;
