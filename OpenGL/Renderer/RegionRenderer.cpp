@@ -1,9 +1,10 @@
 #include "RegionRenderer.h"
 #include <Core/Constants.h>
+#include <Helper.h>
 
 RegionRenderer::RegionRenderer()
-    : mVertexShaderPath("Shaders/Region/VertexShader.vert")
-    , mFragmentShaderPath("Shaders/Region/FragmentShader.frag")
+    : mVertexShaderPath(":/Resources/Shaders/Region/VertexShader.vert")
+    , mFragmentShaderPath(":/Resources/Shaders/Region/FragmentShader.frag")
 {}
 
 bool RegionRenderer::init()
@@ -11,14 +12,14 @@ bool RegionRenderer::init()
     initializeOpenGLFunctions();
     mShader = new QOpenGLShaderProgram;
 
-    if (!mShader->addShaderFromSourceFile(QOpenGLShader::Vertex, mVertexShaderPath)) {
+    if (!mShader->addShaderFromSourceCode(QOpenGLShader::Vertex, Helper::getBytes(mVertexShaderPath))) {
         qCritical() << QString("Could not load '%1'. Error message is %2.").arg(mVertexShaderPath, mShader->log());
         return false;
     } else {
         qInfo() << QString("'%1' is loaded.").arg(mVertexShaderPath);
     }
 
-    if (!mShader->addShaderFromSourceFile(QOpenGLShader::Fragment, mFragmentShaderPath)) {
+    if (!mShader->addShaderFromSourceCode(QOpenGLShader::Fragment, Helper::getBytes(mFragmentShaderPath))) {
         qCritical() << QString("Could not load '%1'. Error message is %2.").arg(mFragmentShaderPath, mShader->log());
         return false;
     } else {

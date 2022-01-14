@@ -110,31 +110,31 @@ QFile ObjectData::getModelFile()
 {
     switch (mType) {
     case Object::Camera:
-        return QFile("Resources/Models/Camera.obj");
+        return QFile(":/Resources/Models/Camera.obj");
     case Object::Capsule:
-        return QFile("Resources/Models/Capsule.obj");
+        return QFile(":/Resources/Models/Capsule.obj");
     case Object::Cone:
-        return QFile("Resources/Models/Cone.obj");
+        return QFile(":/Resources/Models/Cone.obj");
     case Object::Cube:
-        return QFile("Resources/Models/Cube.obj");
+        return QFile(":/Resources/Models/Cube.obj");
     case Object::Cylinder:
-        return QFile("Resources/Models/Cylinder.obj");
+        return QFile(":/Resources/Models/Cylinder.obj");
     case Object::Dome:
-        return QFile("Resources/Models/Dome.obj");
+        return QFile(":/Resources/Models/Dome.obj");
     case Object::Plane:
-        return QFile("Resources/Models/Plane.obj");
+        return QFile(":/Resources/Models/Plane.obj");
     case Object::Pyramid:
-        return QFile("Resources/Models/Pyramid.obj");
+        return QFile(":/Resources/Models/Pyramid.obj");
     case Object::Sphere:
-        return QFile("Resources/Models/Sphere.obj");
+        return QFile(":/Resources/Models/Sphere.obj");
     case Object::Suzanne:
-        return QFile("Resources/Models/Suzanne.obj");
+        return QFile(":/Resources/Models/Suzanne.obj");
     case Object::Tetrahedron:
-        return QFile("Resources/Models/Tetrahedron.obj");
+        return QFile(":/Resources/Models/Tetrahedron.obj");
     case Object::Torus:
-        return QFile("Resources/Models/Torus.obj");
+        return QFile(":/Resources/Models/Torus.obj");
     case Object::TorusKnot:
-        return QFile("Resources/Models/TorusKnot.obj");
+        return QFile(":/Resources/Models/TorusKnot.obj");
     }
 }
 

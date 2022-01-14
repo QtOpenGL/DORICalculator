@@ -23,6 +23,7 @@ SOURCES += \
     GUI/SideViewWidget.cpp \
     GUI/TargetWidget.cpp \
     GUI/TopViewWidget.cpp \
+    Helper.cpp \
     Main.cpp \
     OpenGL/Camera.cpp \
     OpenGL/Data/ObjectData.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     GUI/SideViewWidget.h \
     GUI/TargetWidget.h \
     GUI/TopViewWidget.h \
+    Helper.h \
     OpenGL/Camera.h \
     OpenGL/Data/ObjectData.h \
     OpenGL/Data/RegionData.h \
@@ -67,12 +69,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES += \
-    Shaders/Line/FragmentShader.frag \
-    Shaders/Line/VertexShader.vert \
-    Shaders/Object/FragmentShader.frag \
-    Shaders/Object/VertexShader.vert \
-    Shaders/Region/FragmentShader.frag \
-    Shaders/Region/VertexShader.vert
+RESOURCES += \
+    Resources.qrc
 
 

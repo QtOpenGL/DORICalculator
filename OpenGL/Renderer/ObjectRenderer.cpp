@@ -1,8 +1,10 @@
 #include "ObjectRenderer.h"
 
+#include <Helper.h>
+
 ObjectRenderer::ObjectRenderer()
-    : mVertexShaderPath("Shaders/Object/VertexShader.vert")
-    , mFragmentShaderPath("Shaders/Object/FragmentShader.frag")
+    : mVertexShaderPath(":/Resources/Shaders/Object/VertexShader.vert")
+    , mFragmentShaderPath(":/Resources/Shaders/Object/FragmentShader.frag")
 {}
 
 bool ObjectRenderer::init()
@@ -10,14 +12,14 @@ bool ObjectRenderer::init()
     initializeOpenGLFunctions();
     mShader = new QOpenGLShaderProgram;
 
-    if (!mShader->addShaderFromSourceFile(QOpenGLShader::Vertex, mVertexShaderPath)) {
+    if (!mShader->addShaderFromSourceCode(QOpenGLShader::Vertex, Helper::getBytes(mVertexShaderPath))) {
         qCritical() << QString("Could not load '%1'. Error message is %2.").arg(mVertexShaderPath, mShader->log());
         return false;
     } else {
         qInfo() << QString("'%1' is loaded.").arg(mVertexShaderPath);
     }
 
-    if (!mShader->addShaderFromSourceFile(QOpenGLShader::Fragment, mFragmentShaderPath)) {
+    if (!mShader->addShaderFromSourceCode(QOpenGLShader::Fragment, Helper::getBytes(mFragmentShaderPath))) {
         qCritical() << QString("Could not load '%1'. Error message is %2.").arg(mFragmentShaderPath, mShader->log());
         return false;
     } else {

@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QFile file("Resources/style.qss");
+    QFile file(":/Resources/Style/Style.qss");
     if (file.open(QFile::ReadOnly)) {
         QString styleSheet = QLatin1String(file.readAll());
         qApp->setStyleSheet(styleSheet);
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
         qDebug() << "Could not find style sheet. Using the default one.";
     }
 
-    int id = QFontDatabase::addApplicationFont("Resources/Fonts/Ubuntu/Ubuntu-Regular.ttf");
+    int id = QFontDatabase::addApplicationFont(":/Resources/Fonts/Ubuntu/Ubuntu-Regular.ttf");
     if (id == -1) {
         QFont font = qApp->font();
         font.setPixelSize(12);
